@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="monitor">
+      <UniqueIdentifier>{c96ab4d1-2f10-42c3-840c-e500a600588f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="monitor\syscall">
+      <UniqueIdentifier>{5bb2db17-2730-4a63-936d-74fd68ad582c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="log">
+      <UniqueIdentifier>{3a74005a-d225-428e-87e5-f92b3b4fa7bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dbg">
+      <UniqueIdentifier>{7943c832-72f6-41b2-8d85-6a701f3a5a94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{c2dd85a2-aca4-47ce-bdf0-8b2296e0e8f3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="InstrumentationCallback.hpp">
+      <Filter>monitor\syscall</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>log</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="defs.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="callback.asm">
+      <Filter>monitor\syscall</Filter>
+    </MASM>
+  </ItemGroup>
+</Project>
