@@ -1,0 +1,11 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(ConsoleApplication2.vcxproj, SyscallWatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  Assembling callback.asm...
+  main.cpp
+C:\Users\SuperRong\Desktop\PJArk\pjwatch\dbg.h(181,12): warning C4305: “return”: 从“int”到“bool”截断
+C:\Users\SuperRong\Desktop\PJArk\pjwatch\pipe.h(31,31): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+    正在创建库 C:\Users\SuperRong\Desktop\PJArk\x64\Release\pjwatch.lib 和对象 C:\Users\SuperRong\Desktop\PJArk\x64\Release\pjwatch.exp
+  正在生成代码
+  Previous IPDB was built with incompatible compiler, fall back to full compilation.
+  All 162 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  pjwatch.vcxproj -> C:\Users\SuperRong\Desktop\PJArk\x64\Release\pjwatch.dll
