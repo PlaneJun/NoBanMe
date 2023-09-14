@@ -130,7 +130,7 @@ void Render_Process()
                         if (i == 2)
                         {
                             char caption[256]{};
-                            sprintf(caption, "Are you sure dbg target:%d ?", selected_processid);
+                            sprintf_s(caption, "Are you sure dbg target:%d ?", selected_processid);
                             if (MessageBoxA(NULL, caption, NULL, MB_OKCANCEL) == IDOK)
                             {
                                 if (!data::global::inject)
@@ -282,7 +282,7 @@ void Render_VehDebuger()
         for (int i = 0;i < 4;i++)
         {
             char check_title[100]{};
-            sprintf(check_title, u8"启用     Dr%d:", i);
+            sprintf_s(check_title, u8"启用     Dr%d:", i);
             if (config::dbg::Dr[i].statue == 0)
                 ImGui::BeginDisabled();
             ImGui::Checkbox(check_title, &config::dbg::Dr[i].active); ImGui::SameLine();
@@ -290,27 +290,27 @@ void Render_VehDebuger()
                 ImGui::EndDisabled();
 
             char input_title[100]{};
-            sprintf(input_title, "##input_dr%d", i);
+            sprintf_s(input_title, "##input_dr%d", i);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.3);
             ImGui::InputTextWithHint(input_title, "adrress", config::dbg::Dr[i].addr, 1024); ImGui::SameLine();
             ImGui::PopItemWidth();
 
             ImGui::Text(u8"类型:");ImGui::SameLine();
             char combo_type_title[100]{};
-            sprintf(combo_type_title, "##combot_type_dr%d", i);
+            sprintf_s(combo_type_title, "##combot_type_dr%d", i);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.2);
             ImGui::Combo(combo_type_title, &config::dbg::Dr[i].type, dr_type, IM_ARRAYSIZE(dr_type));ImGui::SameLine();
             ImGui::PopItemWidth();
 
             ImGui::Text(u8"大小:");ImGui::SameLine();
             char combo_size_title[100]{};
-            sprintf(combo_size_title, "##combot_size_dr%d", i);
+            sprintf_s(combo_size_title, "##combot_size_dr%d", i);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.2);
             ImGui::Combo(combo_size_title, &config::dbg::Dr[i].size, dr_size, IM_ARRAYSIZE(dr_size));ImGui::SameLine();
             ImGui::PopItemWidth();
 
             char button_id[100]{};
-            sprintf(button_id, "btn_dr%d", i);
+            sprintf_s(button_id, "btn_dr%d", i);
             ImGui::PushID(button_id);
             if (ImGui::Button(dr_statue[config::dbg::Dr[i].statue].c_str()))
             {
@@ -328,7 +328,7 @@ void Render_VehDebuger()
             for (int i = 0;i < 4;i++)
             {
                 char buf[10]{};
-                sprintf(buf, "Dr%d", i);
+                sprintf_s(buf, "Dr%d", i);
                 if (ImGui::BeginTabItem(buf))
                 {
                     config::dbg::curtChoose = i;
@@ -482,25 +482,21 @@ void Render_ThreadWindow(bool* show,uint32_t pid)
     static const std::vector<std::string> headers = { u8"线程ID",u8"线程入口" ,u8"优先级" };
     if (*show)
     {
-        char title[256]{};
-        if (ImGui::Begin(u8"线程列表", show,ImGuiWindowFlags_NoCollapse))
+        ImGui::Begin(u8"线程列表", show, ImGuiWindowFlags_NoCollapse);
+        if (items.size() <= 0)
+            utils::EnumPidThread(pid, items);
+
+        std::vector<std::vector<std::string>> text{};
+        for (auto i : items)
         {
-
-            if (items.size() <= 0)
-                utils::EnumPidThread(pid, items);
-
-            std::vector<std::vector<std::string>> text{};
-            for (auto i : items)
-            {
-                std::vector<std::string> tmp{};
-                tmp.push_back(std::to_string(i.GetThreadId()));
-                tmp.push_back("0x" + utils::IntegerTohex(i.GetThreadEntry()));
-                tmp.push_back(std::to_string(i.GetPrority()));
-                text.push_back(tmp);
-            }
-            render::get_instasnce()->AddListBox("##thread_list", selected, 1, headers, text);
-            ImGui::End();
+            std::vector<std::string> tmp{};
+            tmp.push_back(std::to_string(i.GetThreadId()));
+            tmp.push_back("0x" + utils::IntegerTohex(i.GetThreadEntry()));
+            tmp.push_back(std::to_string(i.GetPrority()));
+            text.push_back(tmp);
         }
+        render::get_instasnce()->AddListBox("##thread_list", selected, 1, headers, text);
+        ImGui::End();
     }
     else
     {
@@ -515,25 +511,21 @@ void Render_ExceptionWindow(bool* show, uint32_t pid)
     static const std::vector<std::string> headers = { u8"入口",u8"模块路径",u8"类型"};
     if (*show)
     {
-        char title[256]{};
-        if (ImGui::Begin(u8"异常回调列表", show, ImGuiWindowFlags_NoCollapse))
+        ImGui::Begin(u8"异常回调列表", show, ImGuiWindowFlags_NoCollapse);
+        if (items.size() <= 0)
+            utils::EnumVehHandler(pid, items);
+
+        std::vector<std::vector<std::string>> text{};
+        for (auto i : items)
         {
-
-            if (items.size() <= 0)
-                utils::EnumVehHandler(pid, items);
-
-            std::vector<std::vector<std::string>> text{};
-            for (auto i : items)
-            {
-                std::vector<std::string> tmp{};
-                tmp.push_back("0x" + utils::IntegerTohex(i.GetEntry()));
-                tmp.push_back(utils::string_To_UTF8(i.GetModulePath()));
-                tmp.push_back(i.IsVeh()?u8"VEH Exception":u8"VEH Continue");
-                text.push_back(tmp);
-            }
-            render::get_instasnce()->AddListBox("##thread_list", selected, 1, headers, text);
-            ImGui::End();
+            std::vector<std::string> tmp{};
+            tmp.push_back("0x" + utils::IntegerTohex(i.GetEntry()));
+            tmp.push_back(utils::string_To_UTF8(i.GetModulePath()));
+            tmp.push_back(i.IsVeh()?u8"VEH Exception":u8"VEH Continue");
+            text.push_back(tmp);
         }
+        render::get_instasnce()->AddListBox("##veh_list", selected, 1, headers, text);
+        ImGui::End();
     }
     else
     {
@@ -543,14 +535,14 @@ void Render_ExceptionWindow(bool* show, uint32_t pid)
 }
 
 
-void OnGui(uint32_t w, uint32_t h)
+void OnGui(float w,float h)
 {
     if (ImGui::Begin("main", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse))
     {
         ImGuiStyle& style = ImGui::GetStyle();
         style.TabRounding = 0.f;
         ImGui::SetWindowPos("main", { 0,0 });
-        ImGui::SetWindowSize("main", ImVec2(w, h));
+        ImGui::SetWindowSize("main", {w,h});
         ImGuiTheme::ApplyTheme(ImGuiTheme::ImGuiTheme_MaterialFlat);
         if (ImGui::BeginTabBar("Main_Tabls", ImGuiTabBarFlags_None))
         {
@@ -773,7 +765,7 @@ void OnIPC(DWORD* a)
                             //find breakpoint,because the dr-break is interrupt at next line
                             if (disam[i][0] == "0x" + utils::IntegerTohex(pDbg->ctx.Rip))
                             {
-                                strcpy(pDbg->disassembly, disam[i - 1][2].c_str());
+                                strcpy_s(pDbg->disassembly, disam[i - 1][2].c_str());
                                 //fix rip to real-rip
                                 curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i - 1][0],1 ,disam };
                                 break;

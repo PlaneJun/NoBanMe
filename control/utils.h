@@ -241,7 +241,7 @@ namespace utils
 					if (GetProcessTimes(hProc, &ftCreation, &ftExit, &ftKernel, &ftUser)) {
 						FileTimeToSystemTime(&ftCreation, &stCreation);
 						SystemTimeToTzSpecificLocalTime(NULL, &stCreation, &lstCreation);
-						sprintf(startuptime,"%04d-%02d-%02d %02d:%02d:%02d", lstCreation.wYear, lstCreation.wMonth, lstCreation.wDay, lstCreation.wHour, lstCreation.wMinute, lstCreation.wSecond);
+						sprintf_s(startuptime,"%04d-%02d-%02d %02d:%02d:%02d", lstCreation.wYear, lstCreation.wMonth, lstCreation.wDay, lstCreation.wHour, lstCreation.wMinute, lstCreation.wSecond);
 					}
 					IsWow64Process(hProc,&bIsWow64);
 					CloseHandle(hProc);
@@ -327,8 +327,6 @@ namespace utils
 
 			PLIST_ENTRY startLink{};
 			PLIST_ENTRY currentLink{};
-			ULONG64 decode_vehHandler{};
-
 
 			VehHandlerItem::RTL_VECTORED_HANDLER_LIST* vectorPtr=new VehHandlerItem::RTL_VECTORED_HANDLER_LIST();
 			ReadProcessMemory(process,(PVOID)LdrpVectorHandlerList,vectorPtr,sizeof(VehHandlerItem::RTL_VECTORED_HANDLER_LIST),NULL);
@@ -354,7 +352,7 @@ namespace utils
 				uint32_t ret = lpNtQueryInformationProcess(process, 36, &ProcessInformation, 4, 0);
 				if (ret >= 0)
 				{
-					if (!isWow64)
+					if (isWow64)
 					{
 						decode_ptr =  ProcessInformation^ __ROR4__(key, 32 - (ProcessInformation & 0x1F));
 					}
@@ -365,11 +363,11 @@ namespace utils
 				}
 
 				MEMORY_BASIC_INFORMATION m = { 0 };
-				VirtualQueryEx(process, (PVOID)decode_vehHandler ,&m, sizeof(MEMORY_BASIC_INFORMATION));
+				VirtualQueryEx(process, (PVOID)decode_ptr,&m, sizeof(MEMORY_BASIC_INFORMATION));
 				char module_path[MAX_PATH]{};
 				if ((uint64_t)m.AllocationBase > 0)
 					GetModuleFileNameExA(process, (HMODULE)m.AllocationBase, module_path,MAX_PATH);
-				items.push_back(VehHandlerItem(decode_vehHandler, module_path, exception));
+				items.push_back(VehHandlerItem(decode_ptr, module_path, exception));
 				currentLink = addressOfEntry->List.Flink;
 
 				i++;

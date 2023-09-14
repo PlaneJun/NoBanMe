@@ -88,8 +88,8 @@ private:
         case WM_SIZE:
             if (wParam == SIZE_MINIMIZED)
                 return 0;
-            ResizeWidth_ = (UINT)LOWORD(lParam);
-            ResizeHeight_ = (UINT)HIWORD(lParam);
+            ResizeWidth_ = lParam & 0xFFFF;
+            ResizeHeight_ = (lParam & ~0xFFFF) >> 16;
             return 0;
         case WM_DESTROY:
             ::PostQuitMessage(0);
@@ -109,7 +109,7 @@ public:
         return instance_;
     }
 
-    bool CreatGui(const wchar_t* title,const wchar_t* classname, uint32_t w,uint32_t h,void(* cb)(uint32_t,uint32_t))
+    bool CreatGui(const wchar_t* title,const wchar_t* classname, uint32_t w,uint32_t h,void(* cb)(float w,float h))
     {
         ResizeWidth_ = w;
         ResizeHeight_ = h;
@@ -318,5 +318,6 @@ public:
 render* render::instance_ = NULL;
 uint32_t render::ResizeWidth_ = 0;
 uint32_t render::ResizeHeight_ = 0;
+
 
 

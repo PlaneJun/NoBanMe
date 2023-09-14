@@ -164,7 +164,7 @@ std::string Md5(PVOID buffer, ULONG bufferLen)
 	for (size_t i = 0; i < 16; i++)
 	{
 		char ch[4] = { 0 };
-		sprintf(ch, "%02x", raw[i]);
+		sprintf_s(ch, "%02x", raw[i]);
 		res += ch;
 	}
 

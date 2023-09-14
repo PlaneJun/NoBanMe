@@ -21,7 +21,7 @@ public:
         LIST_ENTRY ContinueList;
     } RTL_VECTORED_HANDLER_LIST, * PRTL_VECTORED_HANDLER_LIST;
 
-#pragma pack(4) 
+
     typedef struct _RTL_VECTORED_EXCEPTION_ENTRY
     {
         LIST_ENTRY List;
@@ -29,7 +29,7 @@ public:
         ULONG RefCount;
         PVECTORED_EXCEPTION_HANDLER VectoredHandler;
     } RTL_VECTORED_EXCEPTION_ENTRY, * PRTL_VECTORED_EXCEPTION_ENTRY;
-#pragma pack()
+
 
 public:
 
