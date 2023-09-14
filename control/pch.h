@@ -10,6 +10,7 @@
 #include <Zydis.h>
 #include <gdiplus.h>
 #include <DbgHelp.h>
+#include <atlconv.h>
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>

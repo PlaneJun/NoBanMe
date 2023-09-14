@@ -109,7 +109,15 @@ void Render_Process()
                 {
                     if (ImGui::Selectable(proc_option[i]))
                     {
-
+                        if (i == 0)
+                        {
+                            HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, selected_processid);
+                            if (handLe)
+                            {
+                                TerminateProcess(handLe, 0);
+                                CloseHandle(handLe);
+                            }
+                        }
                     }
                 }
                 ImGui::Separator();
@@ -282,12 +290,15 @@ void Render_VehDebuger()
         {
             char check_title[100]{};
             sprintf_s(check_title, u8"启用     Dr%d:", i);
-            if (config::dbg::Dr[i].statue == 0)
+            if (config::dbg::Dr[i].statue == 0)//未添加断点时不可启用
                 ImGui::BeginDisabled();
             ImGui::Checkbox(check_title, &config::dbg::Dr[i].active); ImGui::SameLine();
             if (config::dbg::Dr[i].statue == 0)
                 ImGui::EndDisabled();
 
+            //启用时,不可修改地址、类型、大小
+            if (config::dbg::Dr[i].active)
+                ImGui::BeginDisabled();
             char input_title[100]{};
             sprintf_s(input_title, "##input_dr%d", i);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.3);
@@ -307,7 +318,8 @@ void Render_VehDebuger()
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.2);
             ImGui::Combo(combo_size_title, &config::dbg::Dr[i].size, dr_size, IM_ARRAYSIZE(dr_size));ImGui::SameLine();
             ImGui::PopItemWidth();
-
+            if (config::dbg::Dr[i].active)
+                ImGui::EndDisabled();
             char button_id[100]{};
             sprintf_s(button_id, "btn_dr%d", i);
             ImGui::PushID(button_id);
@@ -746,6 +758,10 @@ void OnIPC(DWORD* a)
                 {
                     Debugger::PDbgBreakInfo pDbg = reinterpret_cast<Debugger::PDbgBreakInfo>(buff);
                     auto& curtData = Debugger::GetDbgInfoRef(pDbg->id);
+                    //如果为执行断点，关闭启用选项
+                    if (config::dbg::Dr[pDbg->id].type == 0)
+                        config::dbg::Dr[pDbg->id].statue = 0;
+
                     if (curtData.capture.count(pDbg->ctx.Rip) <= 0)
                     {
                         uint32_t aglim = (pDbg->region_size & 0xfffff000) + 0x1000;

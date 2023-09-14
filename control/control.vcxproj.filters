@@ -146,9 +146,6 @@
     <ClInclude Include="thread.h">
       <Filter>process</Filter>
     </ClInclude>
-    <ClInclude Include="debugger.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
     <ClInclude Include="process\vehhandler.h">
       <Filter>process</Filter>
     </ClInclude>
@@ -157,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="defs.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="debugger\debugger.h">
+      <Filter>debugger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

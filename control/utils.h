@@ -271,8 +271,9 @@ namespace utils
 			bool bprocess = Module32First(hSnapshot_proc, &me32);
 			while (bprocess)
 			{
-				std::wstring wtmp(me32.szExePath);
-				std::string fullPath(wtmp.begin(), wtmp.end());
+				USES_CONVERSION;
+				char fullPath[MAX_PATH]{};
+				lstrcpyA(fullPath, OLE2A(me32.szExePath));
 				items.push_back(ModuleItem( fullPath,(uint64_t)me32.modBaseAddr,me32.modBaseSize ));
 				bprocess = Module32Next(hSnapshot_proc, &me32);
 			}

@@ -1,139 +1,122 @@
 ﻿  main.cpp
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,1): warning C4005: “DXGI_STATUS_OCCLUDED”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58064): message : 参见“DXGI_STATUS_OCCLUDED”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58064,1): message : 参见“DXGI_STATUS_OCCLUDED”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,1): warning C4005: “DXGI_STATUS_CLIPPED”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58073): message : 参见“DXGI_STATUS_CLIPPED”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58073,1): message : 参见“DXGI_STATUS_CLIPPED”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,1): warning C4005: “DXGI_STATUS_NO_REDIRECTION”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58082): message : 参见“DXGI_STATUS_NO_REDIRECTION”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58082,1): message : 参见“DXGI_STATUS_NO_REDIRECTION”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,1): warning C4005: “DXGI_STATUS_NO_DESKTOP_ACCESS”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58091): message : 参见“DXGI_STATUS_NO_DESKTOP_ACCESS”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58091,1): message : 参见“DXGI_STATUS_NO_DESKTOP_ACCESS”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,1): warning C4005: “DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58100): message : 参见“DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58100,1): message : 参见“DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,1): warning C4005: “DXGI_STATUS_MODE_CHANGED”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58109): message : 参见“DXGI_STATUS_MODE_CHANGED”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58109,1): message : 参见“DXGI_STATUS_MODE_CHANGED”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,1): warning C4005: “DXGI_STATUS_MODE_CHANGE_IN_PROGRESS”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58118): message : 参见“DXGI_STATUS_MODE_CHANGE_IN_PROGRESS”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58118,1): message : 参见“DXGI_STATUS_MODE_CHANGE_IN_PROGRESS”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,1): warning C4005: “DXGI_ERROR_INVALID_CALL”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58133): message : 参见“DXGI_ERROR_INVALID_CALL”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58133,1): message : 参见“DXGI_ERROR_INVALID_CALL”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,1): warning C4005: “DXGI_ERROR_NOT_FOUND”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58142): message : 参见“DXGI_ERROR_NOT_FOUND”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58142,1): message : 参见“DXGI_ERROR_NOT_FOUND”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,1): warning C4005: “DXGI_ERROR_MORE_DATA”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58151): message : 参见“DXGI_ERROR_MORE_DATA”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58151,1): message : 参见“DXGI_ERROR_MORE_DATA”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,1): warning C4005: “DXGI_ERROR_UNSUPPORTED”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58160): message : 参见“DXGI_ERROR_UNSUPPORTED”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58160,1): message : 参见“DXGI_ERROR_UNSUPPORTED”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,1): warning C4005: “DXGI_ERROR_DEVICE_REMOVED”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58169): message : 参见“DXGI_ERROR_DEVICE_REMOVED”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58169,1): message : 参见“DXGI_ERROR_DEVICE_REMOVED”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,1): warning C4005: “DXGI_ERROR_DEVICE_HUNG”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58178): message : 参见“DXGI_ERROR_DEVICE_HUNG”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58178,1): message : 参见“DXGI_ERROR_DEVICE_HUNG”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,1): warning C4005: “DXGI_ERROR_DEVICE_RESET”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58188): message : 参见“DXGI_ERROR_DEVICE_RESET”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58188,1): message : 参见“DXGI_ERROR_DEVICE_RESET”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,1): warning C4005: “DXGI_ERROR_WAS_STILL_DRAWING”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58197): message : 参见“DXGI_ERROR_WAS_STILL_DRAWING”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58197,1): message : 参见“DXGI_ERROR_WAS_STILL_DRAWING”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,1): warning C4005: “DXGI_ERROR_FRAME_STATISTICS_DISJOINT”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58207): message : 参见“DXGI_ERROR_FRAME_STATISTICS_DISJOINT”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58207,1): message : 参见“DXGI_ERROR_FRAME_STATISTICS_DISJOINT”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,1): warning C4005: “DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58216): message : 参见“DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58216,1): message : 参见“DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,1): warning C4005: “DXGI_ERROR_DRIVER_INTERNAL_ERROR”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226): message : 参见“DXGI_ERROR_DRIVER_INTERNAL_ERROR”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,1): message : 参见“DXGI_ERROR_DRIVER_INTERNAL_ERROR”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,1): warning C4005: “DXGI_ERROR_NONEXCLUSIVE”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235): message : 参见“DXGI_ERROR_NONEXCLUSIVE”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,1): message : 参见“DXGI_ERROR_NONEXCLUSIVE”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,1): warning C4005: “DXGI_ERROR_NOT_CURRENTLY_AVAILABLE”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244): message : 参见“DXGI_ERROR_NOT_CURRENTLY_AVAILABLE”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,1): message : 参见“DXGI_ERROR_NOT_CURRENTLY_AVAILABLE”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,1): warning C4005: “DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58254): message : 参见“DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58254,1): message : 参见“DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,1): warning C4005: “DXGI_ERROR_REMOTE_OUTOFMEMORY”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58263): message : 参见“DXGI_ERROR_REMOTE_OUTOFMEMORY”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58263,1): message : 参见“DXGI_ERROR_REMOTE_OUTOFMEMORY”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,1): warning C4005: “D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58569): message : 参见“D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58569,1): message : 参见“D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,1): warning C4005: “D3D11_ERROR_FILE_NOT_FOUND”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58578): message : 参见“D3D11_ERROR_FILE_NOT_FOUND”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58578,1): message : 参见“D3D11_ERROR_FILE_NOT_FOUND”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,1): warning C4005: “D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58588): message : 参见“D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58588,1): message : 参见“D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,1): warning C4005: “D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58597): message : 参见“D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58597,1): message : 参见“D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,1): warning C4005: “D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58545): message : 参见“D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS”的前一个定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58545,1): message : 参见“D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS”的前一个定义
 C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,1): warning C4005: “D3D10_ERROR_FILE_NOT_FOUND”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58554): message : 参见“D3D10_ERROR_FILE_NOT_FOUND”的前一个定义
-D:\Code\C_C++\pjwatch\control\defs.h(114,1): warning C4005: “LOBYTE”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(206): message : 参见“LOBYTE”的前一个定义
-D:\Code\C_C++\pjwatch\control\defs.h(115,1): warning C4005: “LOWORD”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(204): message : 参见“LOWORD”的前一个定义
-D:\Code\C_C++\pjwatch\control\defs.h(117,1): warning C4005: “HIBYTE”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(207): message : 参见“HIBYTE”的前一个定义
-D:\Code\C_C++\pjwatch\control\defs.h(118,1): warning C4005: “HIWORD”: 宏重定义
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(205): message : 参见“HIWORD”的前一个定义
-D:\Code\C_C++\pjwatch\control\pipe.h(38,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\imgui\render.h(198,34): warning C4244: “参数”: 从“uint32_t”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\imgui\render.h(198,20): warning C4244: “参数”: 从“uint32_t”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\imgui\render.h(223,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\imgui\render.h(254,1): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\process\module.h(43,54): warning C4244: “=”: 从“const uint64_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\process\module.h(44,1): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\process\thread.h(44,68): warning C4244: “=”: 从“uint64_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\process\vehhandler.h(63,62): warning C4244: “=”: 从“uint64_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\process\vehhandler.h(73,27): warning C4244: “return”: 从“uint64_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\utils.h(45,75): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\utils.h(357,50): warning C4244: “参数”: 从“uint64_t”转换到“uint32”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\utils.h(406,28): warning C4267: “=”: 从“size_t”转换到“DWORD”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\utils\pattern.h(35,45): warning C4244: “参数”: 从“ULONG64”转换到“DWORD”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(20,113): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(46,40): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(225,40): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(232,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(293,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(300,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(307,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(339,127): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(339,86): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(376,132): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(376,91): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(410,128): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(410,87): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(456,83): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\SoftWare\Microsoft Visual Studio\Visual Studio\VC\Tools\MSVC\14.28.29910\include\xstring(2468,23): warning C4244: “参数”: 从“wchar_t”转换到“const _Elem”，可能丢失数据
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58554,1): message : 参见“D3D10_ERROR_FILE_NOT_FOUND”的前一个定义
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\defs.h(114,1): warning C4005: “LOBYTE”: 宏重定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(206,1): message : 参见“LOBYTE”的前一个定义
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\defs.h(115,1): warning C4005: “LOWORD”: 宏重定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(204,1): message : 参见“LOWORD”的前一个定义
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\defs.h(117,1): warning C4005: “HIBYTE”: 宏重定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(207,1): message : 参见“HIBYTE”的前一个定义
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\defs.h(118,1): warning C4005: “HIWORD”: 宏重定义
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(205,1): message : 参见“HIWORD”的前一个定义
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\pipe.h(38,31): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\imgui\render.h(198,34): warning C4244: “参数”: 从“uint32_t”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\imgui\render.h(198,20): warning C4244: “参数”: 从“uint32_t”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\imgui\render.h(223,36): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\imgui\render.h(254,36): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\process\module.h(43,54): warning C4244: “=”: 从“const uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\process\module.h(44,55): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\process\thread.h(44,68): warning C4244: “=”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\process\vehhandler.h(63,62): warning C4244: “=”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\process\vehhandler.h(73,27): warning C4244: “return”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\utils.h(45,59): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\utils.h(357,50): warning C4244: “参数”: 从“uint64_t”转换到“uint32”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\utils.h(406,25): warning C4267: “=”: 从“size_t”转换到“DWORD”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\utils\pattern.h(35,45): warning C4244: “参数”: 从“ULONG64”转换到“DWORD”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(20,113): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(46,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(233,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(240,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(304,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(311,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(318,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(351,127): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(351,86): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(388,132): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(388,91): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(422,128): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(422,87): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(468,83): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.38.32919\include\xstring(2728,53): warning C4244: “参数”: 从“wchar_t”转换到“const _Elem”，可能丢失数据
           with
           [
               _Elem=char
           ]
-D:\SoftWare\Microsoft Visual Studio\Visual Studio\VC\Tools\MSVC\14.28.29910\include\xstring(2479): message : 查看对正在编译的函数 模板 实例化“void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct<wchar_t*>(_Iter,const _Iter,std::input_iterator_tag)”的引用
-          with
-          [
-              _Iter=wchar_t *
-          ]
-D:\SoftWare\Microsoft Visual Studio\Visual Studio\VC\Tools\MSVC\14.28.29910\include\xstring(2479): message : 查看对正在编译的函数 模板 实例化“void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct<wchar_t*>(_Iter,const _Iter,std::input_iterator_tag)”的引用
-          with
-          [
-              _Iter=wchar_t *
-          ]
-D:\SoftWare\Microsoft Visual Studio\Visual Studio\VC\Tools\MSVC\14.28.29910\include\xstring(2459): message : 查看对正在编译的函数 模板 实例化“void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct<wchar_t*>(const _Iter,const _Iter,std::forward_iterator_tag)”的引用
-          with
-          [
-              _Iter=wchar_t *
-          ]
-D:\SoftWare\Microsoft Visual Studio\Visual Studio\VC\Tools\MSVC\14.28.29910\include\xstring(2459): message : 查看对正在编译的函数 模板 实例化“void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct<wchar_t*>(const _Iter,const _Iter,std::forward_iterator_tag)”的引用
-          with
-          [
-              _Iter=wchar_t *
-          ]
-D:\Code\C_C++\pjwatch\control\utils.h(231): message : 查看对正在编译的函数 模板 实例化“std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string<std::_String_iterator<std::_String_val<std::_Simple_types<_Elem>>>,0>(_Iter,_Iter,const _Alloc &)”的引用
+C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.38.32919\include\xstring(2728,53): message : 模板实例化上下文(最早的实例化上下文)为
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\utils.h(231,25): message : 查看对正在编译的函数 模板 实例化“std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string<std::_String_iterator<std::_String_val<std::_Simple_types<_Elem>>>,0>(_Iter,_Iter,const _Alloc &)”的引用
           with
           [
               _Elem=wchar_t,
               _Iter=std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>,
               _Alloc=std::allocator<char>
           ]
-D:\Code\C_C++\pjwatch\control\utils.h(231): message : 查看对正在编译的函数 模板 实例化“std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string<std::_String_iterator<std::_String_val<std::_Simple_types<_Elem>>>,0>(_Iter,_Iter,const _Alloc &)”的引用
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\utils.h(231,25): message : 请参阅 "utils::EnumCurtAllProcess" 中对 "std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string" 的第一个引用
+C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.38.32919\include\xstring(2584,17): message : 查看对正在编译的函数 模板 实例化“void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct_from_iter<wchar_t*,wchar_t*,_Size_type>(_Iter,const _Sent,_Size)”的引用
           with
           [
-              _Elem=wchar_t,
-              _Iter=std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>,
-              _Alloc=std::allocator<char>
+              _Size_type=unsigned __int64,
+              _Iter=wchar_t *,
+              _Sent=wchar_t *,
+              _Size=unsigned __int64
           ]
-    正在创建库 D:\Code\C_C++\pjwatch\x64\Release\control.lib 和对象 D:\Code\C_C++\pjwatch\x64\Release\control.exp
+    正在创建库 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Release\control.lib 和对象 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Release\control.exp
   正在生成代码
-  3 of 3702 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  1 of 3699 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    47 functions had inline decision re-evaluated but remain unchanged
+    49 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  control.vcxproj -> D:\Code\C_C++\pjwatch\x64\Release\control.exe
+  control.vcxproj -> C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Release\control.exe

@@ -49,6 +49,20 @@ namespace dbg
 			{
 				if (callback)
 					callback(index, hbk_list[index].first.address, ExceptionInfo->ContextRecord);
+
+				if (hbk_list[index].first.type == DBG_TYPE::TYPE_EXECUTE)
+				{
+					//取消断点
+					if (index == 0)
+						ExceptionInfo->ContextRecord->Dr7 &= ~1;
+					else if (index == 1)
+							ExceptionInfo->ContextRecord->Dr7 &= ~2;
+					else if (index == 2)
+						ExceptionInfo->ContextRecord->Dr7 &= ~0x10;
+					else if (index == 3)
+						ExceptionInfo->ContextRecord->Dr7 &= ~0x40;
+				}
+					
 			}		
 			return EXCEPTION_CONTINUE_EXECUTION;
 		}
@@ -101,13 +115,18 @@ namespace dbg
 
 		//给所有线程都下断点
 		HANDLE hThreadShot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
-		THREADENTRY32* threadInfo = new THREADENTRY32;
-		threadInfo->dwSize = sizeof(THREADENTRY32);
-		while (Thread32Next(hThreadShot, threadInfo) != FALSE)
+		THREADENTRY32 threadInfo{};
+		threadInfo.dwSize = sizeof(THREADENTRY32);
+		if (!Thread32First(hThreadShot, &threadInfo))
 		{
-			if (GetCurrentProcessId() == threadInfo->th32OwnerProcessID)
+			CloseHandle(hThreadShot);     // 必须在使用后清除快照对象!
+			return -1;
+		}
+		do
+		{
+			if (GetCurrentThreadId()!= threadInfo.th32ThreadID  && GetCurrentProcessId() == threadInfo.th32OwnerProcessID)
 			{
-				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadInfo->th32ThreadID);
+				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadInfo.th32ThreadID);
 				SuspendThread(hThread);
 				CONTEXT ctx{};
 				ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS | CONTEXT_FULL;//设置线程上下文的类型
@@ -153,16 +172,15 @@ namespace dbg
 				set_bits(ctx.Dr7, 16 + dr_index * 4, 2, st);
 				set_bits(ctx.Dr7, 18 + dr_index * 4, 2, le);
 				set_bits(ctx.Dr7, dr_index * 2, 1, 1);
-				//ctx.Dr7 = 1;
+				//printf("%p\n",ctx.Dr7);
 				if (!SetThreadContext(hThread, &ctx))
 				{
 					return -4;
 				}
 				ResumeThread(hThread);
 				CloseHandle(hThread);
-				
 			}
-		}
+		}while (Thread32Next(hThreadShot, &threadInfo));
 		CloseHandle(hThreadShot);
 		hbk_list[dr_index] = { { dr_index ,type ,len,addr},false };
 		return dr_index;
@@ -174,13 +192,18 @@ namespace dbg
 			return false;
 
 		HANDLE hThreadShot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
-		THREADENTRY32* threadInfo = new THREADENTRY32;
-		threadInfo->dwSize = sizeof(THREADENTRY32);
-		while (Thread32Next(hThreadShot, threadInfo) != FALSE)
+		THREADENTRY32 threadInfo{};
+		threadInfo.dwSize = sizeof(THREADENTRY32);
+		if (!Thread32First(hThreadShot, &threadInfo))
 		{
-			if (GetCurrentProcessId() == threadInfo->th32OwnerProcessID)
+			CloseHandle(hThreadShot);     // 必须在使用后清除快照对象!
+			return false;
+		}
+		do
+		{
+			if (GetCurrentThreadId() != threadInfo.th32ThreadID && GetCurrentProcessId() == threadInfo.th32OwnerProcessID)
 			{
-				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadInfo->th32ThreadID);
+				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadInfo.th32ThreadID);
 				SuspendThread(hThread);
 
 				CONTEXT ctx{};
@@ -220,7 +243,7 @@ namespace dbg
 				ResumeThread(hThread);
 				CloseHandle(hThread);
 			}
-		}
+		} while (Thread32Next(hThreadShot, &threadInfo));
 		hbk_list[dr_index] = { {},false };
 		return true;
 	}

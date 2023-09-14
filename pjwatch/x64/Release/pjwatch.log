@@ -1,11 +1,10 @@
-﻿D:\SoftWare\Microsoft Visual Studio\Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(ConsoleApplication2.vcxproj, SyscallWatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+﻿C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(ConsoleApplication2.vcxproj, SyscallWatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
   main.cpp
-D:\Code\C_C++\pjwatch\pjwatch\dbg.h(36,11): warning C4477: “printf”: 格式字符串“%p”需要类型“void *”的参数，但可变参数 1 拥有了类型“DWORD64”
-D:\Code\C_C++\pjwatch\pjwatch\pipe.h(31,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
-    正在创建库 D:\Code\C_C++\pjwatch\x64\Release\pjwatch.lib 和对象 D:\Code\C_C++\pjwatch\x64\Release\pjwatch.exp
+C:\Users\SuperRong\Desktop\Todo\PJArk\pjwatch\pipe.h(31,31): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+    正在创建库 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Release\pjwatch.lib 和对象 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Release\pjwatch.exp
   正在生成代码
-  5 of 153 functions ( 3.3%) were compiled, the rest were copied from previous compilation.
+  3 of 160 functions ( 1.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  pjwatch.vcxproj -> D:\Code\C_C++\pjwatch\x64\Release\pjwatch.dll
+  pjwatch.vcxproj -> C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Release\pjwatch.dll
