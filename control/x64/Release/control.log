@@ -79,18 +79,18 @@ D:\Code\C_C++\pjwatch\control\utils.h(406,28): warning C4267: “=”: 从“siz
 D:\Code\C_C++\pjwatch\control\utils\pattern.h(35,45): warning C4244: “参数”: 从“ULONG64”转换到“DWORD”，可能丢失数据
 D:\Code\C_C++\pjwatch\control\main.cpp(20,113): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
 D:\Code\C_C++\pjwatch\control\main.cpp(46,40): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(226,40): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(233,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(294,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(301,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(308,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(340,127): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(340,86): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(377,132): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(377,91): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(411,128): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(411,87): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\Code\C_C++\pjwatch\control\main.cpp(457,83): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(225,40): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(232,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(293,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(300,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(307,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(339,127): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(339,86): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(376,132): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(376,91): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(410,128): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(410,87): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\Code\C_C++\pjwatch\control\main.cpp(456,83): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
 D:\SoftWare\Microsoft Visual Studio\Visual Studio\VC\Tools\MSVC\14.28.29910\include\xstring(2468,23): warning C4244: “参数”: 从“wchar_t”转换到“const _Elem”，可能丢失数据
           with
           [
@@ -132,8 +132,8 @@ D:\Code\C_C++\pjwatch\control\utils.h(231): message : 查看对正在编译的�
           ]
     正在创建库 D:\Code\C_C++\pjwatch\x64\Release\control.lib 和对象 D:\Code\C_C++\pjwatch\x64\Release\control.exp
   正在生成代码
-  1 of 3702 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  3 of 3702 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    48 functions had inline decision re-evaluated but remain unchanged
+    47 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   control.vcxproj -> D:\Code\C_C++\pjwatch\x64\Release\control.exe

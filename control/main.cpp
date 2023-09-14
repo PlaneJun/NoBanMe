@@ -160,7 +160,6 @@ void Render_Process()
                                 {
                                     ControlCmd cmd{};
                                     cmd.cmd = ECMD::InitDbg;
-                                    cmd.threadid = tid;
                                     if (!utils::CallFunction(cmd))
                                         MessageBoxA(NULL, "Init Dbg Failed!", NULL, NULL);
                                     else

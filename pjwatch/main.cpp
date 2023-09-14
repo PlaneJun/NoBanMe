@@ -104,14 +104,14 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 		}	
 		case InitDbg:
 		{
-			dbg::init(cmd->threadid);
+			dbg::init();
 			dbg::set_callback(ExceptionCb);
 			break;
 		}
 		case SetDrBreak:
 		{
 			int i = dbg::set_break(cmd->dr_index,cmd->hardbread.addr, cmd->hardbread.size, cmd->hardbread.type);
-			printf("%d\n",i);
+			//printf("%d\n",i);
 			break;
 		}
 		case UnSetDrBreak:
@@ -142,13 +142,13 @@ void OnStart()
 	freopen_s((_iobuf**)__acrt_iob_func(1), "conout$", "w", (_iobuf*)__acrt_iob_func(1));
 	freopen_s((_iobuf**)__acrt_iob_func(2), "conout$", "w", (_iobuf*)__acrt_iob_func(2));
 	{
-		//auto hwnd = FindWindowA("UnrealWindow", "ShooterGame (64-bit Development PCD3D_SM5) ");
-		//DWORD pid{};
-		//auto threadid = GetWindowThreadProcessId(hwnd, &pid);
-		//dbg::init(threadid);
-		//dbg::set_callback(ExceptionCb);
-		//auto base = (uint64_t)GetModuleHandleA(NULL) + 0x9D2C318;
-		//auto ret = dbg::set_break(base, dbg::DBG_SIZE::SIZE_8, dbg::DBG_TYPE::TYPE_READWRITE);
+		auto hwnd = FindWindowA("UnrealWindow", "ShooterGame (64-bit Development PCD3D_SM5) ");
+		DWORD pid{};
+		auto threadid = GetWindowThreadProcessId(hwnd, &pid);
+		dbg::init();
+		dbg::set_callback(ExceptionCb);
+		auto base = (uint64_t)GetModuleHandleA(NULL) + 0x9A9E81;
+		auto ret = dbg::set_break(0,base, dbg::DBG_SIZE::SIZE_1, dbg::DBG_TYPE::TYPE_EXECUTE);
 	}
 
 }

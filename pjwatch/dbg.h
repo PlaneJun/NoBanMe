@@ -26,7 +26,6 @@ namespace dbg
 		uint64_t address;
 	};
 
-	uint32_t thread_id;
 	cbDbgHandler callback;
 	std::map<uint8_t, std::pair<struct DBG_PARAMS, bool>> hbk_list;
 
@@ -34,6 +33,7 @@ namespace dbg
 	{
 		if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_SINGLE_STEP)
 		{
+			//printf("%p\n", ExceptionInfo->ContextRecord->Rip);
 			uint8_t index = 0xFF;
 			auto dr6 = ExceptionInfo->ContextRecord->Dr6;
 			if (dr6 & 1)
@@ -55,9 +55,8 @@ namespace dbg
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	void init(uint32_t threadid)
+	void init()
 	{
-		thread_id = threadid;
 		//Dr0-Dr3
 		hbk_list[0] = {};
 		hbk_list[1] = {};
@@ -95,129 +94,133 @@ namespace dbg
 	{
 		if (IsBadReadPtr((PVOID)addr,8))
 			return -1;
-		if (thread_id <= 0)
-			return -1;
 		if (len < SIZE_1 || len >SIZE_8)
 			return -1;
 		if (type < TYPE_EXECUTE || type >TYPE_WRITE)
 			return -1;
 
-		HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, TRUE, thread_id);
-		if (hThread == NULL)
+		//给所有线程都下断点
+		HANDLE hThreadShot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
+		THREADENTRY32* threadInfo = new THREADENTRY32;
+		threadInfo->dwSize = sizeof(THREADENTRY32);
+		while (Thread32Next(hThreadShot, threadInfo) != FALSE)
 		{
-			return -2;
-		}
-		SuspendThread(hThread);
-		CONTEXT ctx{};
-		ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS | CONTEXT_FULL;//设置线程上下文的类型
-		if (!GetThreadContext(hThread, &ctx))//通过句柄获取进程的上下文
-		{
-			return -3;
-		}
+			if (GetCurrentProcessId() == threadInfo->th32OwnerProcessID)
+			{
+				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadInfo->th32ThreadID);
+				SuspendThread(hThread);
+				CONTEXT ctx{};
+				ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS | CONTEXT_FULL;//设置线程上下文的类型
+				if (!GetThreadContext(hThread, &ctx))//通过句柄获取进程的上下文
+				{
+					return -3;
+				}
+				if (dr_index == 0)
+				{
+					ctx.Dr0 = addr;
+				}
+				else if (dr_index == 1)
+				{
+					ctx.Dr1 = addr;
+				}
+				else if (dr_index == 2)
+				{
+					ctx.Dr2 = addr;
+				}
+				else if (dr_index == 3)
+				{
+					ctx.Dr3 = addr;
+				}
+				ctx.Dr6 = 0;
+				int st = 0;
+				if (type == TYPE_EXECUTE)
+					st = 0;
+				if (type == TYPE_READWRITE)
+					st = 3;
+				if (type == TYPE_WRITE)
+					st = 1;
 
-		
-		if (dr_index == 0)
-		{
-			ctx.Dr0 = addr;
+				int le = 0;
+				if (len == SIZE_1)
+					le = 0;
+				if (len == SIZE_2)
+					le = 1;
+				if (len == SIZE_4)
+					le = 3;
+				if (len == SIZE_8)
+					le = 2;
+
+				set_bits(ctx.Dr7, 16 + dr_index * 4, 2, st);
+				set_bits(ctx.Dr7, 18 + dr_index * 4, 2, le);
+				set_bits(ctx.Dr7, dr_index * 2, 1, 1);
+				//ctx.Dr7 = 1;
+				if (!SetThreadContext(hThread, &ctx))
+				{
+					return -4;
+				}
+				ResumeThread(hThread);
+				CloseHandle(hThread);
+				
+			}
 		}
-		else if (dr_index == 1)
-		{
-			ctx.Dr1 = addr;
-		}
-		else if (dr_index == 2)
-		{
-			ctx.Dr2 = addr;
-		}
-		else if (dr_index == 3)
-		{
-			ctx.Dr3 = addr;
-		}
-
-		ctx.Dr6 = 0;
-		int st = 0;
-		if (type == TYPE_EXECUTE)
-			st = 0;
-		if (type == TYPE_READWRITE)
-			st = 3;
-		if (type == TYPE_WRITE)
-			st = 1;
-
-
-
-		int le = 0;
-		if (len == SIZE_1)
-			le = 0;
-		if (len == SIZE_2)
-			le = 1;
-		if (len == SIZE_4)
-			le = 3;
-		if (len == SIZE_8)
-			le = 2;
-
-		set_bits(ctx.Dr7, 16 + dr_index * 4, 2, st);
-		set_bits(ctx.Dr7, 18 + dr_index * 4, 2, le);
-		set_bits(ctx.Dr7, dr_index * 2, 1, 1);
-
-		if (!SetThreadContext(hThread, &ctx))
-		{
-			return -4;
-		}
-		ResumeThread(hThread);
-		CloseHandle(hThread);
+		CloseHandle(hThreadShot);
 		hbk_list[dr_index] = { { dr_index ,type ,len,addr},false };
 		return dr_index;
 	}
 
 	bool unset_hardbreak(uint8_t dr_index)
 	{
-		if (thread_id <= 0)
-			return false;
 		if (dr_index < 0 && dr_index>3)
 			return false;
 
-		HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, TRUE, thread_id);
-		if (hThread == NULL)
+		HANDLE hThreadShot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
+		THREADENTRY32* threadInfo = new THREADENTRY32;
+		threadInfo->dwSize = sizeof(THREADENTRY32);
+		while (Thread32Next(hThreadShot, threadInfo) != FALSE)
 		{
-			return -2;
-		}
-		SuspendThread(hThread);
+			if (GetCurrentProcessId() == threadInfo->th32OwnerProcessID)
+			{
+				HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadInfo->th32ThreadID);
+				SuspendThread(hThread);
 
-		CONTEXT ctx{};
-		ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS | CONTEXT_FULL;
-		if (!GetThreadContext(hThread, &ctx))
-		{
-			return false;
-		}
+				CONTEXT ctx{};
+				ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS | CONTEXT_FULL;
+				if (!GetThreadContext(hThread, &ctx))
+				{
+					return false;
+				}
 
-		int FlagBit = 0;
-		if (dr_index == 0)
-		{
-			FlagBit = 0;
-			ctx.Dr0 = 0;
-		}
-		if (dr_index == 1)
-		{
-			FlagBit = 2;
-			ctx.Dr1 = 0;
-		}
-		if (dr_index == 2)
-		{
-			FlagBit = 4;
-			ctx.Dr2 = 0;
-		}
-		if (dr_index == 3)
-		{
-			FlagBit = 6;
-			ctx.Dr3 = 0;
-		}
-		ctx.Dr7 &= ~(1 << FlagBit);
+				int FlagBit = 0;
+				if (dr_index == 0)
+				{
+					FlagBit = 0;
+					ctx.Dr0 = 0;
+				}
+				if (dr_index == 1)
+				{
+					FlagBit = 2;
+					ctx.Dr1 = 0;
+				}
+				if (dr_index == 2)
+				{
+					FlagBit = 4;
+					ctx.Dr2 = 0;
+				}
+				if (dr_index == 3)
+				{
+					FlagBit = 6;
+					ctx.Dr3 = 0;
+				}
+				ctx.Dr7 &= ~(1 << FlagBit);
 
-		if (!SetThreadContext(hThread, &ctx))
-		{
-			return false;
+				if (!SetThreadContext(hThread, &ctx))
+				{
+					return false;
+				}
+				ResumeThread(hThread);
+				CloseHandle(hThread);
+			}
 		}
-		ResumeThread(hThread);
-		CloseHandle(hThread);
 		hbk_list[dr_index] = { {},false };
 		return true;
 	}

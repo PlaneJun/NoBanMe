@@ -36,11 +36,10 @@ enum ECMD
 
 typedef struct _TCONTROL_CMD
 {
-	ECMD cmd;
-	uint8_t dr_index;
-	HardBreak hardbread;
-	uint32_t threadid;
-	bool syscall_state;
+    ECMD cmd;
+    uint8_t dr_index;
+    HardBreak hardbread;
+    bool syscall_state;
 }ControlCmd, * PControlCmd;
 
 

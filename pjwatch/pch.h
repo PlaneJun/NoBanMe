@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <winternl.h>
+#include <tlhelp32.h>
 #include <winnt.h>
 #include <DbgHelp.h>
 #include <stdio.h>
