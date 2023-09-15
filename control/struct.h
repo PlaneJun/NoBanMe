@@ -16,29 +16,32 @@ typedef struct _TAPI_MONITOR_INFO
 }ApiMonitorInfo, * PApiMonitorInfo;
 
 
-typedef struct _THARD_BREAK
-{
-    uint64_t addr;
-    int size;
-    int type;
-}HardBreak;
-
 enum ECMD
 {
-	Pipe,
-	SyscallMonitor,
-	InitDbg,
-	SetDrBreak,
-	UnSetDrBreak,
-	EnableDrBreak,
-	DisableDrBreak
+    plugin_init,
+    plugin_uninstall,
+    pipe_client_connect,
+    pipe_client_close,
+    syscallmonitor_init,
+    syscallmonitor_uninstall,
+    veh_init,
+    veh_uninstall,
+    veh_set_dr,
+    veh_unset_dr,
+    veh_enable_dr,
+    veh_disable_dr
 };
 
 typedef struct _TCONTROL_CMD
 {
     ECMD cmd;
     uint8_t dr_index;
-    HardBreak hardbread;
+    struct
+    {
+        uint64_t addr;
+        int size;
+        int type;
+    }hardbread;
     bool syscall_state;
 }ControlCmd, * PControlCmd;
 

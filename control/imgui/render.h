@@ -129,6 +129,7 @@ public:
         };
 
         RegisterClassExW(&wc);
+
         HWND hwnd = CreateWindow(wc.lpszClassName, 
                                     title, 
                                     WS_OVERLAPPEDWINDOW, 
@@ -146,6 +147,11 @@ public:
             return 1;
         }
 
+        RECT rect;
+        GetClientRect(GetDesktopWindow(), &rect);
+        rect.left = (rect.right / 2) - (w / 2);
+        rect.top = (rect.bottom / 2) - (h / 2);
+        MoveWindow(hwnd,rect.left,rect.top,w,h,true);
         ShowWindow(hwnd, SW_SHOWDEFAULT);
         UpdateWindow(hwnd);
 
@@ -267,6 +273,19 @@ public:
             ImGui::Text(text[i].second.c_str()); ImGui::NextColumn();
         }
     }
+
+    int DrawItemBlock(std::vector<std::string> items)
+    {
+        int select = -1;
+        for (int i = 0; i < items.size(); i++)
+        {
+            if (ImGui::Selectable(items[i].c_str()))
+            {
+                select = i;
+            }
+        }
+        return select;
+    };
 
     void HelpMarker(const char* desc)
     {

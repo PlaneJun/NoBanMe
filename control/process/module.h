@@ -12,11 +12,63 @@ public:
 
 public:
 
-    ModuleItem(std::string imagepath,uint64_t base,size_t size)
+    ModuleItem(std::string imagepath,uint64_t base,size_t size,std::string descripttion, std::string fileversion, std::string companyname)
     {
         this->imagepath_ = imagepath;
         this->base_ = base;
         this->size_ = size;
+        this->fileversion_ = fileversion;
+        this->companyname_ = companyname;
+        this->description_ = descripttion;
+    }
+
+    auto GetImagePath()
+    {
+        return imagepath_;
+    }
+
+    auto GetBase()
+    {
+        return base_;
+    }
+
+    auto GetSize()
+    {
+        return size_;
+    }
+
+    auto GetFileVersion()
+    {
+        return fileversion_;
+    }
+
+    auto GetDecription()
+    {
+        return description_;
+    }
+
+    auto GetCompanyName()
+    {
+        return companyname_;
+    }
+
+public:
+
+    static void EnumPidModules(uint32_t pid, std::vector<ModuleItem>& items)
+    {
+        HANDLE hSnapshot_proc = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+        if (hSnapshot_proc)
+        {
+            MODULEENTRY32  me32 = { sizeof(MODULEENTRY32) };
+            bool bprocess = Module32First(hSnapshot_proc, &me32);
+            while (bprocess)
+            {
+                std::string imagepath = utils::wstring_to_stirng(me32.szExePath);
+                items.push_back(ModuleItem(imagepath, (uint64_t)me32.modBaseAddr, me32.modBaseSize, utils::GetFileDescription(imagepath), utils::GetFileVersion(imagepath), utils::GetProductName(imagepath)));
+                bprocess = Module32Next(hSnapshot_proc, &me32);
+            }
+            CloseHandle(hSnapshot_proc);
+        }
     }
 
     static void SortWithSortSpecs(ImGuiTableSortSpecs* sort_specs, ModuleItem* items, int items_count)
@@ -58,20 +110,7 @@ public:
         s_current_sort_specs_ = a;
     }
 
-    auto GetImagePath()
-    {
-        return imagepath_;
-    }
 
-    auto GetBase()
-    {
-        return base_;
-    }
-
-    auto GetSize()
-    {
-        return size_;
-    }
 
 private:
 
@@ -79,6 +118,9 @@ private:
     std::string imagepath_;
     uint64_t base_;
     size_t size_;
+    std::string fileversion_;
+    std::string companyname_;
+    std::string description_;
 };
 
 const ImGuiTableSortSpecs* ModuleItem::s_current_sort_specs_=nullptr;

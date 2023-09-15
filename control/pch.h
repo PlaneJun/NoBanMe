@@ -27,26 +27,24 @@
 #include <map>
 #include <sstream>
 #include <filesystem>
+#include <functional>
 #include "defs.h"
 #include "struct.h"
 #include "md5.h"
 #include "EasyPdb.h"
-#include "pipe.h"
-#include "data.h"
-#include "config.h"
+#include "plugin.h"
+
 #include "render.h"
-
-
+#include "utils.h"
 //Process
 #include "process.h"
 #include "module.h"
 #include "thread.h"
 #include "vehhandler.h"
-
-#include "utils.h"
-#include "pattern.h"
 //Debugger
 #include "debugger.h"
+#include "config.h"
+
 
 
 

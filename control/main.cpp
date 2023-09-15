@@ -1,35 +1,33 @@
 ﻿#include "pch.h"
 
+bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
+{
+    return utils::RemoteCallFunction(pid,config::global::lpPluginDispatch,&cmd,sizeof(ControlCmd));
+}
 
-
-void Render_Process()
+void Table_Process()
 {
     static std::vector<ProcessItem> pitems;
     static std::vector<ModuleItem> mitems;
-    if (ImGui::Button(u8"刷新进程"))
-        pitems.clear();
-
-    //Enum Process
-    if (pitems.size() == 0)
-    {
-        utils::EnumCurtAllProcess(pitems);
-    }
-
-    static int selected_process = -1;
-    static int selected_processid = 0;
     if (ImGui::BeginChild("#process", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.7), false, ImGuiWindowFlags_HorizontalScrollbar))
     {
-        ImGui::SeparatorText(u8"进程列表");
-        if (ImGui::BeginTable("#processlist", 6, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
+        static int selected_process = -1;
+        if (pitems.size() == 0)
+        {
+            ProcessItem::EnumCurtAllProcess(pitems);
+        }
+        if (ImGui::BeginTable("#processlist", 9, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV))
         {
             ImGui::TableSetupColumn("##icon", ImGuiTableColumnFlags_NoSort, 0.0f);
             ImGui::TableSetupColumn(u8"进程ID", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::PID);
             ImGui::TableSetupColumn(u8"进程名", ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::NAME);
             ImGui::TableSetupColumn(u8"父进程ID", ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::PPID);
+            ImGui::TableSetupColumn(u8"创建时间", ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::STARTUPTIME);
+            ImGui::TableSetupColumn(u8"描述", ImGuiTableColumnFlags_WidthFixed, 0.0f);
+            ImGui::TableSetupColumn(u8"文件厂商", ImGuiTableColumnFlags_WidthFixed, 0.0f);
+            ImGui::TableSetupColumn(u8"文件版本", ImGuiTableColumnFlags_WidthFixed, 0.0f);
             ImGui::TableSetupColumn(u8"进程路径", ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::FULLPATH);
-            ImGui::TableSetupColumn(u8"启动时间", ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::STARTUPTIME);
             ImGui::TableHeadersRow();
-
             if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
             {
                 if (sorts_specs->SpecsDirty)
@@ -41,14 +39,12 @@ void Render_Process()
                     sorts_specs->SpecsDirty = false;
                 }
             }
-
             ImGuiListClipper clipper;
             clipper.Begin(pitems.size());
             while (clipper.Step())
             {
                 for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
                 {
-                    // Display a data item
                     ProcessItem* item = &pitems[row_n];
                     ImGui::PushID(item->GetPid());
                     ImGui::TableNextRow();
@@ -59,9 +55,9 @@ void Render_Process()
                     if (ImGui::Selectable(std::to_string(item->GetPid()).c_str(), selected_process == row_n, ImGuiSelectableFlags_SpanAllColumns))
                     {
                         selected_process = row_n;
-                        if (selected_processid != item->GetPid())
+                        if (config::global::targetProcess.GetPid() != item->GetPid())
                         {
-                            selected_processid = item->GetPid();
+                            config::global::targetProcess = *item;
                             mitems.clear();
                         }
                     }
@@ -70,154 +66,238 @@ void Render_Process()
                     ImGui::TableNextColumn();
                     ImGui::Text("%d", item->GetPPid());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetFullPath()).c_str());
-                    ImGui::TableNextColumn();
                     ImGui::Text(utils::string_To_UTF8(item->GetStartUpTime()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetDecription()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetCompanyName()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetFileVersion()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetFullPath()).c_str());
                     ImGui::PopID();
                 }
             }
 
-            if (selected_process != -1 &&
-                ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
-            {
+            if (selected_process != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
                 ImGui::OpenPopup("process_option");
-            }
+               
             if (ImGui::BeginPopup("process_option"))
             {
-                static const char* proc_info[] = {u8"枚举窗口",u8"线程列表",u8"进程句柄",u8"异常回调"};
-                for (int i = 0; i < IM_ARRAYSIZE(proc_info); i++)
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"刷新进程" }))
                 {
-                    if (ImGui::Selectable(proc_info[i]))
+                    case 0:
                     {
-                        if (i == 1)
-                        {
-                            config::process::thread::bShow = true;
-                            config::process::thread::pid = selected_processid;
-                           
-                        }
-                        else if (i == 3)
-                        {
-                            config::process::veh::bShow = true;
-                            config::process::veh::pid = selected_processid;
-
-                        }
+                        pitems.clear();
+                        break;
                     }
                 }
                 ImGui::Separator();
-                static const char* proc_option[] = { u8"结束进程",u8"隐藏进程",u8"进程属性",u8"文件定位" };
-                for (int i = 0; i < IM_ARRAYSIZE(proc_option); i++)
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"枚举窗口",u8"线程列表",u8"进程句柄",u8"异常回调" }))
                 {
-                    if (ImGui::Selectable(proc_option[i]))
+                    case 1:
                     {
-                        if (i == 0)
+                        config::process::thread::bShow = true;
+                        config::process::thread::pid = config::global::targetProcess.GetPid();
+                        break;
+                    }
+                    case 3:
+                    {
+                        config::process::veh::bShow = true;
+                        config::process::veh::pid = config::global::targetProcess.GetPid();;
+                        break;
+                    }
+                }
+                ImGui::Separator();
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"隐藏进程",u8"进程属性",u8"文件定位" }))
+                {
+                    case 0:
+                    {
+                        HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, config::global::targetProcess.GetPid());
+                        if (handLe)
                         {
-                            HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, selected_processid);
-                            if (handLe)
+                            TerminateProcess(handLe, 0);
+                            CloseHandle(handLe);
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        utils::OpenFilePropertyDlg(config::global::targetProcess.GetFullPath().c_str());
+                        break;
+                    }
+                }
+                ImGui::Separator();
+                switch(int s = render::get_instasnce()->DrawItemBlock({ u8"转储内存",u8"拷贝文件",u8"文件定位" }))
+                {
+                    case 0:
+                    {
+                        
+                        break;
+                    }
+                }
+                ImGui::Separator();
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"注入Dll",u8"调试插件"}))
+                {
+                    case 1:
+                    {
+                        //是否调试过
+                        bool can = true;
+                        if (config::global::injectProcess.GetPid() > 0)
+                        {
+                            //1)、是否重复注入
+                            if (config::global::injectProcess.GetPid() == config::global::targetProcess.GetPid())
                             {
-                                TerminateProcess(handLe, 0);
-                                CloseHandle(handLe);
+                                MessageBoxA(NULL, "目标进程已经启用插件,无需重复启用!", "pjark", NULL);
+                                break;
+                            }
+
+                            //2）、是否为新进程
+                            if (config::global::injectProcess.GetPid() != config::global::targetProcess.GetPid())
+                            {
+                                do
+                                {
+                                    //清理上一个环境
+                                //1)、清空全部断点
+                                    for (int i = 0;i < 4;i++)
+                                        config::dbg::Dr->statue = 0; //这里设置0，OnUpdate会自动删除断点
+                                    Sleep(500);
+                                    //2)、清除veh
+                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::veh_uninstall }))
+                                    {
+                                        MessageBoxA(NULL, "启用插件失败[1]!", NULL, NULL);
+                                        can = false;
+                                        break;
+                                    }
+                                    //3)、清除syscall
+                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::syscallmonitor_uninstall }))
+                                    {
+                                        MessageBoxA(NULL, "启用插件失败[2]!", NULL, NULL);
+                                        can = false;
+                                        break;
+                                    }
+                                    //3)、清除pipe
+                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::pipe_client_close }))
+                                    {
+                                        MessageBoxA(NULL, "启用插件失败[3]!", NULL, NULL);
+                                        can = false;
+                                        break;
+                                    }
+                                    //3)、清除plugin
+                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::plugin_uninstall }))
+                                    {
+                                        MessageBoxA(NULL, "启用插件失败[4]!", NULL, NULL);
+                                        can = false;
+                                        break;
+                                    }
+                                    //清理成功
+                                    config::global::injectProcess = ProcessItem();
+                                    can = true;
+                                } while (false);
                             }
                         }
-                    }
-                }
-                ImGui::Separator();
-                static const char* proc_file[] = { u8"转储内存",u8"拷贝文件",u8"文件定位" };
-                for (int i = 0; i < IM_ARRAYSIZE(proc_file); i++)
-                {
-                    if (ImGui::Selectable(proc_file[i]))
-                    {
-
-                    }
-                }
-                ImGui::Separator();
-                static const char* proc_hack[] = { u8"注入Dll",u8"监控Syscall",u8"硬件调试" };
-                for (int i = 0; i < IM_ARRAYSIZE(proc_hack); i++)
-                {
-                    if (ImGui::Selectable(proc_hack[i]))
-                    {
-                        if (i == 2)
+                        if (can)
                         {
                             char caption[256]{};
-                            sprintf_s(caption, "Are you sure dbg target:%d ?", selected_processid);
+                            sprintf_s(caption, "[%d]%s\n是否需要启用插件?", config::global::targetProcess.GetPid(), config::global::targetProcess.GetName().c_str());
                             if (MessageBoxA(NULL, caption, NULL, MB_OKCANCEL) == IDOK)
                             {
-                                if (!data::global::inject)
+                                do
                                 {
-                                    if (utils::InjectDLL(selected_processid, data::global::plugin_path))
+
+                                    //获取dll信息
+                                    static const char* plugin_name[] = { "pjveh_64.dll","pjveh_32.dll" };
+                                    HMODULE base = GetModuleHandleA(plugin_name[config::global::targetProcess.IsWow64()]);
+                                    if (base == NULL)
+                                        base = LoadLibraryA(plugin_name[config::global::targetProcess.IsWow64()]);
+                                    config::global::lpPluginDispatch = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(base, "Dispatch")) - (uint8_t*)base);
+                                    char plugin_path[MAX_PATH]{};
+                                    GetModuleFileNameA(base, plugin_path, MAX_PATH);
+                                    FreeLibrary(base);
+                                    utils::RemoteInjectDLL(config::global::targetProcess.GetPid(), plugin_path);
+                                    base = utils::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::string_to_wstirng((char*)plugin_name[config::global::targetProcess.IsWow64()]).c_str());
+                                    if (base <= 0)
                                     {
-                                        data::global::target = selected_processid;
-                                        data::global::fnDispatch += (uint64_t)utils::GetProcessModuleHandle(selected_processid, L"pjwatch.dll");
-                                        data::global::inject = true;
+                                        MessageBoxA(NULL, "注入插件失败!", "pjark", NULL);
+                                        break;
                                     }
-                                }
+                                    config::global::lpPluginDispatch += reinterpret_cast<uint64_t>(base);
+                                    if (!config::global::plugin_.init_pipe())
+                                    {
+                                        MessageBoxA(NULL, "创建管道失败!", "pjark", NULL);
+                                        break;
+                                    }
 
-                                //打开管道
-                                ControlCmd cmd{};
-                                cmd.cmd = ECMD::Pipe;
-                                if (!utils::CallFunction(cmd))
-                                    MessageBoxA(NULL, "Create Pipe Failed!", NULL, NULL);
-
-
-                                //初始化调试
-                                auto tid = utils::GetMainThreadId(selected_processid);
-                                if (tid <= 0)
-                                {
-                                    MessageBoxA(NULL, "init dbg envir failed", NULL, NULL);
-                                }
-                                else
-                                {
-                                    ControlCmd cmd{};
-                                    cmd.cmd = ECMD::InitDbg;
-                                    if (!utils::CallFunction(cmd))
-                                        MessageBoxA(NULL, "Init Dbg Failed!", NULL, NULL);
-                                    else
-                                        MessageBoxA(NULL, "done!", NULL, NULL);
-                                }
+                                    //连接管道
+                                    if (!InvokePluginFunction(config::global::targetProcess.GetPid(), { ECMD::pipe_client_connect }))
+                                    {
+                                        MessageBoxA(NULL, "连接管道失败!", NULL, NULL);
+                                        break;
+                                    }
+                                    //初始化调试器
+                                    if (!InvokePluginFunction(config::global::targetProcess.GetPid(), { ECMD::veh_init }))
+                                    {
+                                        MessageBoxA(NULL, "初始化插件失败!", NULL, NULL);
+                                        break;
+                                    }
+                                    MessageBoxA(NULL, "插件初始化成功!", NULL, NULL);
+                                    config::global::injectProcess = config::global::targetProcess;
+                                } while (false);
                             }
                         }
+                        else
+                        {
+                            MessageBoxA(NULL, "初始化插件失败!", NULL, NULL);
+                        }
+                        break;
                     }
                 }
                 ImGui::Separator();
-                static const char* proc_copy[] = { u8"进程ID",u8"进程名",u8"父进程ID",u8"进程路径" ,u8"启动时间" };
                 if (ImGui::BeginMenu(u8"复制"))
                 {
-                    for (int i = 0; i < IM_ARRAYSIZE(proc_copy); i++)
+                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"进程ID",u8"进程名",u8"父进程ID",u8"创建时间"  ,u8"描述" ,u8"文件厂商" ,u8"文件版本",u8"进程路径"  }))
                     {
-                        if (ImGui::Selectable(proc_copy[i]))
+                        case 0:
                         {
-
+                            break;
+                        }
+                    }
+                    ImGui::Separator();
+                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行" ,u8"整个表"}))
+                    {
+                        case 0:
+                        {
+                            break;
                         }
                     }
                     ImGui::EndMenu();
                 }
-
                 ImGui::EndPopup();
             }
             ImGui::EndTable();
         }
         ImGui::EndChild();
     }
-
     if (ImGui::BeginChild("#module", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
     {
-        if (selected_processid != 0)
+        static int selected_module = -1;
+        if (config::global::targetProcess.GetPid() != 0)
         {
             //Enum Modules
             if (mitems.size() == 0)
             {
-                utils::EnumPidModules(selected_processid, mitems);
+                ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
             }
         }
-
-        ImGui::SeparatorText(u8"模块列表");
-        static int selected_module = -1;
-        if (ImGui::BeginTable("#modulelist", 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
+        if (ImGui::BeginTable("#modulelist", 6, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV))
         {
             ImGui::TableSetupColumn(u8"模块路径", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, ModuleItem::EInfo::IMAGEPATH);
             ImGui::TableSetupColumn(u8"基地址", ImGuiTableColumnFlags_WidthFixed, 0.0f, ModuleItem::EInfo::BASE);
             ImGui::TableSetupColumn(u8"大小", ImGuiTableColumnFlags_WidthFixed, 0.0f, ModuleItem::EInfo::SIZE);
+            ImGui::TableSetupColumn(u8"描述", ImGuiTableColumnFlags_WidthFixed, 0.0f);
+            ImGui::TableSetupColumn(u8"文件厂商", ImGuiTableColumnFlags_WidthFixed, 0.0f);
+            ImGui::TableSetupColumn(u8"文件版本", ImGuiTableColumnFlags_WidthFixed, 0.0f);
             ImGui::TableHeadersRow();
-
             if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
             {
                 if (sorts_specs->SpecsDirty)
@@ -235,7 +315,6 @@ void Render_Process()
             {
                 for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
                 {
-                    // Display a data item
                     ModuleItem* item = &mitems[row_n];
                     ImGui::PushID(item->GetBase());
                     ImGui::TableNextRow();
@@ -246,24 +325,59 @@ void Render_Process()
                     ImGui::Text("0x%p", item->GetBase());
                     ImGui::TableNextColumn();
                     ImGui::Text("0x%llx", item->GetSize());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetDecription()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetCompanyName()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetFileVersion()).c_str());
                     ImGui::PopID();
                 }
+            }
+
+            if (selected_module != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
+                ImGui::OpenPopup("module_option");
+
+            if (ImGui::BeginPopup("module_option"))
+            {
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"内存转储" }))
+                {
+                    case 0:
+                    {
+                        
+                        break;
+                    }
+                }
+                ImGui::Separator();
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"文件定位",u8"文件属性" }))
+                {
+                    case 0:
+                    {
+
+                        break;
+                    }
+                    case 1:
+                    {
+                        utils::OpenFilePropertyDlg(mitems[selected_module].GetImagePath().c_str());
+                    }
+                }
+                ImGui::EndPopup();
             }
             ImGui::EndTable();
         }
         ImGui::EndChild();
     }
 }
-void Render_SyscallMonitor()
+void Table_SyscallMonitor()
 {
     ImGui::SeparatorText(u8"选项");
-    ImGui::Checkbox(u8"启用", &config::Syscall::active); ImGui::SameLine();
-    ImGui::Checkbox(u8"保存日志", &config::Syscall::save); ImGui::SameLine();
+    ImGui::Checkbox(u8"启用", &config::syscall::active); ImGui::SameLine();
+    ImGui::Checkbox(u8"保存日志", &config::syscall::save); ImGui::SameLine();
     ImGui::Button(u8"清除");
     ImGui::SeparatorText(u8"输出");
     if (ImGui::TreeNode("root"))
     {
-        for (auto n : data::Syscall::monitor)
+        for (auto n : config::syscall::monitor)
         {
             if (ImGui::TreeNode(n.first.c_str()))
             {
@@ -277,7 +391,7 @@ void Render_SyscallMonitor()
         ImGui::TreePop();
     }
 }
-void Render_VehDebuger()
+void Table_VehDebuger()
 {
     auto curtData = Debugger::GetDbgInfo(config::dbg::curtChoose);
     static std::pair< std::string, bool> JmpToAddress{};
@@ -421,7 +535,7 @@ void Render_VehDebuger()
         ImGui::SameLine();
         if (ImGui::BeginChild("ChildContext", ImVec2(ImGui::GetContentRegionAvail().x * 0.98, ImGui::GetContentRegionAvail().y * 0.66)))
         {
-            ImGui::SeparatorText(u8"寄存器");
+            ImGui::SeparatorText(u8"寄存器");ImGui::SameLine();
             render::get_instasnce()->HelpMarker(u8"当前显示的上下文为断点执行后数据\n");
             static int selected = -1;
             std::vector<std::string> headers = { u8"Reg" ,u8"Value" };
@@ -477,7 +591,7 @@ void Render_VehDebuger()
         {
             ImGui::SeparatorText(u8"堆栈");
             static int selected = -1;
-            std::vector<std::string> headers = { "Rsp" ,"Value" };
+            std::vector<std::string> headers = { "Rsp" ,"Value"," " };
             std::vector<std::pair<std::string, std::string>> text = {
 
             };
@@ -486,27 +600,65 @@ void Render_VehDebuger()
         }
     }
 }
-void Render_ThreadWindow(bool* show,uint32_t pid)
+void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
 {
     static std::vector<ThreadItem> items{};
     static int selected = -1;
-    static const std::vector<std::string> headers = { u8"线程ID",u8"线程入口" ,u8"优先级" };
     if (*show)
     {
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowPadding = { 0.f,0.f };
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::Begin(u8"线程列表", show, ImGuiWindowFlags_NoCollapse);
         if (items.size() <= 0)
-            utils::EnumPidThread(pid, items);
-
-        std::vector<std::vector<std::string>> text{};
-        for (auto i : items)
+            ThreadItem::EnumPidThread(pid, items);
+        if (ImGui::BeginTable("#threadlist", 4, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY  | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
         {
-            std::vector<std::string> tmp{};
-            tmp.push_back(std::to_string(i.GetThreadId()));
-            tmp.push_back("0x" + utils::IntegerTohex(i.GetThreadEntry()));
-            tmp.push_back(std::to_string(i.GetPrority()));
-            text.push_back(tmp);
+            ImGui::TableSetupColumn(u8"线程ID", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::THREAID);
+            ImGui::TableSetupColumn(u8"线程入口", ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::STARTADDR);
+            ImGui::TableSetupColumn(u8"优先级", ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::PRIORITY);
+            ImGui::TableSetupColumn(u8"所属模块", ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::MODULEPATH);
+            ImGui::TableHeadersRow();
+
+            if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
+            {
+                if (sorts_specs->SpecsDirty)
+                {
+                    ProcessItem::SetSortSpecs(sorts_specs); // Store in variable accessible by the sort function.
+                    if (items.size() > 1)
+                        qsort(&items[0], (size_t)items.size(), sizeof(items[0]), ProcessItem::CompareWithSortSpecs);
+                    ProcessItem::SetSortSpecs(NULL);
+                    sorts_specs->SpecsDirty = false;
+                }
+            }
+
+            ImGuiListClipper clipper;
+            clipper.Begin(items.size());
+            while (clipper.Step())
+            {
+                for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
+                {
+                    // Display a data item
+                    ThreadItem* item = &items[row_n];
+                    ImGui::PushID(item->GetThreadId());
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    if (ImGui::Selectable(std::to_string(item->GetThreadId()).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    {
+                        selected = row_n;
+                    }
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::IntegerTohex(item->GetThreadEntry()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%d", item->GetPrority());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetModulePath()).c_str());
+                    ImGui::PopID();
+                }
+            }
+            ImGui::EndTable();
         }
-        render::get_instasnce()->AddListBox("##thread_list", selected, 1, headers, text);
         ImGui::End();
     }
     else
@@ -515,27 +667,64 @@ void Render_ThreadWindow(bool* show,uint32_t pid)
         items.clear();
     }
 }
-void Render_ExceptionWindow(bool* show, uint32_t pid)
+void ChildWnd_ExceptionWindow(bool* show, uint32_t pid)
 {
     static std::vector<VehHandlerItem> items{};
     static int selected = -1;
-    static const std::vector<std::string> headers = { u8"入口",u8"模块路径",u8"类型"};
     if (*show)
     {
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowPadding = { 0.f,0.f };
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::Begin(u8"异常回调列表", show, ImGuiWindowFlags_NoCollapse);
         if (items.size() <= 0)
-            utils::EnumVehHandler(pid, items);
+            VehHandlerItem::EnumVehHandler(pid, items);
 
-        std::vector<std::vector<std::string>> text{};
-        for (auto i : items)
+        if (ImGui::BeginTable("#vehhandlerlist", 3, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
         {
-            std::vector<std::string> tmp{};
-            tmp.push_back("0x" + utils::IntegerTohex(i.GetEntry()));
-            tmp.push_back(utils::string_To_UTF8(i.GetModulePath()));
-            tmp.push_back(i.IsVeh()?u8"VEH Exception":u8"VEH Continue");
-            text.push_back(tmp);
+            ImGui::TableSetupColumn(u8"线程入口", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, VehHandlerItem::EInfo::ENTRY);
+            ImGui::TableSetupColumn(u8"类型", ImGuiTableColumnFlags_WidthFixed, 0.0f, VehHandlerItem::EInfo::TYPE);
+            ImGui::TableSetupColumn(u8"模块路径", ImGuiTableColumnFlags_WidthFixed, 0.0f, VehHandlerItem::EInfo::MODULEPATH);
+            
+            ImGui::TableHeadersRow();
+
+            if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
+            {
+                if (sorts_specs->SpecsDirty)
+                {
+                    ProcessItem::SetSortSpecs(sorts_specs); // Store in variable accessible by the sort function.
+                    if (items.size() > 1)
+                        qsort(&items[0], (size_t)items.size(), sizeof(items[0]), ProcessItem::CompareWithSortSpecs);
+                    ProcessItem::SetSortSpecs(NULL);
+                    sorts_specs->SpecsDirty = false;
+                }
+            }
+
+            ImGuiListClipper clipper;
+            clipper.Begin(items.size());
+            while (clipper.Step())
+            {
+                for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
+                {
+                    // Display a data item
+                    VehHandlerItem* item = &items[row_n];
+                    ImGui::PushID(item->GetEntry());
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    if (ImGui::Selectable(("0x"+ utils::IntegerTohex(item->GetEntry())).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    {
+                        selected = row_n;
+                    }
+                    ImGui::TableNextColumn();
+                    ImGui::Text(item->IsVeh()?"VEH Exception":"VEH Continue");
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::string_To_UTF8(item->GetModulePath()).c_str());
+                    ImGui::PopID();
+                }
+            }
+            ImGui::EndTable();
         }
-        render::get_instasnce()->AddListBox("##veh_list", selected, 1, headers, text);
         ImGui::End();
     }
     else
@@ -544,14 +733,15 @@ void Render_ExceptionWindow(bool* show, uint32_t pid)
         items.clear();
     }
 }
-
-
 void OnGui(float w,float h)
 {
-    if (ImGui::Begin("main", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse))
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowPadding = { 2.f,2.f };
+    style.TabRounding = 0.f;
+    ChildWnd_ThreadWindow(&config::process::thread::bShow, config::process::thread::pid);
+    ChildWnd_ExceptionWindow(&config::process::veh::bShow, config::process::veh::pid);
+    if (ImGui::Begin("main", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.TabRounding = 0.f;
         ImGui::SetWindowPos("main", { 0,0 });
         ImGui::SetWindowSize("main", {w,h});
         ImGuiTheme::ApplyTheme(ImGuiTheme::ImGuiTheme_MaterialFlat);
@@ -559,170 +749,187 @@ void OnGui(float w,float h)
         {
             if (ImGui::BeginTabItem(u8"进程"))
             {
-                Render_Process();
+                Table_Process();
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem(u8"系统调用"))
+            if (ImGui::BeginTabItem(u8"VEH插件"))
             {
-                Render_SyscallMonitor();
+                if (ImGui::BeginTabBar("Plugin_Tables", ImGuiTabBarFlags_None))
+                {
+                    static int choose = -1;
+                    static const char* plugin_tables[] = { u8"系统调用" ,u8"调试器" };
+                    for (int i = 0;i < 2;i++)
+                    {
+                        if (ImGui::BeginTabItem(plugin_tables[i]))
+                        {
+                            choose = i;
+                            ImGui::EndTabItem();
+                        }
+                    }
+
+                    switch (choose)
+                    {
+                        case 0: Table_SyscallMonitor();break;
+                        case 1: Table_VehDebuger();break;
+                    }
+                    ImGui::EndTabBar();
+                }
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem(u8"VEH调试器"))
+            if (ImGui::BeginTabItem(u8"窗口"))
             {
-                Render_VehDebuger();
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
         }
-        
         ImGui::End();
     }
-
-    Render_ThreadWindow(&config::process::thread::bShow, config::process::thread::pid);
-    Render_ExceptionWindow(&config::process::veh::bShow, config::process::veh::pid);
 }
 void OnUpdate(DWORD* a)
 {
     while (true)
     {
-        //Syscall Monotor
+        if (config::global::injectProcess.GetPid() > 0)
         {
-            static bool signal_syscallmonitor = false;
-            if (config::Syscall::active)
+            //Syscall Monotor
             {
-                if (!signal_syscallmonitor)
+                static bool signal_syscallmonitor = false;
+                if (config::syscall::active)
                 {
-                    ControlCmd cmd{};
-                    cmd.cmd = SyscallMonitor;
-                    cmd.syscall_state = config::Syscall::active;
-                    if (!utils::CallFunction(cmd))
+                    if (!signal_syscallmonitor)
                     {
-                        MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
-                        config::Syscall::active = false; //clear checked
+                        ControlCmd cmd{};
+                        cmd.cmd = ECMD::syscallmonitor_init;
+                        cmd.syscall_state = config::syscall::active;
+                        if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                        {
+                            MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
+                            config::syscall::active = false; //clear checked
+                        }
+                        else {
+                            signal_syscallmonitor = true; // make sure do once
+                        }
                     }
-                    else {
-                        signal_syscallmonitor = true; // make sure do once
+                }
+                else if (!config::syscall::active)
+                {
+                    if (signal_syscallmonitor)
+                    {
+                        ControlCmd cmd{};
+                        cmd.cmd = ECMD::syscallmonitor_init;
+                        cmd.syscall_state = config::syscall::active;
+                        if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                        {
+                            MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
+                            config::syscall::active = true; //clear check
+                        }
+                        else {
+                            signal_syscallmonitor = false;// make sure do once
+                        }
                     }
+                    signal_syscallmonitor = false; //alway set true while syscall-monotor is no-active
                 }
             }
-            else if (!config::Syscall::active)
-            {
-                if (signal_syscallmonitor)
-                {
-                    ControlCmd cmd{};
-                    cmd.cmd = SyscallMonitor;
-                    cmd.syscall_state = config::Syscall::active;
-                    if (!utils::CallFunction(cmd))
-                    {
-                        MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
-                        config::Syscall::active = true; //clear check
-                    }
-                    else {
-                        signal_syscallmonitor = false;// make sure do once
-                    }
-                }
-                signal_syscallmonitor = false; //alway set true while syscall-monotor is no-active
-            }
-        }
 
-        //Veh Debugger
-        {
-            //std::pair<Enable,Add>
-            static std::map<uint8_t, std::pair<bool, bool>> signal_dr{};
-            for (int i = 0;i < 4;i++)
+            //Veh Debugger
             {
-                auto& tmp_dr = config::dbg::Dr[i];
-                
-                // this is button option
-                if (tmp_dr.statue == 1) //already add
+                //std::pair<Enable,Add>
+                static std::map<uint8_t, std::pair<bool, bool>> signal_dr{};
+                for (int i = 0;i < 4;i++)
                 {
-                    //is first-time add
-                    if (signal_dr.count(i) <= 0)
+                    auto& tmp_dr = config::dbg::Dr[i];
+
+                    // this is button option
+                    if (tmp_dr.statue == 1) //already add
                     {
-                        //default set false,false
-                        signal_dr[i] = { false,false };
+                        //is first-time add
+                        if (signal_dr.count(i) <= 0)
+                        {
+                            //default set false,false
+                            signal_dr[i] = { false,false };
+                        }
+
+                        if (!signal_dr[i].second)
+                        {
+                            ControlCmd cmd{};
+                            cmd.cmd = ECMD::veh_set_dr;
+                            cmd.dr_index = i;
+                            cmd.hardbread.addr = strlen(tmp_dr.addr) > 0 ? utils::hexToInteger(tmp_dr.addr) : 0;
+                            cmd.hardbread.size = tmp_dr.size;
+                            cmd.hardbread.type = tmp_dr.type;
+                            if (cmd.hardbread.addr <= 0 || !InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            {
+                                MessageBoxA(NULL, "Add BreakPoint Failed!", NULL, NULL);
+                                tmp_dr.statue = 0; //add fault,so set button title to "Add"
+                            }
+                            else
+                            {
+                                signal_dr[i].second = true; //make sure do once
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //remove,make sure do once!!!
+                        if (signal_dr.count(i) && signal_dr[i].second)
+                        {
+                            ControlCmd cmd{};
+                            cmd.cmd = ECMD::veh_unset_dr;
+                            cmd.dr_index = i;
+                            if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            {
+                                MessageBoxA(NULL, "Remove BreakPoint Failed!", NULL, NULL);
+                                tmp_dr.statue = 1; //remove fault,set button title to "Remove"
+                            }
+                            else
+                            {
+                                //clear data
+                                Debugger::GetDbgInfo(i).capture.clear();
+                                signal_dr[i].second = false; //make sure do once
+                                tmp_dr.active = false;
+                            }
+                        }
                     }
 
-                    if (!signal_dr[i].second)
+                    // this is checkbox option
+
+                    if (tmp_dr.active) //enable
                     {
-                        ControlCmd cmd{};
-                        cmd.cmd = SetDrBreak;
-                        cmd.dr_index = i;
-                        cmd.hardbread.addr = utils::hexToInteger(tmp_dr.addr);
-                        cmd.hardbread.size = tmp_dr.size;
-                        cmd.hardbread.type = tmp_dr.type;
-                        if (cmd.hardbread.addr<=0 || !utils::CallFunction(cmd))
+                        //is recored,make sure do once!!!
+                        if (!signal_dr[i].first && signal_dr[i].second)
                         {
-                            MessageBoxA(NULL, "Add BreakPoint Failed!", NULL, NULL);
-                            tmp_dr.statue = 0; //add fault,so set button title to "Add"
+                            ControlCmd cmd{};
+                            cmd.cmd = ECMD::veh_enable_dr;
+                            cmd.dr_index = i;
+                            if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            {
+                                MessageBoxA(NULL, "Enable BreakPoint Failed!", NULL, NULL);
+                                tmp_dr.active = 0;
+                            }
+                            else
+                            {
+                                signal_dr[i].first = true;
+                            }
                         }
-                        else
-                        {
-                            signal_dr[i].second=true; //make sure do once
-                        }
+
                     }
-                }
-                else
-                {
-                    //remove,make sure do once!!!
-                    if (signal_dr.count(i) && signal_dr[i].second)
+                    else
                     {
-                        ControlCmd cmd{};
-                        cmd.cmd = UnSetDrBreak;
-                        cmd.dr_index = i;
-                        if (!utils::CallFunction(cmd))
+                        //remove,make sure do once!!!
+                        if (signal_dr.count(i) && signal_dr[i].first)
                         {
-                            MessageBoxA(NULL, "Remove BreakPoint Failed!", NULL, NULL);
-                            tmp_dr.statue = 1; //remove fault,set button title to "Remove"
-                        }
-                        else
-                        {
-                            //clear data
-                            Debugger::GetDbgInfo(i).capture.clear();
-                            signal_dr[i].second=false; //make sure do once
-                            tmp_dr.active = false;
-                        }
-                    }
-                }
-               
-                // this is checkbox option
- 
-                if (tmp_dr.active) //enable
-                {
-                    //is recored,make sure do once!!!
-                    if (!signal_dr[i].first && signal_dr[i].second)
-                    {
-                        ControlCmd cmd{};
-                        cmd.cmd = EnableDrBreak;
-                        cmd.dr_index = i;
-                        if (!utils::CallFunction(cmd))
-                        {
-                            MessageBoxA(NULL, "Enable BreakPoint Failed!", NULL, NULL);
-                            tmp_dr.active = 0;
-                        }
-                        else
-                        {
-                            signal_dr[i].first = true;
-                        }
-                    }
-                        
-                }
-                else
-                {
-                    //remove,make sure do once!!!
-                    if (signal_dr.count(i) && signal_dr[i].first)
-                    {
-                        ControlCmd cmd{};
-                        cmd.cmd = DisableDrBreak;
-                        cmd.dr_index = i;
-                        if (!utils::CallFunction(cmd))
-                        {
-                            MessageBoxA(NULL, "Disable BreakPoint Failed!", NULL, NULL);
-                            tmp_dr.active = 1;
-                        }
-                        else
-                        {
-                            signal_dr[i].first = false;
+                            ControlCmd cmd{};
+                            cmd.cmd = ECMD::veh_disable_dr;
+                            cmd.dr_index = i;
+                            if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            {
+                                MessageBoxA(NULL, "Disable BreakPoint Failed!", NULL, NULL);
+                                tmp_dr.active = 1;
+                            }
+                            else
+                            {
+                                signal_dr[i].first = false;
+                            }
                         }
                     }
                 }
@@ -736,7 +943,7 @@ void OnIPC(DWORD* a)
     char* buff = new char[8192];
     while (true)
     {
-        if (data::global::pipe_.read(buff))
+        if (config::global::plugin_.read_pipe(buff))
         {
             EDataType type = (EDataType)(*(uint8_t*)buff);
             switch (type)
@@ -744,13 +951,13 @@ void OnIPC(DWORD* a)
                 case API:
                 {
                     PApiMonitorInfo pApi = reinterpret_cast<PApiMonitorInfo>(buff);
-                    if (data::Syscall::monitor.count(pApi->modulename) <= 0)
+                    if (config::syscall::monitor.count(pApi->modulename) <= 0)
                     {
-                        data::Syscall::monitor[pApi->modulename][pApi->function] = 1;
+                        config::syscall::monitor[pApi->modulename][pApi->function] = 1;
                     }
                     else
                     {
-                        data::Syscall::monitor[pApi->modulename][pApi->function]++;
+                        config::syscall::monitor[pApi->modulename][pApi->function]++;
                     }
                     break;
                 } 
@@ -767,7 +974,7 @@ void OnIPC(DWORD* a)
                         uint32_t aglim = (pDbg->region_size & 0xfffff000) + 0x1000;
                         curtData.memoryRegion.data.resize(aglim);
                         //read mem
-                        auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, data::global::target);
+                        auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, config::global::targetProcess.GetPid());
                         if (hProc)
                         {
                             ReadProcessMemory(hProc, (PVOID)pDbg->region_start, &curtData.memoryRegion.data[0], aglim, NULL);
@@ -836,21 +1043,8 @@ int main()
     VehHandlerItem::SetLdrpVectorHandlerList(rva_LdrpVectorHandlerList);
     EasyPdb::EzPdbUnload(&pdb);
 
-    //calc pjwatch.Dispatch offset、path
-    auto base = LoadLibraryA("pjwatch.dll");
-    auto lpDispatch = reinterpret_cast<uint8_t*>(GetProcAddress(base, "Dispatch"));
-    data::global::fnDispatch = (uint64_t)(lpDispatch - (uint8_t*)base);
-    GetModuleFileNameA(base,data::global::plugin_path,256);
-    FreeLibrary(base);
-
-    //init pipe
-    if (!data::global::pipe_.initPipe())
-    {
-        MessageBoxA(NULL,"create pipe failed!","pjark",NULL);
-        return 0;
-    }
     CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnIPC, NULL, NULL, NULL);
     CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnUpdate, NULL, NULL, NULL);
-    render::get_instasnce()->CreatGui(L"PJArk",L"CPJArk",1440,900, OnGui);
+    render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, OnGui);
     return 0;
 }

@@ -1,0 +1,4 @@
+﻿D:\SoftWare\Microsoft Visual Studio\Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: 中间目录(x64\Debug\)包含从另一个项目(pjwatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  main.cpp
+D:\Code\C_C++\pjwatch\pjveh\plugin.h(51,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+  pjveh.vcxproj -> D:\Code\C_C++\pjwatch\build\pjveh_64.dll

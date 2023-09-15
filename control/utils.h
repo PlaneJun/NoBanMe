@@ -35,6 +35,35 @@ namespace utils
 		return buff;
 	}
 
+	std::string wstring_to_stirng(std::wstring wstr)
+	{
+		std::string result;
+		//获取缓冲区大小，并申请空间，缓冲区大小事按字节计算的  
+		int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wstr.size(), NULL, 0, NULL, NULL);
+		char* buffer = new char[len + 1];
+		//宽字节编码转换成多字节编码  
+		WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wstr.size(), buffer, len, NULL, NULL);
+		buffer[len] = '\0';
+		//删除缓冲区并返回值  
+		result.append(buffer);
+		delete[] buffer;
+		return result;
+	}
+
+	std::wstring string_to_wstirng(std::string str)
+	{
+		std::wstring result;
+		//获取缓冲区大小，并申请空间，缓冲区大小按字符计算  
+		int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), NULL, 0);
+		TCHAR* buffer = new TCHAR[len + 1];
+		//多字节编码转换成宽字节编码  
+		MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), buffer, len);
+		buffer[len] = '\0';             //添加字符串结尾  
+		result.append(buffer);
+		delete[] buffer;
+		return result;
+	}
+
 	std::string string_To_UTF8(const std::string& str)
 	{
 		int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
@@ -182,218 +211,8 @@ namespace utils
 		return 0;
 	}
 
-	uint32_t GetMainThreadId(uint32_t pid)
+	BOOL RemoteInjectDLL(DWORD PID, const char* Path) 
 	{
-		THREADENTRY32 te32;
-		HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-		if (hThreadSnap == INVALID_HANDLE_VALUE)
-			return 0;
-
-		te32.dwSize = sizeof(THREADENTRY32);
-		if (!Thread32First(hThreadSnap, &te32)) 
-		{
-			CloseHandle(hThreadSnap);     // 必须在使用后清除快照对象!
-			return(FALSE);
-		}
-
-		do 
-		{
-			if (te32.th32OwnerProcessID == pid) 
-			{
-				CloseHandle(hThreadSnap);
-				return te32.th32ThreadID;
-			}
-		} while (Thread32Next(hThreadSnap, &te32));
-
-		CloseHandle(hThreadSnap);
-		return 0;
-	}
-
-	void EnumCurtAllProcess(std::vector<ProcessItem>& items)
-	{
-		HANDLE hSnapshot_proc = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		if (hSnapshot_proc)
-		{
-			PROCESSENTRY32 pe = { sizeof(PROCESSENTRY32) };
-			bool bprocess = Process32First(hSnapshot_proc, &pe);
-			if(!bprocess)
-				return;
-
-			std::filesystem::path icon_dir("./Data/icon/");
-			if (std::filesystem::exists(icon_dir))
-				std::filesystem::remove_all(icon_dir);
-			std::filesystem::create_directory(icon_dir);
-
-			while (bprocess)
-			{
-				BOOL bIsWow64 =false;
-				std::wstring wtmp(pe.szExeFile);
-				std::string fullPath(wtmp.begin(), wtmp.end());
-				char imagepath[MAX_PATH]{}, startuptime[MAX_PATH]{};
-				auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
-				if (hProc)
-				{
-					//Get Module Path
-					GetModuleFileNameExA(hProc, NULL, imagepath, MAX_PATH);
-					//GetStartupTime
-					FILETIME ftCreation, ftExit, ftKernel, ftUser;
-					SYSTEMTIME stCreation, lstCreation;
-					if (GetProcessTimes(hProc, &ftCreation, &ftExit, &ftKernel, &ftUser)) {
-						FileTimeToSystemTime(&ftCreation, &stCreation);
-						SystemTimeToTzSpecificLocalTime(NULL, &stCreation, &lstCreation);
-						sprintf_s(startuptime,"%04d-%02d-%02d %02d:%02d:%02d", lstCreation.wYear, lstCreation.wMonth, lstCreation.wDay, lstCreation.wHour, lstCreation.wMinute, lstCreation.wSecond);
-					}
-					IsWow64Process(hProc,&bIsWow64);
-					CloseHandle(hProc);
-				}
-				std::string proName = fullPath.substr(fullPath.rfind("\\") + 1);
-
-				//创建保存icon的目录
-				
-
-				ID3D11ShaderResourceView* icon = nullptr;
-				auto hIcon = GetProcessIcon(imagepath);
-				if (hIcon != NULL && SaveIconToPng(hIcon, ("./Data/icon/" + proName + ".png").c_str()))
-					icon = render::get_instasnce()->DX11LoadTextureImageFromFile(("./Data/icon/" + proName + ".png").c_str());
-				items.push_back(ProcessItem(icon,pe.th32ProcessID ,proName,pe.th32ParentProcessID ,imagepath ,startuptime, bIsWow64));
-				bprocess = Process32Next(hSnapshot_proc, &pe);
-			}
-			CloseHandle(hSnapshot_proc);
-		}
-	}
-
-	void EnumPidModules(uint32_t pid ,std::vector<ModuleItem>& items)
-	{
-		HANDLE hSnapshot_proc = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
-		if (hSnapshot_proc)
-		{
-			MODULEENTRY32  me32 = { sizeof(MODULEENTRY32) };
-			bool bprocess = Module32First(hSnapshot_proc, &me32);
-			while (bprocess)
-			{
-				USES_CONVERSION;
-				char fullPath[MAX_PATH]{};
-				lstrcpyA(fullPath, OLE2A(me32.szExePath));
-				items.push_back(ModuleItem( fullPath,(uint64_t)me32.modBaseAddr,me32.modBaseSize ));
-				bprocess = Module32Next(hSnapshot_proc, &me32);
-			}
-			CloseHandle(hSnapshot_proc);
-		}
-	}
-
-	void EnumPidThread(uint32_t pid,std::vector<ThreadItem>& items)
-	{
-		THREADENTRY32 te32;
-		HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
-		if (hThreadSnap == INVALID_HANDLE_VALUE)
-			return;
-
-		te32.dwSize = sizeof(THREADENTRY32);
-		if (!Thread32First(hThreadSnap, &te32))
-		{
-			CloseHandle(hThreadSnap);     // 必须在使用后清除快照对象!
-			return;
-		}
-
-		HMODULE hNtdll = LoadLibraryW(L"ntdll.dll");
-		NTQUERYINFORMATIONTHREAD NtQueryInformationThread = NULL;
-		NtQueryInformationThread = (NTQUERYINFORMATIONTHREAD)GetProcAddress(hNtdll, "NtQueryInformationThread");
-
-		do
-		{
-			
-			if (te32.th32OwnerProcessID == pid)
-			{
-				uint64_t startaddr{};
-				DWORD retlen{};
-				auto hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, te32.th32ThreadID);
-				if (hThread)
-				{
-					NtQueryInformationThread(hThread, ThreadQuerySetWin32StartAddress, &startaddr, sizeof(startaddr), &retlen);
-					CloseHandle(hThread);
-				}
-				items.push_back(ThreadItem(te32.th32ThreadID, te32.tpDeltaPri, startaddr));
-			}
-			
-		} while (Thread32Next(hThreadSnap, &te32));
-
-		CloseHandle(hThreadSnap);
-	}
-
-	void EnumVehHandler(uint32_t pid, std::vector<VehHandlerItem>& items)
-	{
-		static auto QueryList = [=](HANDLE process,uint64_t LdrpVectorHandlerList, BOOL exception,BOOL isWow64) {
-
-			std::vector<VehHandlerItem> items{};
-
-			PLIST_ENTRY startLink{};
-			PLIST_ENTRY currentLink{};
-
-			VehHandlerItem::RTL_VECTORED_HANDLER_LIST* vectorPtr=new VehHandlerItem::RTL_VECTORED_HANDLER_LIST();
-			ReadProcessMemory(process,(PVOID)LdrpVectorHandlerList,vectorPtr,sizeof(VehHandlerItem::RTL_VECTORED_HANDLER_LIST),NULL);
-			if (exception)
-			{
-				startLink = (PLIST_ENTRY)PTR_ADD_OFFSET((LPVOID)LdrpVectorHandlerList, UFIELD_OFFSET(VehHandlerItem::RTL_VECTORED_HANDLER_LIST, ExceptionList));;
-				currentLink = vectorPtr->ExceptionList.Flink;
-			}
-			else {
-				startLink = (PLIST_ENTRY)PTR_ADD_OFFSET((LPVOID)LdrpVectorHandlerList, UFIELD_OFFSET(VehHandlerItem::RTL_VECTORED_HANDLER_LIST, ContinueList));;
-				currentLink = vectorPtr->ContinueList.Flink;
-			}
-			int i = 0;
-			while (currentLink != startLink && i <= 40)
-			{
-				VehHandlerItem::PRTL_VECTORED_EXCEPTION_ENTRY addressOfEntry = new VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY();
-				ReadProcessMemory(process, CONTAINING_RECORD(currentLink, VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY, List), addressOfEntry, sizeof(VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY), NULL);
-				typedef NTSTATUS(NTAPI* fnNtQueryInformationProcess)(HANDLE ProcessHandle, int ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
-				fnNtQueryInformationProcess lpNtQueryInformationProcess = (fnNtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryInformationProcess");
-				uint64_t decode_ptr{};
-				uint64_t key = (uint64_t)addressOfEntry->VectoredHandler;
-				uint32_t ProcessInformation{};
-				uint32_t ret = lpNtQueryInformationProcess(process, 36, &ProcessInformation, 4, 0);
-				if (ret >= 0)
-				{
-					if (isWow64)
-					{
-						decode_ptr =  ProcessInformation^ __ROR4__(key, 32 - (ProcessInformation & 0x1F));
-					}
-					else
-					{
-						decode_ptr =  __ROR8__(key, 0x40 - (ProcessInformation & 0x3F)) ^ ProcessInformation;
-					}
-				}
-
-				MEMORY_BASIC_INFORMATION m = { 0 };
-				VirtualQueryEx(process, (PVOID)decode_ptr,&m, sizeof(MEMORY_BASIC_INFORMATION));
-				char module_path[MAX_PATH]{};
-				if ((uint64_t)m.AllocationBase > 0)
-					GetModuleFileNameExA(process, (HMODULE)m.AllocationBase, module_path,MAX_PATH);
-				items.push_back(VehHandlerItem(decode_ptr, module_path, exception));
-				currentLink = addressOfEntry->List.Flink;
-
-				i++;
-			}
-
-			return items;
-		};
-
-
-		BOOL bIsWow64 = false;
-		auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
-		if (hProc)
-		{
-			IsWow64Process(hProc, &bIsWow64);
-			auto veh = QueryList(hProc,VehHandlerItem::GetLdrpVectorHandlerList(),true, bIsWow64);
-			for (auto v : veh)
-				items.push_back(v);
-			veh = QueryList(hProc, VehHandlerItem::GetLdrpVectorHandlerList(), false, bIsWow64);
-			for (auto v : veh)
-				items.push_back(v);
-			CloseHandle(hProc);
-		}
-	}
-
-	BOOL InjectDLL(DWORD PID, const char* Path) {
 		HANDLE hProcess;
 		DWORD dwSize = 0;
 		LPVOID PDllAddr;
@@ -437,28 +256,28 @@ namespace utils
 		return true;
 	}
 
-	bool CallFunction(ControlCmd cmd)
+	bool RemoteCallFunction(DWORD PID,uint64_t addr,PVOID pargs,size_t args_size)
 	{
-		auto hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, data::global::target);
+		auto hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, PID);
 		if (hProcess == NULL)
 		{
 			MessageBoxA(NULL, "OpenProcess Failed!", "control", NULL);
 			return false;
 		}
 		//申请参数内存
-		auto lpParam = VirtualAllocEx(hProcess, NULL, sizeof(ControlCmd), MEM_COMMIT, PAGE_READWRITE);
+		auto lpParam = VirtualAllocEx(hProcess, NULL, args_size, MEM_COMMIT, PAGE_READWRITE);
 		if (lpParam == NULL)
 		{
 			MessageBoxA(NULL, "VirtualAllocEx Params Failed!", "control", NULL);
 			return false;
 		}
 
-		if (!WriteProcessMemory(hProcess, lpParam, &cmd, sizeof(ControlCmd), NULL))
+		if (!WriteProcessMemory(hProcess, lpParam, pargs, args_size, NULL))
 		{
 			MessageBoxA(NULL, "Write Params Failed!", "control", NULL);
 			return false;
 		}
-		HANDLE  pRemoteThread = CreateRemoteThread(hProcess, NULL, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(data::global::fnDispatch), lpParam, NULL, NULL);
+		HANDLE  pRemoteThread = CreateRemoteThread(hProcess, NULL, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(addr), lpParam, NULL, NULL);
 		if (pRemoteThread == NULL)
 		{
 			MessageBoxA(NULL, "CreateRemoteThread Error", "control", NULL);
@@ -471,6 +290,151 @@ namespace utils
 	}
 
 
-	
+	bool QueryValue(const std::string& ValueName, const std::string& szModuleName,std::string& RetStr)
+	{
+		bool bSuccess = FALSE;
+		BYTE* m_lpVersionData = NULL;
+		DWORD  m_dwLangCharset = 0;
+		CHAR* tmpstr = NULL;
+		do
+		{
+			if (!ValueName.size() || !szModuleName.size())
+			{
+				break;
+			}
+			DWORD dwHandle;
+			// 判断系统能否检索到指定文件的版本信息
+			//针对包含了版本资源的一个文件，判断容纳 文件版本信息需要一个多大的缓冲区
+			//返回值说明Long，容纳文件的版本资源所需的缓冲区长度。如文件不包含版本信息，则返回一个0值。会设置GetLastError参数表
+			DWORD dwDataSize = ::GetFileVersionInfoSizeA((LPCSTR)szModuleName.c_str(),
+				&dwHandle);
+			if (dwDataSize == 0)
+			{
+				break;
+			}
+			//std::nothrow:在内存不足时，new (std::nothrow)并不抛出异常，而是将指针置NULL。
+			m_lpVersionData = new (std::nothrow) BYTE[dwDataSize];// 分配缓冲区
+			if (NULL == m_lpVersionData)
+			{
+				break;
+			}
+			// 检索信息
+			//从支持版本标记的一个模块里获取文件版本信息
+			if (!::GetFileVersionInfoA((LPCSTR)szModuleName.c_str(), dwHandle, dwDataSize,
+				(void*)m_lpVersionData))
+			{
+				break;
+			}
+			UINT nQuerySize;
+			DWORD* pTransTable;
+			if (!::VerQueryValueA(m_lpVersionData, "\\VarFileInfo\\Translation",
+				(void**)&pTransTable, &nQuerySize))
+			{
+				break;
+			}
+			//MAKELONG 将两个16位的数联合成一个无符号的32位数
+			m_dwLangCharset = MAKELONG(HIWORD(pTransTable[0]), LOWORD(pTransTable[0]));
+			if (m_lpVersionData == NULL)
+			{
+				break;
+			}
+			tmpstr = new (std::nothrow) CHAR[128];// 分配缓冲区
+			if (NULL == tmpstr)
+			{
+				break;
+			}
+			sprintf_s(tmpstr, 128, "\\StringFileInfo\\%08lx\\%s", m_dwLangCharset,
+				ValueName.c_str());
+			LPVOID lpData;
+			// 调用此函数查询前需要先依次调用函数GetFileVersionInfoSize和GetFileVersionInfo
+			if (::VerQueryValueA((void*)m_lpVersionData, tmpstr, &lpData, &nQuerySize))
+			{
+				RetStr = (char*)lpData;
+			}
+			bSuccess = TRUE;
+		} while (FALSE);
+		// 销毁缓冲区
+		if (m_lpVersionData)
+		{
+			delete[] m_lpVersionData;
+			m_lpVersionData = NULL;
+		}
+		if (tmpstr)
+		{
+			delete[] tmpstr;
+			tmpstr = NULL;
+		}
+		return bSuccess;
+	}
+
+	//获取文件说明
+	std::string GetFileDescription(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("FileDescription", szModuleName, ret) ? ret : "";
+	}
+
+	//获取文件版本
+	std::string GetFileVersion(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("FileVersion", szModuleName, ret) ? ret : "";
+	}
+	//获取内部名称
+	std::string  GetInternalName(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("InternalName", szModuleName, ret) ? ret : "";
+	}
+
+	//获取公司名称
+	std::string  GetCompanyName(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("CompanyName", szModuleName, ret) ? ret : "";
+	}
+
+	//获取版权
+	std::string GetLegalCopyright(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("LegalCopyright", szModuleName, ret) ? ret : "";
+	}
+
+	//获取原始文件名
+	std::string GetOriginalFilename(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("OriginalFilename", szModuleName, ret) ? ret : "";
+	}
+
+	//获取产品名称
+	std::string  GetProductName(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("ProductName", szModuleName, ret) ? ret : "";
+	}
+
+	//获取产品版本
+	std::string GetProductVersion(const std::string szModuleName)
+	{
+		std::string ret{};
+		return QueryValue("ProductVersion", szModuleName, ret)?ret:"";
+	}
+
+	void OpenFilePropertyDlg(const char* path)
+	{
+		SHELLEXECUTEINFOA shell;
+		shell.hwnd = NULL;
+		shell.lpVerb = "properties";
+		shell.lpFile = path;
+		shell.lpDirectory = NULL;
+		shell.lpParameters = NULL;
+		shell.nShow = SW_SHOWNORMAL;
+		shell.fMask = SEE_MASK_INVOKEIDLIST;
+		shell.lpIDList = NULL;
+		shell.cbSize = sizeof(SHELLEXECUTEINFOW);
+		ShellExecuteExA(&shell);
+	}
 }
 

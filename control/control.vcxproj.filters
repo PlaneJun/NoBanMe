@@ -16,17 +16,11 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{92ee0996-857f-470d-9908-e0f931d1a086}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pipe">
-      <UniqueIdentifier>{31412f00-6c92-47aa-a28c-0b241211f680}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{90762cfe-386b-4624-adb2-a8e1ac7f3e13}</UniqueIdentifier>
     </Filter>
     <Filter Include="zydis">
       <UniqueIdentifier>{e994849e-dce6-4d5e-aed1-55248e04e77b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="data">
-      <UniqueIdentifier>{c1174a08-4f36-46bc-b12d-4071fb77012c}</UniqueIdentifier>
     </Filter>
     <Filter Include="pdb">
       <UniqueIdentifier>{03ae2a9a-c347-4353-aeb8-83f179cd36c9}</UniqueIdentifier>
@@ -34,11 +28,17 @@
     <Filter Include="process">
       <UniqueIdentifier>{e49f1f23-6ea1-430c-a137-f633e444a416}</UniqueIdentifier>
     </Filter>
-    <Filter Include="debugger">
-      <UniqueIdentifier>{00b4ad11-886c-42ae-9d2b-094ed5ad79c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="monitor">
       <UniqueIdentifier>{fb95f839-2109-42e8-8b09-4f26a88bcfff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{c1174a08-4f36-46bc-b12d-4071fb77012c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="plugin">
+      <UniqueIdentifier>{31412f00-6c92-47aa-a28c-0b241211f680}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debugger">
+      <UniqueIdentifier>{00b4ad11-886c-42ae-9d2b-094ed5ad79c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -104,8 +104,8 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="pipe.h">
-      <Filter>pipe</Filter>
+    <ClInclude Include="plugin.h">
+      <Filter>plugin</Filter>
     </ClInclude>
     <ClInclude Include="Zydis\Zydis.h">
       <Filter>zydis</Filter>
@@ -113,11 +113,8 @@
     <ClInclude Include="utils.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="data.h">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="config.h">
-      <Filter>data</Filter>
+      <Filter>config</Filter>
     </ClInclude>
     <ClInclude Include="imgui_theme.h">
       <Filter>imgui</Filter>
@@ -128,26 +125,11 @@
     <ClInclude Include="md5.h">
       <Filter>pdb</Filter>
     </ClInclude>
-    <ClInclude Include="pattern.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\render.h">
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="imgui\stb_image.h">
       <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="process.h">
-      <Filter>process</Filter>
-    </ClInclude>
-    <ClInclude Include="module.h">
-      <Filter>process</Filter>
-    </ClInclude>
-    <ClInclude Include="thread.h">
-      <Filter>process</Filter>
-    </ClInclude>
-    <ClInclude Include="process\vehhandler.h">
-      <Filter>process</Filter>
     </ClInclude>
     <ClInclude Include="struct.h">
       <Filter>头文件</Filter>
@@ -157,6 +139,18 @@
     </ClInclude>
     <ClInclude Include="debugger\debugger.h">
       <Filter>debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="process\process.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="process\module.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="process\thread.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="process\vehhandler.h">
+      <Filter>process</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

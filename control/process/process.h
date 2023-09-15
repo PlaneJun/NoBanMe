@@ -13,8 +13,22 @@ public :
     };
 
 public:
+    ProcessItem()
+    {
+        this->icon_ = nullptr;
+        this->pid_ = 0;
+        this->name_ = std::string();
+        this->ppid_ = 0;
+        this->fullpath_ = std::string();
+        this->startuptime_ = std::string();
+        this->fileversion_ = std::string();
+        this->companyname_ = std::string();
+        this->description_ = std::string();
+        this->bWow64 = false;
+    }
 
-    ProcessItem(ID3D11ShaderResourceView* icon, uint32_t pid, std::string name,uint32_t ppid,std::string fullpath,std::string startuptime,bool isWow64)
+    ProcessItem(ID3D11ShaderResourceView* icon, uint32_t pid, std::string name,uint32_t ppid,std::string fullpath,std::string startuptime,
+                bool isWow64,std::string descripttion,std::string fileversion,std::string companyname)
     {
         this->icon_ = icon;
         this->pid_ = pid;
@@ -23,6 +37,111 @@ public:
         this->fullpath_ = fullpath;
         this->startuptime_ = startuptime;
         this->bWow64 = isWow64;
+        this->fileversion_ = fileversion;
+        this->companyname_ = companyname;
+        this->description_ = descripttion;
+    }
+
+    auto GetIcon()
+    {
+        return icon_;
+    }
+
+    auto GetPid()
+    {
+        return pid_;
+    }
+
+    auto GetName()
+    {
+        return name_;
+    }
+
+    auto GetPPid()
+    {
+        return ppid_;
+    }
+
+    auto GetFullPath()
+    {
+        return fullpath_;
+    }
+
+    auto GetStartUpTime()
+    {
+        return startuptime_;
+    }
+
+    auto GetFileVersion()
+    {
+        return fileversion_;
+    }
+
+    auto GetDecription()
+    {
+        return description_;
+    }
+
+    auto GetCompanyName()
+    {
+        return companyname_;
+    }
+
+    auto IsWow64()
+    {
+        return bWow64;
+    }
+
+public:
+
+    static void EnumCurtAllProcess(std::vector<ProcessItem>& items)
+    {
+        HANDLE hSnapshot_proc = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (hSnapshot_proc)
+        {
+            PROCESSENTRY32 pe = { sizeof(PROCESSENTRY32) };
+            bool bprocess = Process32First(hSnapshot_proc, &pe);
+            if (!bprocess)
+                return;
+
+            //创建保存icon的目录
+            std::filesystem::path icon_dir("./Data/icon/");
+            if (std::filesystem::exists(icon_dir))
+                std::filesystem::remove_all(icon_dir);
+            std::filesystem::create_directory(icon_dir);
+
+            while (bprocess)
+            {
+                BOOL bIsWow64 = false;
+                std::wstring wtmp(pe.szExeFile);
+                std::string fullPath(wtmp.begin(), wtmp.end());
+                char imagepath[MAX_PATH]{}, startuptime[MAX_PATH]{};
+                auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
+                if (hProc)
+                {
+                    //Get Module Path
+                    GetModuleFileNameExA(hProc, NULL, imagepath, MAX_PATH);
+                    //GetStartupTime
+                    FILETIME ftCreation, ftExit, ftKernel, ftUser;
+                    SYSTEMTIME stCreation, lstCreation;
+                    if (GetProcessTimes(hProc, &ftCreation, &ftExit, &ftKernel, &ftUser)) {
+                        FileTimeToSystemTime(&ftCreation, &stCreation);
+                        SystemTimeToTzSpecificLocalTime(NULL, &stCreation, &lstCreation);
+                        sprintf_s(startuptime, "%04d/%02d/%02d %02d:%02d:%02d", lstCreation.wYear, lstCreation.wMonth, lstCreation.wDay, lstCreation.wHour, lstCreation.wMinute, lstCreation.wSecond);
+                    }
+                    IsWow64Process(hProc, &bIsWow64);
+                    CloseHandle(hProc);
+                }
+                std::string proName = fullPath.substr(fullPath.rfind("\\") + 1);
+                ID3D11ShaderResourceView* icon = nullptr;
+                auto hIcon = utils::GetProcessIcon(imagepath);
+                if (hIcon != NULL && utils::SaveIconToPng(hIcon, ("./Data/icon/" + proName + ".png").c_str()))
+                    icon = render::get_instasnce()->DX11LoadTextureImageFromFile(("./Data/icon/" + proName + ".png").c_str());
+                items.push_back(ProcessItem(icon, pe.th32ProcessID, proName, pe.th32ParentProcessID, imagepath, startuptime, bIsWow64, utils::GetFileDescription(imagepath), utils::GetFileVersion(imagepath),  utils::GetProductName(imagepath)));
+                bprocess = Process32Next(hSnapshot_proc, &pe);
+            }
+            CloseHandle(hSnapshot_proc);
+        }
     }
 
     static void SortWithSortSpecs(ImGuiTableSortSpecs* sort_specs, ProcessItem* items, int items_count)
@@ -66,41 +185,6 @@ public:
         s_current_sort_specs_ = a;
     }
 
-    auto GetIcon()
-    {
-        return icon_;
-    }
-
-    auto GetPid()
-    {
-        return pid_;
-    }
-
-    auto GetName()
-    {
-        return name_;
-    }
-
-    auto GetPPid()
-    {
-        return ppid_;
-    }
-
-    auto GetFullPath()
-    {
-        return fullpath_;
-    }
-
-    auto GetStartUpTime()
-    {
-        return startuptime_;
-    }
-
-    auto IsWow64()
-    {
-        return bWow64;
-    }
-
 private:
     
     static const ImGuiTableSortSpecs* s_current_sort_specs_;
@@ -110,6 +194,10 @@ private:
     uint32_t ppid_;
     std::string fullpath_;
     std::string startuptime_;
+    std::string fileversion_;
+    std::string companyname_;
+    std::string description_;
+
     bool bWow64;
 };
 
