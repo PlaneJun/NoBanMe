@@ -53,8 +53,8 @@ public:
                 /* instruction:     */ &instruction
             )))
             {
-                tmp.push_back("0x" + utils::IntegerTohex(runtime_address));
-                tmp.push_back(utils::bytesToHexString(buffer + i, instruction.info.length).c_str());
+                tmp.push_back("0x" + utils::conver::IntegerTohex(runtime_address));
+                tmp.push_back(utils::conver::bytesToHexString(buffer + i, instruction.info.length).c_str());
                 tmp.push_back(instruction.text);
                 ret.push_back(tmp);
                 i += instruction.info.length;
@@ -62,8 +62,8 @@ public:
             }
             else
             {
-                tmp.push_back("0x" + utils::IntegerTohex(runtime_address));
-                tmp.push_back(utils::bytesToHexString(buffer + i, 1).c_str());
+                tmp.push_back("0x" + utils::conver::IntegerTohex(runtime_address));
+                tmp.push_back(utils::conver::bytesToHexString(buffer + i, 1).c_str());
                 tmp.push_back("db");
                 ret.push_back(tmp);
                 i++;

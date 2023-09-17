@@ -130,14 +130,20 @@ public:
                         sprintf_s(startuptime, "%04d/%02d/%02d %02d:%02d:%02d", lstCreation.wYear, lstCreation.wMonth, lstCreation.wDay, lstCreation.wHour, lstCreation.wMinute, lstCreation.wSecond);
                     }
                     IsWow64Process(hProc, &bIsWow64);
+
+                    //PROCESS_BASIC_INFORMATION pbi;
+                    //Mem::NtQueryInformationProcess(pid, 0, (PVOID)&pbi, sizeof(PROCESS_BASIC_INFORMATION), 0);
+
+
+
                     CloseHandle(hProc);
                 }
                 std::string proName = fullPath.substr(fullPath.rfind("\\") + 1);
                 ID3D11ShaderResourceView* icon = nullptr;
-                auto hIcon = utils::GetProcessIcon(imagepath);
-                if (hIcon != NULL && utils::SaveIconToPng(hIcon, ("./Data/icon/" + proName + ".png").c_str()))
+                auto hIcon = utils::image::GetProcessIcon(imagepath);
+                if (hIcon != NULL && utils::image::SaveIconToPng(hIcon, ("./Data/icon/" + proName + ".png").c_str()))
                     icon = render::get_instasnce()->DX11LoadTextureImageFromFile(("./Data/icon/" + proName + ".png").c_str());
-                items.push_back(ProcessItem(icon, pe.th32ProcessID, proName, pe.th32ParentProcessID, imagepath, startuptime, bIsWow64, utils::GetFileDescription(imagepath), utils::GetFileVersion(imagepath),  utils::GetProductName(imagepath)));
+                items.push_back(ProcessItem(icon, pe.th32ProcessID, proName, pe.th32ParentProcessID, imagepath, startuptime, bIsWow64, utils::file::GetFileDescription(imagepath), utils::file::GetFileVersion(imagepath), utils::file::GetProductName(imagepath)));
                 bprocess = Process32Next(hSnapshot_proc, &pe);
             }
             CloseHandle(hSnapshot_proc);

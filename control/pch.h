@@ -10,7 +10,7 @@
 #include <Zydis.h>
 #include <gdiplus.h>
 #include <DbgHelp.h>
-#include <atlconv.h>
+#include <Shlobj.h>
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -30,6 +30,7 @@
 #include <functional>
 #include "defs.h"
 #include "struct.h"
+#include "memstub.h"
 #include "md5.h"
 #include "EasyPdb.h"
 #include "plugin.h"
@@ -40,6 +41,7 @@
 #include "process.h"
 #include "module.h"
 #include "thread.h"
+#include "memory.h"
 #include "vehhandler.h"
 //Debugger
 #include "debugger.h"

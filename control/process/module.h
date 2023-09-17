@@ -12,6 +12,16 @@ public:
 
 public:
 
+    ModuleItem()
+    {
+        this->imagepath_ = std::string();
+        this->base_ = 0;
+        this->size_ = 0;
+        this->fileversion_ = std::string();
+        this->companyname_ = std::string();
+        this->description_ = std::string();
+    }
+
     ModuleItem(std::string imagepath,uint64_t base,size_t size,std::string descripttion, std::string fileversion, std::string companyname)
     {
         this->imagepath_ = imagepath;
@@ -63,8 +73,8 @@ public:
             bool bprocess = Module32First(hSnapshot_proc, &me32);
             while (bprocess)
             {
-                std::string imagepath = utils::wstring_to_stirng(me32.szExePath);
-                items.push_back(ModuleItem(imagepath, (uint64_t)me32.modBaseAddr, me32.modBaseSize, utils::GetFileDescription(imagepath), utils::GetFileVersion(imagepath), utils::GetProductName(imagepath)));
+                std::string imagepath = utils::conver::wstring_to_stirng(me32.szExePath);
+                items.push_back(ModuleItem(imagepath, (uint64_t)me32.modBaseAddr, me32.modBaseSize, utils::file::GetFileDescription(imagepath), utils::file::GetFileVersion(imagepath), utils::file::GetProductName(imagepath)));
                 bprocess = Module32Next(hSnapshot_proc, &me32);
             }
             CloseHandle(hSnapshot_proc);
@@ -92,7 +102,7 @@ public:
             switch (sort_spec->ColumnUserID)
             {
             case IMAGEPATH:         delta = (strcmp(a->imagepath_.c_str(), b->imagepath_.c_str()));   break;
-            case BASE:              delta = (a->base_, b->base_);                                      break;
+            case BASE:              delta = (a->base_- b->base_);                                      break;
             case SIZE:              delta = (a->size_ - b->size_);                                    break;
             default: IM_ASSERT(0); break;
             }

@@ -53,6 +53,20 @@ typedef NTSTATUS(WINAPI* NTQUERYINFORMATIONTHREAD)(
     ULONG ThreadInformationLength,
     PULONG ReturnLength);
 
+typedef DWORD(WINAPI* ZECREATETHREADEX)(
+    PHANDLE ThreadHandle,
+    ACCESS_MASK DesiredAccess,
+    LPVOID ObjectAttributes,
+    HANDLE ProcessHandle,
+    LPTHREAD_START_ROUTINE lpStartAddress,
+    LPVOID lpParameter,
+    ULONG CreateThreadFlags,
+    SIZE_T ZeroBits,
+    SIZE_T StackSize,
+    SIZE_T MaximumStackSize,
+    LPVOID pUnkown);
+
+
 typedef enum _THREADINFOCLASS
 {
     ThreadBasicInformation,
@@ -91,3 +105,5 @@ typedef enum _THREADINFOCLASS
     ThreadIdealProcessorEx,
     MaxThreadInfoClass
 } THREADINFOCLASS;
+
+

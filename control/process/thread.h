@@ -13,6 +13,14 @@ public:
 
 public:
 
+    ThreadItem()
+    {
+        this->threadid_ = 0;
+        this->Prority_ = 0;
+        this->startAddr_ = 0;
+        this->module_path_ = std::string();
+    }
+
     ThreadItem(uint32_t threadid, uint32_t Prority, uint64_t startAddr,const char* path)
     {
         this->threadid_ = threadid;
@@ -77,7 +85,7 @@ public:
                     {
                         MEMORY_BASIC_INFORMATION m{};
                         VirtualQueryEx(hProc, (PVOID)startaddr, &m, sizeof(MEMORY_BASIC_INFORMATION));
-                        if (m.AllocationBase > 0)
+                        if (m.AllocationBase != NULL)
                         {
                             GetModuleFileNameExA(hProc, (HMODULE)m.AllocationBase, path, MAX_PATH);
                         }

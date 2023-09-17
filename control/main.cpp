@@ -2,7 +2,7 @@
 
 bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
 {
-    return utils::RemoteCallFunction(pid,config::global::lpPluginDispatch,&cmd,sizeof(ControlCmd));
+    return Mem::RemoteCallFunction(pid,config::global::lpPluginDispatch,&cmd,sizeof(ControlCmd));
 }
 
 void Table_Process()
@@ -62,19 +62,19 @@ void Table_Process()
                         }
                     }
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetName().append(item->IsWow64()?"*32":"")).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetName().append(item->IsWow64()?"*32":"")).c_str());
                     ImGui::TableNextColumn();
                     ImGui::Text("%d", item->GetPPid());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetStartUpTime()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetStartUpTime()).c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetDecription()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetDecription()).c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetCompanyName()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetCompanyName()).c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetFileVersion()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetFileVersion()).c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetFullPath()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetFullPath()).c_str());
                     ImGui::PopID();
                 }
             }
@@ -93,15 +93,21 @@ void Table_Process()
                     }
                 }
                 ImGui::Separator();
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"枚举窗口",u8"线程列表",u8"进程句柄",u8"异常回调" }))
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"枚举窗口",u8"内存列表",u8"线程列表",u8"进程句柄",u8"异常回调"}))
                 {
                     case 1:
+                    {
+                        config::process::memory::bShow = true;
+                        config::process::memory::pid = config::global::targetProcess.GetPid();
+                        break;
+                    }
+                    case 2:
                     {
                         config::process::thread::bShow = true;
                         config::process::thread::pid = config::global::targetProcess.GetPid();
                         break;
                     }
-                    case 3:
+                    case 4:
                     {
                         config::process::veh::bShow = true;
                         config::process::veh::pid = config::global::targetProcess.GetPid();;
@@ -109,7 +115,7 @@ void Table_Process()
                     }
                 }
                 ImGui::Separator();
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"隐藏进程",u8"进程属性",u8"文件定位" }))
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"隐藏进程",u8"进程属性"}))
                 {
                     case 0:
                     {
@@ -123,7 +129,7 @@ void Table_Process()
                     }
                     case 2:
                     {
-                        utils::OpenFilePropertyDlg(config::global::targetProcess.GetFullPath().c_str());
+                        utils::file::OpenFilePropertyDlg(config::global::targetProcess.GetFullPath().c_str());
                         break;
                     }
                 }
@@ -135,11 +141,51 @@ void Table_Process()
                         
                         break;
                     }
+                    case 2:
+                    {
+                        utils::file::OpenFolderAndSelectFile(config::global::targetProcess.GetFullPath().c_str());
+                        break;
+                    }
                 }
                 ImGui::Separator();
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"注入Dll",u8"调试插件"}))
+                //u8"注入Dll",
+                if (ImGui::BeginMenu(u8"注入Dll"))
                 {
-                    case 1:
+                    
+                    int s = render::get_instasnce()->DrawItemBlock({ u8"远线程注入",u8"内存注入",u8"APC注入" });
+                    if (s >=0)
+                    {
+                        std::string dllPath{};
+                        dllPath = utils::file::openFileDlg();
+                        if (dllPath.empty())
+                        {
+                            MessageBoxA(NULL, "Dll路径有误，注入失败", "pjark", NULL);
+                        }
+                        else
+                        {
+                            switch (s)
+                            {
+                                case 0:
+                                {
+
+                                    if (Mem::RemoteInjectDLL(config::global::targetProcess.GetPid(), dllPath.c_str()))
+                                    {
+                                        MessageBoxA(NULL, "注入成功!", "pjark", NULL);
+                                    }
+                                    else
+                                    {
+                                        MessageBoxA(NULL, "注入失败!", "pjark", NULL);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"调试插件"}))
+                {
+                    case 0:
                     {
                         //是否调试过
                         bool can = true;
@@ -214,9 +260,9 @@ void Table_Process()
                                     char plugin_path[MAX_PATH]{};
                                     GetModuleFileNameA(base, plugin_path, MAX_PATH);
                                     FreeLibrary(base);
-                                    utils::RemoteInjectDLL(config::global::targetProcess.GetPid(), plugin_path);
-                                    base = utils::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::string_to_wstirng((char*)plugin_name[config::global::targetProcess.IsWow64()]).c_str());
-                                    if (base <= 0)
+                                    Mem::RemoteInjectDLL(config::global::targetProcess.GetPid(), plugin_path);
+                                    base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng((char*)plugin_name[config::global::targetProcess.IsWow64()]).c_str());
+                                    if (!base)
                                     {
                                         MessageBoxA(NULL, "注入插件失败!", "pjark", NULL);
                                         break;
@@ -259,6 +305,42 @@ void Table_Process()
                     {
                         case 0:
                         {
+                            utils::normal::CopyStringToClipboard(std::to_string(config::global::targetProcess.GetPid()).c_str());
+                            break;
+                        }
+                        case 1:
+                        {
+                            utils::normal::CopyStringToClipboard(config::global::targetProcess.GetName().c_str());
+                            break;
+                        }
+                        case 2:
+                        {
+                            utils::normal::CopyStringToClipboard(std::to_string(config::global::targetProcess.GetPPid()).c_str());
+                            break;
+                        }
+                        case 3:
+                        {
+                            utils::normal::CopyStringToClipboard(config::global::targetProcess.GetStartUpTime().c_str());
+                            break;
+                        }
+                        case 4:
+                        {
+                            utils::normal::CopyStringToClipboard(config::global::targetProcess.GetDecription().c_str());
+                            break;
+                        }
+                        case 5:
+                        {
+                            utils::normal::CopyStringToClipboard(config::global::targetProcess.GetCompanyName().c_str());
+                            break;
+                        }
+                        case 6:
+                        {
+                            utils::normal::CopyStringToClipboard(config::global::targetProcess.GetFileVersion().c_str());
+                            break;
+                        }
+                        case 7:
+                        {
+                            utils::normal::CopyStringToClipboard(config::global::targetProcess.GetFullPath().c_str());
                             break;
                         }
                     }
@@ -267,6 +349,29 @@ void Table_Process()
                     {
                         case 0:
                         {
+                            char buff[8192]{};
+                            sprintf(buff,"%d | %s | %d | %s | %s | %s | %s | %s", config::global::targetProcess.GetPid(),
+                                config::global::targetProcess.GetName().c_str(), config::global::targetProcess.GetPPid(),
+                                config::global::targetProcess.GetStartUpTime().c_str(), config::global::targetProcess.GetDecription().c_str(),
+                                config::global::targetProcess.GetCompanyName().c_str(), config::global::targetProcess.GetFileVersion().c_str(),
+                                config::global::targetProcess.GetFullPath().c_str());
+                            utils::normal::CopyStringToClipboard(buff);
+                            break;
+                        }
+                        case 1:
+                        {
+                            std::string ret{};
+                            for (auto p : pitems)
+                            {
+                                char buff[8192]{};
+                                sprintf(buff, "%d | %s | %d | %s | %s | %s | %s | %s\n", p.GetPid(),
+                                    p.GetName().c_str(), p.GetPPid(),
+                                    p.GetStartUpTime().c_str(), p.GetDecription().c_str(),
+                                    p.GetCompanyName().c_str(), p.GetFileVersion().c_str(),
+                                    p.GetFullPath().c_str());
+                                ret += buff;
+                            }
+                            utils::normal::CopyStringToClipboard(ret.c_str());
                             break;
                         }
                     }
@@ -319,18 +424,18 @@ void Table_Process()
                     ImGui::PushID(item->GetBase());
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    if (ImGui::Selectable(utils::string_To_UTF8(item->GetImagePath()).c_str(), selected_module == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    if (ImGui::Selectable(utils::conver::string_To_UTF8(item->GetImagePath()).c_str(), selected_module == row_n, ImGuiSelectableFlags_SpanAllColumns))
                         selected_module = row_n;
                     ImGui::TableNextColumn();
                     ImGui::Text("0x%p", item->GetBase());
                     ImGui::TableNextColumn();
                     ImGui::Text("0x%llx", item->GetSize());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetDecription()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetDecription()).c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetCompanyName()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetCompanyName()).c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetFileVersion()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetFileVersion()).c_str());
                     ImGui::PopID();
                 }
             }
@@ -353,12 +458,13 @@ void Table_Process()
                 {
                     case 0:
                     {
-
+                        utils::file::OpenFolderAndSelectFile(mitems[selected_module].GetImagePath().c_str());
                         break;
                     }
                     case 1:
                     {
-                        utils::OpenFilePropertyDlg(mitems[selected_module].GetImagePath().c_str());
+                        utils::file::OpenFilePropertyDlg(mitems[selected_module].GetImagePath().c_str());
+                        break;
                     }
                 }
                 ImGui::EndPopup();
@@ -540,40 +646,40 @@ void Table_VehDebuger()
             static int selected = -1;
             std::vector<std::string> headers = { u8"Reg" ,u8"Value" };
             std::vector<std::pair<std::string, std::string>> text = {
-                {"RAX","0x" + utils::IntegerTohex(curtData.ctx.Rax)},
-                {"RBX","0x" + utils::IntegerTohex(curtData.ctx.Rbx)},
-                {"RCX","0x" + utils::IntegerTohex(curtData.ctx.Rcx) },
-                {"RDX","0x" + utils::IntegerTohex(curtData.ctx.Rdx)},
-                {"RBP","0x" + utils::IntegerTohex(curtData.ctx.Rbp)},
-                {"RSP","0x" + utils::IntegerTohex(curtData.ctx.Rsp)},
-                {"RSI","0x" + utils::IntegerTohex(curtData.ctx.Rsi)},
-                {"RDI","0x" + utils::IntegerTohex(curtData.ctx.Rdi)},
-                { "R8" ,"0x" + utils::IntegerTohex(curtData.ctx.R8) },
-                { "R9","0x" + utils::IntegerTohex(curtData.ctx.R9) },
-                { "R10","0x" + utils::IntegerTohex(curtData.ctx.R10) },
-                { "R11","0x" + utils::IntegerTohex(curtData.ctx.R11) },
-                { "R12","0x" + utils::IntegerTohex(curtData.ctx.R12) },
-                { "R13" ,"0x" + utils::IntegerTohex(curtData.ctx.R13)},
-                { "R14","0x" + utils::IntegerTohex(curtData.ctx.R14) },
-                { "R15","0x" + utils::IntegerTohex(curtData.ctx.R15) },
-                { "RIP" ,"0x" + utils::IntegerTohex(curtData.ctx.Rip) },
-                { "RFLAGS" ,"0x" + utils::IntegerTohex(curtData.ctx.EFlags) },
-                {"Xmm0","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm0)},
-                {"Xmm1","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm1)},
-                {"Xmm2","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm2)},
-                {"Xmm3","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm3)},
-                {"Xmm4","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm4)},
-                {"Xmm5","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm5)},
-                {"Xmm6","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm6)},
-                {"Xmm7","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm7)},
-                {"Xmm8","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm8)},
-                {"Xmm9","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm9)},
-                {"Xmm10","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm10)},
-                {"Xmm11","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm11)},
-                {"Xmm12","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm12)},
-                {"Xmm13","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm13)},
-                {"Xmm14","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm14)},
-                {"Xmm15","0x" + utils::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm15)}
+                {"RAX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rax)},
+                {"RBX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rbx)},
+                {"RCX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rcx) },
+                {"RDX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rdx)},
+                {"RBP","0x" + utils::conver::IntegerTohex(curtData.ctx.Rbp)},
+                {"RSP","0x" + utils::conver::IntegerTohex(curtData.ctx.Rsp)},
+                {"RSI","0x" + utils::conver::IntegerTohex(curtData.ctx.Rsi)},
+                {"RDI","0x" + utils::conver::IntegerTohex(curtData.ctx.Rdi)},
+                { "R8" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.R8) },
+                { "R9","0x" + utils::conver::IntegerTohex(curtData.ctx.R9) },
+                { "R10","0x" + utils::conver::IntegerTohex(curtData.ctx.R10) },
+                { "R11","0x" + utils::conver::IntegerTohex(curtData.ctx.R11) },
+                { "R12","0x" + utils::conver::IntegerTohex(curtData.ctx.R12) },
+                { "R13" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.R13)},
+                { "R14","0x" + utils::conver::IntegerTohex(curtData.ctx.R14) },
+                { "R15","0x" + utils::conver::IntegerTohex(curtData.ctx.R15) },
+                { "RIP" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.Rip) },
+                { "RFLAGS" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.EFlags) },
+                {"Xmm0","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm0)},
+                {"Xmm1","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm1)},
+                {"Xmm2","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm2)},
+                {"Xmm3","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm3)},
+                {"Xmm4","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm4)},
+                {"Xmm5","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm5)},
+                {"Xmm6","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm6)},
+                {"Xmm7","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm7)},
+                {"Xmm8","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm8)},
+                {"Xmm9","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm9)},
+                {"Xmm10","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm10)},
+                {"Xmm11","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm11)},
+                {"Xmm12","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm12)},
+                {"Xmm13","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm13)},
+                {"Xmm14","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm14)},
+                {"Xmm15","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm15)}
             };
             render::get_instasnce()->AddListBox("##context", selected, headers, text);
             ImGui::EndChild();
@@ -598,6 +704,20 @@ void Table_VehDebuger()
             render::get_instasnce()->AddListBox("##Stack", selected, headers, text);
             ImGui::EndChild();
         }
+    }
+}
+void Table_Window()
+{
+    if (ImGui::BeginChild("##window_list", ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
+    {
+        ImGui::Text("11");
+        ImGui::EndChild();
+    }
+    ImGui::SameLine();
+    if (ImGui::BeginChild("##window_info", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar))
+    {
+        ImGui::Text("22");
+        ImGui::EndChild();
     }
 }
 void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
@@ -649,11 +769,11 @@ void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
                         selected = row_n;
                     }
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::IntegerTohex(item->GetThreadEntry()).c_str());
+                    ImGui::Text(("0x" + utils::conver::IntegerTohex(item->GetThreadEntry())).c_str());
                     ImGui::TableNextColumn();
                     ImGui::Text("%d", item->GetPrority());
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetModulePath()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetModulePath()).c_str());
                     ImGui::PopID();
                 }
             }
@@ -686,7 +806,6 @@ void ChildWnd_ExceptionWindow(bool* show, uint32_t pid)
             ImGui::TableSetupColumn(u8"线程入口", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, VehHandlerItem::EInfo::ENTRY);
             ImGui::TableSetupColumn(u8"类型", ImGuiTableColumnFlags_WidthFixed, 0.0f, VehHandlerItem::EInfo::TYPE);
             ImGui::TableSetupColumn(u8"模块路径", ImGuiTableColumnFlags_WidthFixed, 0.0f, VehHandlerItem::EInfo::MODULEPATH);
-            
             ImGui::TableHeadersRow();
 
             if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
@@ -712,14 +831,85 @@ void ChildWnd_ExceptionWindow(bool* show, uint32_t pid)
                     ImGui::PushID(item->GetEntry());
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    if (ImGui::Selectable(("0x"+ utils::IntegerTohex(item->GetEntry())).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    if (ImGui::Selectable(("0x" + utils::conver::IntegerTohex(item->GetEntry())).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
                     {
                         selected = row_n;
                     }
                     ImGui::TableNextColumn();
                     ImGui::Text(item->IsVeh()?"VEH Exception":"VEH Continue");
                     ImGui::TableNextColumn();
-                    ImGui::Text(utils::string_To_UTF8(item->GetModulePath()).c_str());
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetModulePath()).c_str());
+                    ImGui::PopID();
+                }
+            }
+            ImGui::EndTable();
+        }
+        ImGui::End();
+    }
+    else
+    {
+        selected = -1;
+        items.clear();
+    }
+}
+void ChildWnd_MemoryWindow(bool* show, uint32_t pid)
+{
+    static std::vector<MemoryItem> items{};
+    static int selected = -1;
+    if (*show)
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowPadding = { 0.f,0.f };
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::Begin(u8"内存列表", show, ImGuiWindowFlags_NoCollapse);
+        if (items.size() <= 0)
+            MemoryItem::EnumPidMemoryBlocks(pid, items);
+
+        if (ImGui::BeginTable("#memorylist", 5,ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
+        {
+            ImGui::TableSetupColumn(u8"地址", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, MemoryItem::EInfo::BASE);
+            ImGui::TableSetupColumn(u8"大小", ImGuiTableColumnFlags_WidthFixed, 0.0f, MemoryItem::EInfo::SIZE);
+            ImGui::TableSetupColumn(u8"Protect", ImGuiTableColumnFlags_WidthFixed, 0.0f, MemoryItem::EInfo::PROTECT);
+            ImGui::TableSetupColumn(u8"State", ImGuiTableColumnFlags_WidthFixed, 0.0f, MemoryItem::EInfo::STATE);
+            ImGui::TableSetupColumn(u8"Type", ImGuiTableColumnFlags_WidthFixed, 0.0f, MemoryItem::EInfo::TYPE);
+            ImGui::TableHeadersRow();
+
+            if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
+            {
+                if (sorts_specs->SpecsDirty)
+                {
+                    MemoryItem::SetSortSpecs(sorts_specs); // Store in variable accessible by the sort function.
+                    if (items.size() > 1)
+                        qsort(&items[0], (size_t)items.size(), sizeof(items[0]), MemoryItem::CompareWithSortSpecs);
+                    MemoryItem::SetSortSpecs(NULL);
+                    sorts_specs->SpecsDirty = false;
+                }
+            }
+
+            ImGuiListClipper clipper;
+            clipper.Begin(items.size());
+            while (clipper.Step())
+            {
+                for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
+                {
+                    // Display a data item
+                    MemoryItem* item = &items[row_n];
+                    ImGui::PushID(item->GetBase());
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    if (ImGui::Selectable(("0x"+utils::conver::IntegerTohex(item->GetBase())).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    {
+                        selected = row_n;
+                    }
+                    ImGui::TableNextColumn();
+                    ImGui::Text("0x%X", item->GetSize());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::mem::GetProtectByValue(item->GetProtect()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::mem::GetStateByValue(item->GetState()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::mem::GetTypeByValue(item->GetType()).c_str());
                     ImGui::PopID();
                 }
             }
@@ -740,6 +930,7 @@ void OnGui(float w,float h)
     style.TabRounding = 0.f;
     ChildWnd_ThreadWindow(&config::process::thread::bShow, config::process::thread::pid);
     ChildWnd_ExceptionWindow(&config::process::veh::bShow, config::process::veh::pid);
+    ChildWnd_MemoryWindow(&config::process::memory::bShow, config::process::memory::pid);
     if (ImGui::Begin("main", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
         ImGui::SetWindowPos("main", { 0,0 });
@@ -766,7 +957,6 @@ void OnGui(float w,float h)
                             ImGui::EndTabItem();
                         }
                     }
-
                     switch (choose)
                     {
                         case 0: Table_SyscallMonitor();break;
@@ -778,6 +968,7 @@ void OnGui(float w,float h)
             }
             if (ImGui::BeginTabItem(u8"窗口"))
             {
+                Table_Window();
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -854,7 +1045,7 @@ void OnUpdate(DWORD* a)
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_set_dr;
                             cmd.dr_index = i;
-                            cmd.hardbread.addr = strlen(tmp_dr.addr) > 0 ? utils::hexToInteger(tmp_dr.addr) : 0;
+                            cmd.hardbread.addr = strlen(tmp_dr.addr) > 0 ? utils::conver::hexToInteger(tmp_dr.addr) : 0;
                             cmd.hardbread.size = tmp_dr.size;
                             cmd.hardbread.type = tmp_dr.type;
                             if (cmd.hardbread.addr <= 0 || !InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
@@ -892,7 +1083,6 @@ void OnUpdate(DWORD* a)
                     }
 
                     // this is checkbox option
-
                     if (tmp_dr.active) //enable
                     {
                         //is recored,make sure do once!!!
@@ -974,18 +1164,13 @@ void OnIPC(DWORD* a)
                         uint32_t aglim = (pDbg->region_size & 0xfffff000) + 0x1000;
                         curtData.memoryRegion.data.resize(aglim);
                         //read mem
-                        auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, config::global::targetProcess.GetPid());
-                        if (hProc)
-                        {
-                            ReadProcessMemory(hProc, (PVOID)pDbg->region_start, &curtData.memoryRegion.data[0], aglim, NULL);
-                            CloseHandle(hProc);
-                        }
+                        Mem::ReadMemory(config::global::targetProcess.GetPid(), pDbg->region_start, &curtData.memoryRegion.data[0], aglim);
                         //generate region disassembly
                         auto disam = Debugger::Disassembly(pDbg->region_start, aglim, curtData.memoryRegion.data.data());
                         for (int i = 0; i < disam.size(); i++)
                         {
                             //find breakpoint,because the dr-break is interrupt at next line
-                            if (disam[i][0] == "0x" + utils::IntegerTohex(pDbg->ctx.Rip))
+                            if (disam[i][0] == "0x" + utils::conver::IntegerTohex(pDbg->ctx.Rip))
                             {
                                 strcpy_s(pDbg->disassembly, disam[i - 1][2].c_str());
                                 //fix rip to real-rip

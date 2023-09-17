@@ -11,6 +11,7 @@ private:
     ID3D11DeviceContext* pd3dDeviceContext_ ;
     IDXGISwapChain* pSwapChain_ ;
     ID3D11RenderTargetView* mainRenderTargetView_ ;
+    HWND hwnd_;
     static uint32_t ResizeWidth_ , ResizeHeight_;
 private:
 
@@ -109,6 +110,11 @@ public:
         return instance_;
     }
 
+    HWND GetHwnd()
+    {
+        return hwnd_;
+    }
+
     bool CreatGui(const wchar_t* title,const wchar_t* classname, uint32_t w,uint32_t h,void(* cb)(float w,float h))
     {
         ResizeWidth_ = w;
@@ -130,7 +136,7 @@ public:
 
         RegisterClassExW(&wc);
 
-        HWND hwnd = CreateWindow(wc.lpszClassName, 
+        hwnd_ = CreateWindow(wc.lpszClassName,
                                     title, 
                                     WS_OVERLAPPEDWINDOW, 
                                     CW_USEDEFAULT, 
@@ -140,7 +146,7 @@ public:
                                     wc.hInstance, 
                                     nullptr);
 
-        if (!CreateDeviceD3D(hwnd))
+        if (!CreateDeviceD3D(hwnd_))
         {
             CleanupDeviceD3D();
             UnregisterClassW(wc.lpszClassName, wc.hInstance);
@@ -151,9 +157,9 @@ public:
         GetClientRect(GetDesktopWindow(), &rect);
         rect.left = (rect.right / 2) - (w / 2);
         rect.top = (rect.bottom / 2) - (h / 2);
-        MoveWindow(hwnd,rect.left,rect.top,w,h,true);
-        ShowWindow(hwnd, SW_SHOWDEFAULT);
-        UpdateWindow(hwnd);
+        MoveWindow(hwnd_,rect.left,rect.top,w,h,true);
+        ShowWindow(hwnd_, SW_SHOWDEFAULT);
+        UpdateWindow(hwnd_);
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -168,7 +174,7 @@ public:
         io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 15.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
         
         // Setup Platform/Renderer backends
-        ImGui_ImplWin32_Init(hwnd);
+        ImGui_ImplWin32_Init(hwnd_);
         ImGui_ImplDX11_Init(pd3dDevice_, pd3dDeviceContext_);
 
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -220,7 +226,7 @@ public:
         ImGui::DestroyContext();
 
         CleanupDeviceD3D();
-        DestroyWindow(hwnd);
+        DestroyWindow(hwnd_);
         UnregisterClassW(wc.lpszClassName, wc.hInstance);
     }
 

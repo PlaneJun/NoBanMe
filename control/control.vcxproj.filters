@@ -40,6 +40,9 @@
     <Filter Include="debugger">
       <UniqueIdentifier>{00b4ad11-886c-42ae-9d2b-094ed5ad79c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mem">
+      <UniqueIdentifier>{8851f2ad-cf2d-4676-9a06-1f876f2a44cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -150,6 +153,12 @@
       <Filter>process</Filter>
     </ClInclude>
     <ClInclude Include="process\vehhandler.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="mem\memstub.h">
+      <Filter>mem</Filter>
+    </ClInclude>
+    <ClInclude Include="memory.h">
       <Filter>process</Filter>
     </ClInclude>
   </ItemGroup>

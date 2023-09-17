@@ -11,6 +11,11 @@ namespace config
     }
     namespace process
     {
+        namespace memory
+        {
+            bool bShow;
+            uint32_t pid;
+        }
         namespace thread
         {
             bool bShow;

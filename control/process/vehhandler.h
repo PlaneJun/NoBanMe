@@ -16,6 +16,13 @@ public:
 
 public:
 
+    VehHandlerItem()
+    {
+        this->entry_ = 0;
+        this->module_path_ = std::string();
+        this->isVeh_ = 0;
+    }
+
     VehHandlerItem(uint64_t entry, std::string module_path,bool isVeh)
     {
         this->entry_ = entry;
@@ -42,7 +49,7 @@ public:
 
     static void EnumVehHandler(uint32_t pid, std::vector<VehHandlerItem>& items)
     {
-        static auto QueryList = [=](HANDLE process, uint64_t LdrpVectorHandlerList, BOOL exception, BOOL isWow64) {
+        static auto QueryList = [=](uint32_t pid, uint64_t LdrpVectorHandlerList, BOOL exception, BOOL isWow64) {
 
             std::vector<VehHandlerItem> items{};
 
@@ -50,7 +57,7 @@ public:
             PLIST_ENTRY currentLink{};
 
             VehHandlerItem::RTL_VECTORED_HANDLER_LIST* vectorPtr = new VehHandlerItem::RTL_VECTORED_HANDLER_LIST();
-            ReadProcessMemory(process, (PVOID)LdrpVectorHandlerList, vectorPtr, sizeof(VehHandlerItem::RTL_VECTORED_HANDLER_LIST), NULL);
+            Mem::ReadMemory(pid, LdrpVectorHandlerList, vectorPtr, sizeof(VehHandlerItem::RTL_VECTORED_HANDLER_LIST));
             if (exception)
             {
                 startLink = (PLIST_ENTRY)PTR_ADD_OFFSET((LPVOID)LdrpVectorHandlerList, UFIELD_OFFSET(VehHandlerItem::RTL_VECTORED_HANDLER_LIST, ExceptionList));;
@@ -64,13 +71,12 @@ public:
             while (currentLink != startLink && i <= 40)
             {
                 VehHandlerItem::PRTL_VECTORED_EXCEPTION_ENTRY addressOfEntry = new VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY();
-                ReadProcessMemory(process, CONTAINING_RECORD(currentLink, VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY, List), addressOfEntry, sizeof(VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY), NULL);
-                typedef NTSTATUS(NTAPI* fnNtQueryInformationProcess)(HANDLE ProcessHandle, int ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
-                fnNtQueryInformationProcess lpNtQueryInformationProcess = (fnNtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryInformationProcess");
+                Mem::ReadMemory(pid, (uint64_t)CONTAINING_RECORD(currentLink, VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY, List), addressOfEntry, sizeof(VehHandlerItem::RTL_VECTORED_EXCEPTION_ENTRY));
+                
                 uint64_t decode_ptr{};
                 uint64_t key = (uint64_t)addressOfEntry->VectoredHandler;
                 uint32_t ProcessInformation{};
-                uint32_t ret = lpNtQueryInformationProcess(process, 36, &ProcessInformation, 4, 0);
+                uint32_t ret = Mem::NtQueryInformationProcess(pid, 36, &ProcessInformation, 4, 0);
                 if (ret >= 0)
                 {
                     if (isWow64)
@@ -84,11 +90,11 @@ public:
                 }
 
                 MEMORY_BASIC_INFORMATION m = { 0 };
-                VirtualQueryEx(process, (PVOID)decode_ptr, &m, sizeof(MEMORY_BASIC_INFORMATION));
-                char module_path[MAX_PATH]{};
+                Mem::QueryMem(pid, (PVOID)decode_ptr, &m, sizeof(MEMORY_BASIC_INFORMATION));
+                std::string path{};
                 if ((uint64_t)m.AllocationBase > 0)
-                    GetModuleFileNameExA(process, (HMODULE)m.AllocationBase, module_path, MAX_PATH);
-                items.push_back(VehHandlerItem(decode_ptr, module_path, exception));
+                    path = Mem::GetModuleFullName(pid, (uint64_t)m.AllocationBase);
+                items.push_back(VehHandlerItem(decode_ptr, path.c_str(), exception));
                 currentLink = addressOfEntry->List.Flink;
 
                 i++;
@@ -99,18 +105,13 @@ public:
 
 
         BOOL bIsWow64 = false;
-        auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
-        if (hProc)
-        {
-            IsWow64Process(hProc, &bIsWow64);
-            auto veh = QueryList(hProc, VehHandlerItem::GetLdrpVectorHandlerList(), true, bIsWow64);
-            for (auto v : veh)
-                items.push_back(v);
-            veh = QueryList(hProc, VehHandlerItem::GetLdrpVectorHandlerList(), false, bIsWow64);
-            for (auto v : veh)
-                items.push_back(v);
-            CloseHandle(hProc);
-        }
+        Mem::IsWow64(pid, &bIsWow64);
+        auto veh = QueryList(pid, VehHandlerItem::GetLdrpVectorHandlerList(), true, bIsWow64);
+        for (auto v : veh)
+            items.push_back(v);
+        veh = QueryList(pid, VehHandlerItem::GetLdrpVectorHandlerList(), false, bIsWow64);
+        for (auto v : veh)
+            items.push_back(v);
     }
 
     static void SortWithSortSpecs(ImGuiTableSortSpecs* sort_specs, VehHandlerItem* items, int items_count)
