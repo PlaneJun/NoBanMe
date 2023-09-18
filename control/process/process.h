@@ -113,8 +113,7 @@ public:
             while (bprocess)
             {
                 BOOL bIsWow64 = false;
-                std::wstring wtmp(pe.szExeFile);
-                std::string fullPath(wtmp.begin(), wtmp.end());
+                std::string fullPath=utils::conver::wstring_to_stirng(pe.szExeFile);
                 char imagepath[MAX_PATH]{}, startuptime[MAX_PATH]{};
                 auto hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);
                 if (hProc)
@@ -138,7 +137,7 @@ public:
 
                     CloseHandle(hProc);
                 }
-                std::string proName = fullPath.substr(fullPath.rfind("\\") + 1);
+                std::string proName(std::filesystem::path(fullPath).filename().string());
                 ID3D11ShaderResourceView* icon = nullptr;
                 auto hIcon = utils::image::GetProcessIcon(imagepath);
                 if (hIcon != NULL && utils::image::SaveIconToPng(hIcon, ("./Data/icon/" + proName + ".png").c_str()))

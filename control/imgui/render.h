@@ -308,7 +308,7 @@ public:
     ID3D11ShaderResourceView* DX11LoadTextureImageFromFile(const char* filepath)
     {
         ID3D11Texture2D* pTexture2D = NULL;
-        D3D11_TEXTURE2D_DESC dec;
+        D3D11_TEXTURE2D_DESC dec{};
 
         HRESULT result;
         D3DX11_IMAGE_LOAD_INFO loadInfo;
@@ -318,7 +318,8 @@ public:
         loadInfo.MipLevels = D3DX11_DEFAULT; //这时会产生最大的mipmaps层。 
         loadInfo.MipFilter = D3DX11_FILTER_LINEAR;
         result = D3DX11CreateTextureFromFileA(pd3dDevice_, filepath, &loadInfo, NULL, (ID3D11Resource**)(&pTexture2D), NULL);
-
+        if (result != S_OK)
+            return NULL;
         pTexture2D->GetDesc(&dec);
 
         if (result != S_OK)

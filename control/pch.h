@@ -43,6 +43,7 @@
 #include "thread.h"
 #include "memory.h"
 #include "vehhandler.h"
+#include "window.h"
 //Debugger
 #include "debugger.h"
 #include "config.h"

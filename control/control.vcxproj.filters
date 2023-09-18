@@ -161,5 +161,8 @@
     <ClInclude Include="pdb\md5.h">
       <Filter>pdb</Filter>
     </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>process</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

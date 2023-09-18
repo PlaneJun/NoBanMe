@@ -1204,32 +1204,33 @@ int main()
     if(!std::filesystem::exists(data_dir))
         std::filesystem::create_directory(data_dir);
 
-    //初始化pdb
-    char nt_path[MAX_PATH]{};
-    GetModuleFileNameA(GetModuleHandleA("ntdll.dll"), nt_path, MAX_PATH);
-    std::string pdbPath = EasyPdb::EzPdbDownload(nt_path);
-    if (pdbPath.empty())
-    {
-        MessageBoxA(NULL,"Download Pdb Error!","PJArk",NULL);
-        return 1;
-    }
-    EasyPdb::EZPDB pdb;
-    if (!EasyPdb::EzPdbLoad(pdbPath, &pdb))
-    {
-        MessageBoxA(NULL, "Load Pdb Failed!", "PJArk", NULL);
-        return 1;
-    }
-    auto rva_LdrpVectorHandlerList = EzPdbGetRva(&pdb, "LdrpVectorHandlerList");
-    if (rva_LdrpVectorHandlerList <= 0)
-    {
-        MessageBoxA(NULL, "Get rva_LdrpVectorHandlerList Failed!", "PJArk", NULL);
-        return 1;
-    }
-    VehHandlerItem::SetLdrpVectorHandlerList(rva_LdrpVectorHandlerList);
-    EasyPdb::EzPdbUnload(&pdb);
+    ////初始化pdb
+    //char nt_path[MAX_PATH]{};
+    //GetModuleFileNameA(GetModuleHandleA("ntdll.dll"), nt_path, MAX_PATH);
+    //std::string pdbPath = EasyPdb::EzPdbDownload(nt_path);
+    //if (pdbPath.empty())
+    //{
+    //    MessageBoxA(NULL,"Download Pdb Error!","PJArk",NULL);
+    //    return 1;
+    //}
+    //EasyPdb::EZPDB pdb;
+    //if (!EasyPdb::EzPdbLoad(pdbPath, &pdb))
+    //{
+    //    MessageBoxA(NULL, "Load Pdb Failed!", "PJArk", NULL);
+    //    return 1;
+    //}
+    //auto rva_LdrpVectorHandlerList = EzPdbGetRva(&pdb, "LdrpVectorHandlerList");
+    //if (rva_LdrpVectorHandlerList <= 0)
+    //{
+    //    MessageBoxA(NULL, "Get rva_LdrpVectorHandlerList Failed!", "PJArk", NULL);
+    //    return 1;
+    //}
+    //VehHandlerItem::SetLdrpVectorHandlerList(rva_LdrpVectorHandlerList);
+    //EasyPdb::EzPdbUnload(&pdb);
 
-    CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnIPC, NULL, NULL, NULL);
-    CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnUpdate, NULL, NULL, NULL);
-    render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, OnGui);
+    //CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnIPC, NULL, NULL, NULL);
+    //CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnUpdate, NULL, NULL, NULL);
+    //render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, OnGui);
+    WindowItem::EnumAllWindows();
     return 0;
 }
