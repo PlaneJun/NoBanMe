@@ -122,12 +122,6 @@
     <ClInclude Include="imgui_theme.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="EasyPdb.h">
-      <Filter>pdb</Filter>
-    </ClInclude>
-    <ClInclude Include="md5.h">
-      <Filter>pdb</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\render.h">
       <Filter>imgui</Filter>
     </ClInclude>
@@ -160,6 +154,12 @@
     </ClInclude>
     <ClInclude Include="memory.h">
       <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="pdb\EasyPdb.h">
+      <Filter>pdb</Filter>
+    </ClInclude>
+    <ClInclude Include="pdb\md5.h">
+      <Filter>pdb</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

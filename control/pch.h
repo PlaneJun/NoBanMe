@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup")
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 

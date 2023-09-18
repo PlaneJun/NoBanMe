@@ -49,7 +49,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -132,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./imgui;./Zydis;./pdb;./utils;./process;./debugger</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./imgui;./Zydis;./pdb;./utils;./process;./debugger;./mem</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -161,12 +161,13 @@
     <ClInclude Include="defs.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="mem\memstub.h" />
+    <ClInclude Include="pdb\EasyPdb.h" />
+    <ClInclude Include="pdb\md5.h" />
     <ClInclude Include="process\module.h" />
     <ClInclude Include="process\process.h" />
     <ClInclude Include="process\thread.h" />
     <ClInclude Include="process\vehhandler.h" />
     <ClInclude Include="struct.h" />
-    <ClInclude Include="EasyPdb.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />
@@ -179,7 +180,6 @@
     <ClInclude Include="imgui\stb_image.h" />
     <ClInclude Include="imgui_memory_editor.h" />
     <ClInclude Include="imgui_theme.h" />
-    <ClInclude Include="md5.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="utils.h" />

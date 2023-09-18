@@ -67,10 +67,11 @@ namespace EasyPdb
 	// download pdb file from symbol server
 	// return pdb path if success, 
 	// or return empty string if failed, user can call GetLastError() to know wth is going on
+	//https://msdl.microsoft.com/download/symbols/
 	std::string EzPdbDownload(
 		IN std::string pePath,
 		IN OPTIONAL std::string pdbDownloadPath="./Symbol",
-		IN OPTIONAL std::string symbolServer= "https://msdl.microsoft.com/download/symbols/")
+		IN OPTIONAL std::string symbolServer= "http://msdl.blackint3.com:88/download/symbols/")
 	{
 		// pdb download directory
 		// if not specify, then pdb will download to current directory

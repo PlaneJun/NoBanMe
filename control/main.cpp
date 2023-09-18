@@ -350,7 +350,7 @@ void Table_Process()
                         case 0:
                         {
                             char buff[8192]{};
-                            sprintf(buff,"%d | %s | %d | %s | %s | %s | %s | %s", config::global::targetProcess.GetPid(),
+                            sprintf_s(buff,"%d | %s | %d | %s | %s | %s | %s | %s", config::global::targetProcess.GetPid(),
                                 config::global::targetProcess.GetName().c_str(), config::global::targetProcess.GetPPid(),
                                 config::global::targetProcess.GetStartUpTime().c_str(), config::global::targetProcess.GetDecription().c_str(),
                                 config::global::targetProcess.GetCompanyName().c_str(), config::global::targetProcess.GetFileVersion().c_str(),
@@ -364,7 +364,7 @@ void Table_Process()
                             for (auto p : pitems)
                             {
                                 char buff[8192]{};
-                                sprintf(buff, "%d | %s | %d | %s | %s | %s | %s | %s\n", p.GetPid(),
+                                sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s\n", p.GetPid(),
                                     p.GetName().c_str(), p.GetPPid(),
                                     p.GetStartUpTime().c_str(), p.GetDecription().c_str(),
                                     p.GetCompanyName().c_str(), p.GetFileVersion().c_str(),

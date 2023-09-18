@@ -157,7 +157,7 @@ namespace Mem
 			
 		HANDLE hRemoteThread{};
 		auto dwStatus = lpZwCreateThreadEx(&hRemoteThread, PROCESS_ALL_ACCESS, NULL, hProcess,(LPTHREAD_START_ROUTINE)addr, lpParam, 0, 0, 0, 0, NULL);
-		if (dwStatus == NULL)
+		if (dwStatus != NULL)
 		{
 			VirtualFreeEx(hProcess, lpParam, sizeof(ControlCmd), MEM_COMMIT);
 			CloseHandle(hProcess);
