@@ -43,7 +43,7 @@ void vehexception_cb(uint8_t id,uint64_t addr,PCONTEXT ctx)
 	dbginfo.type = EDataType::DEBG;
 	dbginfo.addr = addr;
 	dbginfo.ctx = *ctx;
-
+	memcpy(dbginfo.stack, (PVOID)ctx->Rsp,sizeof(dbginfo.stack));
 	auto start = reinterpret_cast<uint8_t*>(ctx->Rip);
 	bool finded = false;
 	while (true)

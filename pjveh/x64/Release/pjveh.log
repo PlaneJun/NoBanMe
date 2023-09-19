@@ -1,2 +1,10 @@
-﻿D:\SoftWare\Microsoft Visual Studio\Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(ConsoleApplication2.vcxproj, pjwatch.vcxproj, SyscallWatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
-  pjveh.vcxproj -> D:\Code\C_C++\pjwatch\build\pjveh_64.dll
+﻿C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(ConsoleApplication2.vcxproj, pjwatch.vcxproj, SyscallWatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  main.cpp
+C:\Users\SuperRong\Desktop\Todo\PJArk\pjveh\plugin.h(51,31): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+    正在创建库 C:\Users\SuperRong\Desktop\Todo\PJArk\build\pjveh_64.lib 和对象 C:\Users\SuperRong\Desktop\Todo\PJArk\build\pjveh_64.exp
+  正在生成代码
+  2 of 163 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  pjveh.vcxproj -> C:\Users\SuperRong\Desktop\Todo\PJArk\build\pjveh_64.dll

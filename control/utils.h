@@ -21,6 +21,7 @@ namespace utils
 			return ss2.str();
 		}
 
+
 		std::string bytesToHexString(const BYTE* bytes, const int length)
 		{
 			if (bytes == NULL) {
@@ -465,6 +466,7 @@ namespace utils
 
 			return ret;
 		}
+
 
 	}
 

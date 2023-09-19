@@ -500,7 +500,13 @@ void Table_SyscallMonitor()
 void Table_VehDebuger()
 {
     auto curtData = Debugger::GetDbgInfo(config::dbg::curtChoose);
-    static std::pair< std::string, bool> JmpToAddress{};
+    static std::pair< Debugger::DbgCaptureInfo, bool> JmpToAddress{};
+    static std::vector<ModuleItem> mitems{};//用于显示模块地址
+    if (config::global::injectProcess.GetPid() > 0)
+        ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
+    else
+        mitems.clear();
+
     if (ImGui::CollapsingHeader(u8"硬件断点", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static std::string dr_statue[] = { u8"添加",u8"移除" };
@@ -590,16 +596,69 @@ void Table_VehDebuger()
                 {
                     if (i == selected)
                     {
-                        curtData.ctx = ii.second.dbginfo.ctx;
-                        curtData.disassembly = ii.second.disamSeg;
-                        if (JmpToAddress.first != ii.second.text)
+                        curtData.ctx = ii.second.dbginfo.ctx; //设置上下文显示的数据
+                        curtData.disassembly = ii.second.disamSeg; //设置汇编窗口显示的数据
+                        if (JmpToAddress.first.text != ii.second.text)
                         {
-                            JmpToAddress.first = ii.second.text; //设置要跳转的地址
+                            JmpToAddress.first = ii.second; //设置要跳转的地址
                             JmpToAddress.second = false;
                         }
                         break;
                     }
                     i++;
+                }
+
+                if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
+                    ImGui::OpenPopup("access_option");
+
+                if (ImGui::BeginPopup("access_option"))
+                {
+                    if (ImGui::BeginMenu(u8"复制"))
+                    {
+                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"计数",u8"地址",u8"指令" }))
+                        {
+                            case 0:
+                            {
+                                utils::normal::CopyStringToClipboard(std::to_string(JmpToAddress.first.count).c_str());
+                                break;
+                            }
+                            case 1:
+                            {
+                                utils::normal::CopyStringToClipboard(JmpToAddress.first.text.c_str());
+                                break;
+                            }
+                            case 2:
+                            {
+                                utils::normal::CopyStringToClipboard(JmpToAddress.first.dbginfo.disassembly);
+                                break;
+                            }
+                        }
+                        ImGui::Separator();
+                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行",u8"整个表" }))
+                        {
+                            case 0:
+                            {
+                                char buff[8192]{};
+                                sprintf_s(buff, "%d | %s | %s", JmpToAddress.first.count, JmpToAddress.first.text.c_str(), JmpToAddress.first.dbginfo.disassembly);
+                                utils::normal::CopyStringToClipboard(buff);
+                                break;
+                            }
+                            case 1:
+                            {
+                                std::string ret{};
+                                for (auto i : curtData.capture)
+                                {
+                                    char buff[8192]{};
+                                    sprintf_s(buff, "%d | %s | %s", i.second.count,i.second.text.c_str(), i.second.dbginfo.disassembly);
+                                    ret += buff;
+                                }
+                                utils::normal::CopyStringToClipboard(ret.c_str());
+                                break;
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndPopup();
                 }
             }
             ImGui::EndChild();
@@ -625,7 +684,7 @@ void Table_VehDebuger()
                 }
 
                 //如果到了指定行就停止滚动
-                if (JmpToAddress.first == curtData.disassembly[i][0])
+                if (JmpToAddress.first.text == curtData.disassembly[i][0])
                 {
                     if (!JmpToAddress.second)
                         selected = i; //只在跳转的时候选择一次
@@ -636,6 +695,51 @@ void Table_VehDebuger()
                     ImGui::SetScrollHereY(0);
                 }
             }
+
+            if (selected != -1)
+            {
+                if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
+                    ImGui::OpenPopup("disassembly_option");
+
+                if (ImGui::BeginPopup("disassembly_option"))
+                {
+                    if (ImGui::BeginMenu(u8"复制"))
+                    {
+                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"地址",u8"字节码",u8"指令" }))
+                        {
+                            case 0:
+                            {
+                                utils::normal::CopyStringToClipboard(curtData.disassembly[selected][0].c_str());
+                                break;
+                            }
+                            case 1:
+                            {
+                                utils::normal::CopyStringToClipboard(curtData.disassembly[selected][1].c_str());
+                                break;
+                            }
+                            case 2:
+                            {
+                                utils::normal::CopyStringToClipboard(curtData.disassembly[selected][2].c_str());
+                                break;
+                            }
+                        }
+                        ImGui::Separator();
+                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行"}))
+                        {
+                            case 0:
+                            {
+                                char buff[8192]{};
+                                sprintf_s(buff, "%d | %s | %s", curtData.disassembly[selected][0].c_str(), curtData.disassembly[selected][1].c_str(), curtData.disassembly[selected][2].c_str());
+                                utils::normal::CopyStringToClipboard(buff);
+                                break;
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndPopup();
+                }
+            }
+
             ImGui::EndChild();
         }
         ImGui::SameLine();
@@ -695,13 +799,93 @@ void Table_VehDebuger()
         ImGui::SameLine();
         if (ImGui::BeginChild("ChildStack"))
         {
+            //-------------------------------------------------
+            //待优化，目前代码一坨屎
             ImGui::SeparatorText(u8"堆栈");
             static int selected = -1;
-            std::vector<std::string> headers = { "Rsp" ,"Value"," " };
-            std::vector<std::pair<std::string, std::string>> text = {
+            static std::vector<std::string> headers = { "Rsp" ,"Value"," " };
+            static std::vector<std::vector<std::string>> text{};
+            if (text.size() <= 0)
+            {
+                //这个位置将来兼容32的话,8需要改，建议后面动态获取
+                if (curtData.capture.count(JmpToAddress.first.dbginfo.ctx.Rip) > 0)
+                {
+                    auto cap = curtData.capture[JmpToAddress.first.dbginfo.ctx.Rip];
+                    for (int i = 0; i < sizeof(cap.stack) / 8; i++)
+                    {
+                        std::vector<std::string> tmp{};
+                        uint64_t v = *(uint64_t*)&cap.stack[i * 8];
+                        tmp.push_back(utils::conver::IntegerTohex(curtData.ctx.Rsp + i * 8));
+                        tmp.push_back(utils::conver::IntegerTohex(v));
+                        tmp.push_back("");
+                        for (auto item : mitems)
+                        {
+                            if (v >= item.GetBase() && v <= item.GetBase() + item.GetSize())
+                            {
+                                uint64_t detal = (item.GetBase() + item.GetSize()) - v;
+                                tmp[2] = std::filesystem::path(item.GetImagePath()).filename().string().append("+0x").append(utils::conver::IntegerTohex(detal));
+                                break;
+                            }
+                        }
 
-            };
-            render::get_instasnce()->AddListBox("##Stack", selected, headers, text);
+                        text.push_back(tmp);
+                    }
+                }
+            }
+            else
+            {
+                if (text[0][0] != utils::conver::IntegerTohex(curtData.ctx.Rsp))
+                {
+                    mitems.clear();
+                    selected = -1;
+                }
+            }
+
+            if (selected != -1)
+            {
+                if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
+                    ImGui::OpenPopup("stack_option");
+
+                if (ImGui::BeginPopup("stack_option"))
+                {
+                    if (ImGui::BeginMenu(u8"复制"))
+                    {
+                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"Rsp",u8"Value",u8"注释" }))
+                        {
+                            case 0:
+                            {
+                                utils::normal::CopyStringToClipboard(text[selected][0].c_str());
+                                break;
+                            }
+                            case 1:
+                            {
+                                utils::normal::CopyStringToClipboard(text[selected][1].c_str());
+                                break;
+                            }
+                            case 2:
+                            {
+                                utils::normal::CopyStringToClipboard(text[selected][2].c_str());
+                                break;
+                            }
+                        }
+                        ImGui::Separator();
+                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行" }))
+                        {
+                            case 0:
+                            {
+                                char buff[8192]{};
+                                sprintf_s(buff, "%d | %s | %s", text[selected][0].c_str(), text[selected][1].c_str(), text[selected][2].c_str());
+                                utils::normal::CopyStringToClipboard(buff);
+                                break;
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndPopup();
+                }
+            }
+
+            render::get_instasnce()->AddListBox("##Stack", selected,0, headers, text);
             ImGui::EndChild();
         }
     }
@@ -948,10 +1132,10 @@ void OnGui(float w,float h)
                 if (ImGui::BeginTabBar("Plugin_Tables", ImGuiTabBarFlags_None))
                 {
                     static int choose = -1;
-                    static const char* plugin_tables[] = { u8"系统调用" ,u8"调试器" };
-                    for (int i = 0;i < 2;i++)
+                    static std::vector<std::string> plugin_tables = { u8"系统调用" ,u8"调试器",u8"模拟器"};
+                    for (int i = 0;i < plugin_tables.size();i++)
                     {
-                        if (ImGui::BeginTabItem(plugin_tables[i]))
+                        if (ImGui::BeginTabItem(plugin_tables[i].c_str()))
                         {
                             choose = i;
                             ImGui::EndTabItem();
@@ -1162,6 +1346,7 @@ void OnIPC(DWORD* a)
                     if (curtData.capture.count(pDbg->ctx.Rip) <= 0)
                     {
                         uint32_t aglim = (pDbg->region_size & 0xfffff000) + 0x1000;
+                        curtData.memoryRegion.start = pDbg->region_start;
                         curtData.memoryRegion.data.resize(aglim);
                         //read mem
                         Mem::ReadMemory(config::global::targetProcess.GetPid(), pDbg->region_start, &curtData.memoryRegion.data[0], aglim);
@@ -1169,20 +1354,30 @@ void OnIPC(DWORD* a)
                         auto disam = Debugger::Disassembly(pDbg->region_start, aglim, curtData.memoryRegion.data.data());
                         for (int i = 0; i < disam.size(); i++)
                         {
-                            //find breakpoint,because the dr-break is interrupt at next line
                             if (disam[i][0] == "0x" + utils::conver::IntegerTohex(pDbg->ctx.Rip))
                             {
-                                strcpy_s(pDbg->disassembly, disam[i - 1][2].c_str());
-                                //fix rip to real-rip
-                                curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i - 1][0],1 ,disam };
+                                if (config::dbg::Dr[pDbg->id].type == 0)
+                                {
+                                    strcpy_s(pDbg->disassembly, disam[i ][2].c_str());
+                                    curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i][0],1 ,disam };
+                                    memcpy(curtData.capture[pDbg->ctx.Rip].stack, pDbg->stack, sizeof(pDbg->stack));
+                                }
+                                else
+                                {
+                                    //find breakpoint,because the dr-break is interrupt at next line
+                                    strcpy_s(pDbg->disassembly, disam[i - 1][2].c_str());
+                                    //fix rip to real-rip
+                                    curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i - 1][0],1 ,disam };
+                                }
                                 break;
                             }
                         }
                     }
                     else
                     {
-                        //only update count
+                        //update count、stack
                         auto& t = curtData.capture[pDbg->ctx.Rip];
+                        memcpy(t.stack, pDbg->stack,sizeof(t.dbginfo.stack));
                         t.count++;
                     }
                     break;
@@ -1204,33 +1399,33 @@ int main()
     if(!std::filesystem::exists(data_dir))
         std::filesystem::create_directory(data_dir);
 
-    ////初始化pdb
-    //char nt_path[MAX_PATH]{};
-    //GetModuleFileNameA(GetModuleHandleA("ntdll.dll"), nt_path, MAX_PATH);
-    //std::string pdbPath = EasyPdb::EzPdbDownload(nt_path);
-    //if (pdbPath.empty())
-    //{
-    //    MessageBoxA(NULL,"Download Pdb Error!","PJArk",NULL);
-    //    return 1;
-    //}
-    //EasyPdb::EZPDB pdb;
-    //if (!EasyPdb::EzPdbLoad(pdbPath, &pdb))
-    //{
-    //    MessageBoxA(NULL, "Load Pdb Failed!", "PJArk", NULL);
-    //    return 1;
-    //}
-    //auto rva_LdrpVectorHandlerList = EzPdbGetRva(&pdb, "LdrpVectorHandlerList");
-    //if (rva_LdrpVectorHandlerList <= 0)
-    //{
-    //    MessageBoxA(NULL, "Get rva_LdrpVectorHandlerList Failed!", "PJArk", NULL);
-    //    return 1;
-    //}
-    //VehHandlerItem::SetLdrpVectorHandlerList(rva_LdrpVectorHandlerList);
-    //EasyPdb::EzPdbUnload(&pdb);
+    //初始化pdb
+    char nt_path[MAX_PATH]{};
+    GetModuleFileNameA(GetModuleHandleA("ntdll.dll"), nt_path, MAX_PATH);
+    std::string pdbPath = EasyPdb::EzPdbDownload(nt_path);
+    if (pdbPath.empty())
+    {
+        MessageBoxA(NULL,"Download Pdb Error!","PJArk",NULL);
+        return 1;
+    }
+    EasyPdb::EZPDB pdb;
+    if (!EasyPdb::EzPdbLoad(pdbPath, &pdb))
+    {
+        MessageBoxA(NULL, "Load Pdb Failed!", "PJArk", NULL);
+        return 1;
+    }
+    auto rva_LdrpVectorHandlerList = EzPdbGetRva(&pdb, "LdrpVectorHandlerList");
+    if (rva_LdrpVectorHandlerList <= 0)
+    {
+        MessageBoxA(NULL, "Get rva_LdrpVectorHandlerList Failed!", "PJArk", NULL);
+        return 1;
+    }
+    VehHandlerItem::SetLdrpVectorHandlerList(rva_LdrpVectorHandlerList);
+    EasyPdb::EzPdbUnload(&pdb);
 
-    //CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnIPC, NULL, NULL, NULL);
-    //CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnUpdate, NULL, NULL, NULL);
-    //render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, OnGui);
-    WindowItem::EnumAllWindows();
+    CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnIPC, NULL, NULL, NULL);
+    CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnUpdate, NULL, NULL, NULL);
+    render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, OnGui);
+    //WindowItem::EnumAllWindows();
     return 0;
 }

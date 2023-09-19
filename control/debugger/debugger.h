@@ -8,6 +8,7 @@ public:
         uint8_t id;
         uint64_t addr;
         CONTEXT ctx;
+        uint8_t stack[1024]; //1mb stack
         uint64_t region_start;
         uint64_t region_size;
         char disassembly[256];
@@ -19,6 +20,7 @@ public:
         std::string text;
         uint64_t count;
         std::vector<std::vector<std::string>> disamSeg;
+        uint8_t stack[1024]; //1mb stack
     }DbgCaptureInfo, * PDbgCaptureInfo;
 
     typedef struct _TMEM_REGION

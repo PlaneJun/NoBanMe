@@ -43,6 +43,9 @@
     <Filter Include="mem">
       <UniqueIdentifier>{8851f2ad-cf2d-4676-9a06-1f876f2a44cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="unicorn">
+      <UniqueIdentifier>{cce61765-fed4-4d70-bd64-e950996e7daa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
