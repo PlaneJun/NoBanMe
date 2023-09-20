@@ -5,6 +5,7 @@ bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
     return Mem::RemoteCallFunction(pid,config::global::lpPluginDispatch,&cmd,sizeof(ControlCmd));
 }
 
+
 void Table_Process()
 {
     static std::vector<ProcessItem> pitems;
@@ -187,25 +188,43 @@ void Table_Process()
                 {
                     case 0:
                     {
-                        //是否调试过
+                        static const char* plugin_name = config::global::targetProcess.IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
+                        static uint64_t  Offset_Dispatch = 0;
+                        static char plugin_path[MAX_PATH]{};
+
                         bool can = true;
-                        if (config::global::injectProcess.GetPid() > 0)
+                        HMODULE plugin_base=NULL;
+                        //获取插件回调偏移
+                        if (Offset_Dispatch <= 0)
                         {
-                            //1)、是否重复注入
+                            HMODULE plugin_base = GetModuleHandleA(plugin_name);
+                            if (plugin_base == NULL)
+                                plugin_base = LoadLibraryA(plugin_name);
+                            Offset_Dispatch = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(plugin_base, "Dispatch")) - (uint8_t*)plugin_base);
+                            GetModuleFileNameA(plugin_base, plugin_path, MAX_PATH);
+                            FreeLibrary(plugin_base);
+                        }
+
+                        //检查目标进程是否有过注入插件
+                        plugin_base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
+                        if (plugin_base)
+                        {
+                            //更新回调地址
+                            config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base)+ Offset_Dispatch;
                             if (config::global::injectProcess.GetPid() == config::global::targetProcess.GetPid())
                             {
                                 MessageBoxA(NULL, "目标进程已经启用插件,无需重复启用!", "pjark", NULL);
-                                break;
+                                break;//先前记录过，且注入的进程一致，禁止注入
                             }
-
-                            //2）、是否为新进程
-                            if (config::global::injectProcess.GetPid() != config::global::targetProcess.GetPid())
+                            else
                             {
+                                if (config::global::injectProcess.GetPid() <= 0)
+                                    config::global::injectProcess = config::global::targetProcess;
+                                //清理上一个环境
                                 do
                                 {
-                                    //清理上一个环境
-                                //1)、清空全部断点
-                                    for (int i = 0;i < 4;i++)
+                                    //1)、清空全部断点
+                                    for (int i = 0; i < 4; i++)
                                         config::dbg::Dr->statue = 0; //这里设置0，OnUpdate会自动删除断点
                                     Sleep(500);
                                     //2)、清除veh
@@ -238,7 +257,6 @@ void Table_Process()
                                     }
                                     //清理成功
                                     config::global::injectProcess = ProcessItem();
-                                    can = true;
                                 } while (false);
                             }
                         }
@@ -250,37 +268,24 @@ void Table_Process()
                             {
                                 do
                                 {
-
-                                    //获取dll信息
-                                    static const char* plugin_name[] = { "pjveh_64.dll","pjveh_32.dll" };
-                                    HMODULE base = GetModuleHandleA(plugin_name[config::global::targetProcess.IsWow64()]);
-                                    if (base == NULL)
-                                        base = LoadLibraryA(plugin_name[config::global::targetProcess.IsWow64()]);
-                                    config::global::lpPluginDispatch = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(base, "Dispatch")) - (uint8_t*)base);
-                                    char plugin_path[MAX_PATH]{};
-                                    GetModuleFileNameA(base, plugin_path, MAX_PATH);
-                                    FreeLibrary(base);
                                     Mem::RemoteInjectDLL(config::global::targetProcess.GetPid(), plugin_path);
-                                    base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng((char*)plugin_name[config::global::targetProcess.IsWow64()]).c_str());
-                                    if (!base)
+                                    plugin_base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
+                                    if (!plugin_base)
                                     {
                                         MessageBoxA(NULL, "注入插件失败!", "pjark", NULL);
                                         break;
                                     }
-                                    config::global::lpPluginDispatch += reinterpret_cast<uint64_t>(base);
                                     if (!config::global::plugin_.init_pipe())
                                     {
                                         MessageBoxA(NULL, "创建管道失败!", "pjark", NULL);
                                         break;
                                     }
-
-                                    //连接管道
+                                    config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
                                     if (!InvokePluginFunction(config::global::targetProcess.GetPid(), { ECMD::pipe_client_connect }))
                                     {
                                         MessageBoxA(NULL, "连接管道失败!", NULL, NULL);
                                         break;
                                     }
-                                    //初始化调试器
                                     if (!InvokePluginFunction(config::global::targetProcess.GetPid(), { ECMD::veh_init }))
                                     {
                                         MessageBoxA(NULL, "初始化插件失败!", NULL, NULL);

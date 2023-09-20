@@ -94,54 +94,54 @@ C:\Users\SuperRong\Desktop\Todo\PJArk\control\window.h(104,11): message : 请考
 C:\Users\SuperRong\Desktop\Todo\PJArk\control\window.h(104,11): message : 请考虑在格式字符串中使用“%lls”
 C:\Users\SuperRong\Desktop\Todo\PJArk\control\window.h(104,11): message : 请考虑在格式字符串中使用“%Ls”
 C:\Users\SuperRong\Desktop\Todo\PJArk\control\window.h(104,11): message : 请考虑在格式字符串中使用“%ws”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(12,113): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(43,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(418,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(424,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(530,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(537,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(544,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(577,127): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(577,86): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(642,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“uint64_t”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(642,49): message : 请考虑在格式字符串中使用“%lld”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(642,49): message : 请考虑在格式字符串中使用“%Id”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(642,49): message : 请考虑在格式字符串中使用“%I64d”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(652,53): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“uint64_t”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(652,53): message : 请考虑在格式字符串中使用“%lld”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(652,53): message : 请考虑在格式字符串中使用“%Id”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(652,53): message : 请考虑在格式字符串中使用“%I64d”
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(667,132): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(667,91): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(732,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“const _Elem *”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(13,113): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(44,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(423,38): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(429,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(535,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(542,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(549,67): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(582,127): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(582,86): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(647,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“uint64_t”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(647,49): message : 请考虑在格式字符串中使用“%lld”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(647,49): message : 请考虑在格式字符串中使用“%Id”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(647,49): message : 请考虑在格式字符串中使用“%I64d”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(657,53): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“uint64_t”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(657,53): message : 请考虑在格式字符串中使用“%lld”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(657,53): message : 请考虑在格式字符串中使用“%Id”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(657,53): message : 请考虑在格式字符串中使用“%I64d”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(672,132): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(672,91): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(737,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“const _Elem *”
           with
           [
               _Elem=char
           ]
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(732,49): warning C4313: "sprintf_s": 格式字符串中的 "%d" 与类型为 "const _Elem *" 的参数 1 冲突
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(737,49): warning C4313: "sprintf_s": 格式字符串中的 "%d" 与类型为 "const _Elem *" 的参数 1 冲突
           with
           [
               _Elem=char
           ]
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(746,128): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(746,87): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(792,83): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(875,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“const _Elem *”
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(751,128): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(751,87): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(797,83): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(882,49): warning C4477: “sprintf_s”: 格式字符串“%d”需要类型“int”的参数，但可变参数 1 拥有了类型“const _Elem *”
           with
           [
               _Elem=char
           ]
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(875,49): warning C4313: "sprintf_s": 格式字符串中的 "%d" 与类型为 "const _Elem *" 的参数 1 冲突
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(882,49): warning C4313: "sprintf_s": 格式字符串中的 "%d" 与类型为 "const _Elem *" 的参数 1 冲突
           with
           [
               _Elem=char
           ]
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(893,84): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(939,37): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1006,37): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1013,49): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1073,37): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1080,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(900,84): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(946,37): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1013,37): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1020,49): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1080,37): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\SuperRong\Desktop\Todo\PJArk\control\main.cpp(1087,48): warning C4244: “参数”: 从“uint64_t”转换到“int”，可能丢失数据
 C:\Users\SuperRong\Desktop\Todo\PJArk\control\imgui\render.h(231): warning C4715: “render::CreatGui”: 不是所有的控件路径都返回值
 C:\Users\SuperRong\Desktop\Todo\PJArk\control\debugger\debugger.h(91): warning C4172: 返回局部变量或临时变量的地址: info
     正在创建库 C:\Users\SuperRong\Desktop\Todo\PJArk\build\contorl.lib 和对象 C:\Users\SuperRong\Desktop\Todo\PJArk\build\contorl.exp

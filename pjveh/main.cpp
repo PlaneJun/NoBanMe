@@ -125,6 +125,11 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 		}
 		case veh_uninstall:
 		{
+			for (auto& i : dbg::hbk_list)
+			{
+				dbg::unset_hardbreak(i.first);
+				Sleep(500);
+			}
 			dbg::close();
 			break;
 		}
