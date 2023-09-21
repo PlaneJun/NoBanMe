@@ -46,6 +46,9 @@
     <Filter Include="unicorn">
       <UniqueIdentifier>{cce61765-fed4-4d70-bd64-e950996e7daa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="widget">
+      <UniqueIdentifier>{24fac3ea-2998-44cb-9e9d-9114d1967c4b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -167,8 +170,14 @@
     <ClInclude Include="process\window.h">
       <Filter>process</Filter>
     </ClInclude>
-    <ClInclude Include="zydis_wrapper.h">
+    <ClInclude Include="Zydis\zydis_wrapper.h">
       <Filter>zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\DisassemblyWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ProcessWidget.h">
+      <Filter>widget</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

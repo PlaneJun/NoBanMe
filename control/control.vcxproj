@@ -43,13 +43,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -115,7 +115,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./imgui;./Zydis;./pdb;./utils;./process;./debugger;./mem</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./imgui;./Zydis;./pdb;./utils;./process;./debugger;./mem;./widget</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./imgui;./Zydis;./pdb;./utils;./process;./debugger;./mem</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./imgui;./Zydis;./pdb;./utils;./process;./debugger;./mem;./widget</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -185,8 +185,10 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="widget\DisassemblyWidget.h" />
+    <ClInclude Include="widget\ProcessWidget.h" />
     <ClInclude Include="Zydis\Zydis.h" />
-    <ClInclude Include="zydis_wrapper.h" />
+    <ClInclude Include="Zydis\zydis_wrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

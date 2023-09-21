@@ -54,6 +54,8 @@
 #include "debugger.h"
 #include "config.h"
 
+#include "DisassemblyWidget.h"
+#include "ProcessWidget.h"
 
 
 
