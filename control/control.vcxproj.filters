@@ -167,5 +167,8 @@
     <ClInclude Include="process\window.h">
       <Filter>process</Filter>
     </ClInclude>
+    <ClInclude Include="zydis_wrapper.h">
+      <Filter>zydis</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

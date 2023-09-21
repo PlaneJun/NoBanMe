@@ -44,31 +44,6 @@ void vehexception_cb(uint8_t id,uint64_t addr,PCONTEXT ctx)
 	dbginfo.addr = addr;
 	dbginfo.ctx = *ctx;
 	memcpy(dbginfo.stack, (PVOID)ctx->Rsp,sizeof(dbginfo.stack));
-	auto start = reinterpret_cast<uint8_t*>(ctx->Rip);
-	bool finded = false;
-	while (true)
-	{
-		if (IsBadReadPtr(start, 8))
-			break;
-		else if (*(uint16_t*)start == 0xCCC3)
-		{
-			finded = true;
-			break;
-		}
-
-		start--;
-	}
-	if (finded)
-	{
-		start += 2;
-		dbginfo.region_start = (uint64_t)start;
-		dbginfo.region_size = ctx->Rip - dbginfo.region_start;
-	}
-	else
-	{
-		dbginfo.region_start = dbginfo.addr;
-		dbginfo.region_size = 0x1000;
-	}
 	g_plugin.write_pipe(&dbginfo, sizeof(DbgBreakInfo));
 	g_mutex.unlock();
 }

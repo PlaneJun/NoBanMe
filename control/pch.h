@@ -1,13 +1,25 @@
 #pragma once
-#pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup")
+//#pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup")
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
+#define NOMINMAX
 #include <Windows.h>
 #include <Psapi.h>
 #include <tlhelp32.h>
 #include <stdint.h>
+
+
+#include <algorithm>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <map>
+#include <sstream>
+#include <filesystem>
+#include <functional>
+
 #include <Zydis.h>
+#include "zydis_wrapper.h"
 #include <gdiplus.h>
 #include <DbgHelp.h>
 #include <Shlobj.h>
@@ -21,13 +33,7 @@
 #include <tchar.h>
 #include <imgui_memory_editor.h>
 
-#include <fstream>
-#include <vector>
-#include <string>
-#include <map>
-#include <sstream>
-#include <filesystem>
-#include <functional>
+
 #include "defs.h"
 #include "struct.h"
 #include "memstub.h"

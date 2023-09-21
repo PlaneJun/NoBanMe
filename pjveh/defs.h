@@ -21,9 +21,7 @@ typedef struct _THARD_BREAK_INFO
 	uint8_t id;
 	uint64_t addr;
 	CONTEXT ctx;
-	uint8_t stack[1024]; //1mb stack
-	uint64_t region_start;
-	uint64_t region_size;
+	uint8_t stack[4096]; //4kb stack
 	char disassembly[256];
 }DbgBreakInfo, * PDbgBreakInfo;
 

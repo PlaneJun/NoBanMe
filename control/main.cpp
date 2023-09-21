@@ -504,8 +504,15 @@ void Table_SyscallMonitor()
 }
 void Table_VehDebuger()
 {
+    static std::vector<std::vector<std::string>> dissambly_block{};
+    static uint64_t dissambly_base = 0;
+    static uint64_t dissambly_jmp = 0;
+    static uint32_t curt_page_index = 0;
+    static uint32_t max_page_index = 0;
+    static uint8_t wheel_count = 0; //轮动记录5次翻页
+
     auto curtData = Debugger::GetDbgInfo(config::dbg::curtChoose);
-    static std::pair< Debugger::DbgCaptureInfo, bool> JmpToAddress{};
+    static Debugger::DbgCaptureInfo JmpToAddress{}; //触发记录中的选择项
 
     if (ImGui::CollapsingHeader(u8"硬件断点", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -597,11 +604,10 @@ void Table_VehDebuger()
                     if (i == selected)
                     {
                         curtData.ctx = ii.second.dbginfo.ctx; //设置上下文显示的数据
-                        curtData.disassembly = ii.second.disamSeg; //设置汇编窗口显示的数据
-                        if (JmpToAddress.first.text != ii.second.text)
+                        if (JmpToAddress.text != ii.second.text)
                         {
-                            JmpToAddress.first = ii.second; //设置要跳转的地址
-                            JmpToAddress.second = false;
+                            dissambly_jmp = utils::conver::hexToInteger(ii.second.text);
+                            JmpToAddress = ii.second; //设置要跳转的地址
                         }
                         break;
                     }
@@ -619,17 +625,17 @@ void Table_VehDebuger()
                         {
                             case 0:
                             {
-                                utils::normal::CopyStringToClipboard(std::to_string(JmpToAddress.first.count).c_str());
+                                utils::normal::CopyStringToClipboard(std::to_string(JmpToAddress.count).c_str());
                                 break;
                             }
                             case 1:
                             {
-                                utils::normal::CopyStringToClipboard(JmpToAddress.first.text.c_str());
+                                utils::normal::CopyStringToClipboard(JmpToAddress.text.c_str());
                                 break;
                             }
                             case 2:
                             {
-                                utils::normal::CopyStringToClipboard(JmpToAddress.first.dbginfo.disassembly);
+                                utils::normal::CopyStringToClipboard(JmpToAddress.dbginfo.disassembly);
                                 break;
                             }
                         }
@@ -639,7 +645,7 @@ void Table_VehDebuger()
                             case 0:
                             {
                                 char buff[8192]{};
-                                sprintf_s(buff, "%d | %s | %s", JmpToAddress.first.count, JmpToAddress.first.text.c_str(), JmpToAddress.first.dbginfo.disassembly);
+                                sprintf_s(buff, "%d | %s | %s", JmpToAddress.count, JmpToAddress.text.c_str(), JmpToAddress.dbginfo.disassembly);
                                 utils::normal::CopyStringToClipboard(buff);
                                 break;
                             }
@@ -666,60 +672,130 @@ void Table_VehDebuger()
         ImGui::SameLine();
         if (ImGui::BeginChild("ChildDisassembly", ImVec2(ImGui::GetContentRegionAvail().x * 0.66, ImGui::GetContentRegionAvail().y * 0.66)))
         {
-            ImGui::SeparatorText(u8"反汇编");
-            ImGui::Columns(3, "##disassembly");
-            ImGui::Text(u8"地址"); ImGui::NextColumn();
-            ImGui::Text(u8"字节码"); ImGui::NextColumn();
-            ImGui::Text(u8"指令"); ImGui::NextColumn();
-            ImGui::Separator();
+            //按照64kb显示
             static int selected = -1;
-            for (int i = 0; i < curtData.disassembly.size(); i++)
+            ImGui::SeparatorText(u8"反汇编");
+            if (ImGui::BeginTable("#disassembly", 3, ImGuiTableFlags_Resizable|ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
             {
-                if (ImGui::Selectable(curtData.disassembly[i][0].c_str(), selected == i, ImGuiSelectableFlags_SpanAllColumns))
-                    selected = i;
-                ImGui::NextColumn();
-                for (int j = 1; j < curtData.disassembly[i].size(); j++)
+                ImGui::TableSetupColumn(u8"地址", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn(u8"字节码", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn(u8"指令", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableHeadersRow();
+                //默认注入的进程
+                dissambly_base = (uint64_t)Mem::GetProcessModuleHandle(config::global::injectProcess.GetPid(), utils::conver::string_to_wstirng(config::global::injectProcess.GetName()).c_str());
+                if (dissambly_base > 0)
                 {
-                    ImGui::Text(curtData.disassembly[i][j].c_str()); ImGui::NextColumn();
-                }
+                    if (dissambly_jmp >0)
+                    {
+                        curt_page_index = (dissambly_jmp - dissambly_base) / Debugger::DISAM_BLOCK;
+                        dissambly_block.clear();
+                    }
 
-                //如果到了指定行就停止滚动
-                if (JmpToAddress.first.text == curtData.disassembly[i][0])
-                {
-                    if (!JmpToAddress.second)
-                        selected = i; //只在跳转的时候选择一次
-                    JmpToAddress.second = true;
+                getdisam:
+                    uint64_t disam_start = dissambly_base + curt_page_index * Debugger::DISAM_BLOCK;
+                    if (dissambly_block.size() <= 0)
+                    {
+                        curtData.memoryRegion.start = disam_start;
+                        curtData.memoryRegion.data.resize(Debugger::DISAM_BLOCK);
+                        //read mem
+                        Mem::ReadMemory(config::global::targetProcess.GetPid(), curtData.memoryRegion.start, &curtData.memoryRegion.data[0], Debugger::DISAM_BLOCK);
+                        dissambly_block = Debugger::Disassembly(!config::global::targetProcess.IsWow64(), disam_start, curtData.memoryRegion.data.data(), Debugger::DISAM_BLOCK);
+                    }
+                    else
+                    {
+                        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY() && ImGui::GetIO().MouseWheel < 0) //down
+                        {
+                            if (wheel_count > 3)
+                            {
+                                curt_page_index++;
+                                dissambly_block.clear();
+                                wheel_count = 0;
+                                goto getdisam;
+                            }
+                            else
+                            {
+                                wheel_count++;
+                            }
+
+                        }
+                        else if (ImGui::GetScrollY() <= 0 && curt_page_index > 0 && ImGui::GetIO().MouseWheel > 0) //up
+                        {
+                            if (wheel_count > 3)
+                            {
+                                curt_page_index--;
+                                dissambly_block.clear();
+                                wheel_count = 0;
+                                goto getdisam;
+                            }
+                            else
+                            {
+                                wheel_count++;
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < dissambly_block.size(); i++)
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        if (ImGui::Selectable(dissambly_block[i][0].c_str(), selected == i, ImGuiSelectableFlags_SpanAllColumns))
+                            selected = i;
+                        for (int j = 1; j < dissambly_block[i].size(); j++)
+                        {
+                            ImGui::TableSetColumnIndex(j);
+                            ImGui::Text(dissambly_block[i][j].c_str()); ImGui::NextColumn();
+                        }
+
+                        //如果到了指定行就停止滚动
+                        if (dissambly_jmp > 0 && utils::conver::IntegerTohex(dissambly_jmp) == dissambly_block[i][0])
+                        {
+                            selected = i; //只在跳转的时候选择一次
+                            dissambly_jmp = 0;
+                        }
+                        if (dissambly_jmp > 0)
+                        {
+                            ImGui::SetScrollHereY(0);
+                        }
+
+                    }
+                    dissambly_jmp = 0;//无论有没有找到都设置为0
                 }
-                if (!JmpToAddress.second)
-                {
-                    ImGui::SetScrollHereY(0);
-                }
+                ImGui::EndTable();
             }
-
+ 
             if (selected != -1)
             {
                 if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
                     ImGui::OpenPopup("disassembly_option");
 
+                bool openJmpToInputAddress = false;
                 if (ImGui::BeginPopup("disassembly_option"))
                 {
+                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"跳转到" }))
+                    {
+                        case 0:
+                        {
+                            openJmpToInputAddress = true;
+                            break;
+                        }
+                    }
                     if (ImGui::BeginMenu(u8"复制"))
                     {
                         switch (int s = render::get_instasnce()->DrawItemBlock({ u8"地址",u8"字节码",u8"指令" }))
                         {
                             case 0:
                             {
-                                utils::normal::CopyStringToClipboard(curtData.disassembly[selected][0].c_str());
+                                utils::normal::CopyStringToClipboard(dissambly_block[selected][0].c_str());
                                 break;
                             }
                             case 1:
                             {
-                                utils::normal::CopyStringToClipboard(curtData.disassembly[selected][1].c_str());
+                                utils::normal::CopyStringToClipboard(dissambly_block[selected][1].c_str());
                                 break;
                             }
                             case 2:
                             {
-                                utils::normal::CopyStringToClipboard(curtData.disassembly[selected][2].c_str());
+                                utils::normal::CopyStringToClipboard(dissambly_block[selected][2].c_str());
                                 break;
                             }
                         }
@@ -729,13 +805,37 @@ void Table_VehDebuger()
                             case 0:
                             {
                                 char buff[8192]{};
-                                sprintf_s(buff, "%d | %s | %s", curtData.disassembly[selected][0].c_str(), curtData.disassembly[selected][1].c_str(), curtData.disassembly[selected][2].c_str());
+                                sprintf_s(buff, "%d | %s | %s", dissambly_block[selected][0].c_str(), dissambly_block[selected][1].c_str(), dissambly_block[selected][2].c_str());
                                 utils::normal::CopyStringToClipboard(buff);
                                 break;
                             }
                         }
                         ImGui::EndMenu();
                     }
+                    ImGui::EndPopup();
+                }
+                if (openJmpToInputAddress)
+                {
+                    openJmpToInputAddress = false;
+                    ImGui::OpenPopup("JmpToInputAddress");
+                    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+                    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+                }
+                
+                if (ImGui::BeginPopupModal("JmpToInputAddress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+                {
+                    ImGui::Text(u8"输入要跳转的地址");
+                    ImGui::Separator();
+                    static char buf[100]{};
+                    ImGui::InputText("##JmpToInputAddress",buf,100, ImGuiInputTextFlags_CharsHexadecimal);
+                    if (ImGui::Button(u8"确认", ImVec2(120, 0))) 
+                    {
+                        dissambly_jmp = utils::conver::hexToInteger(buf);
+                        ImGui::CloseCurrentPopup(); 
+                    }
+                    ImGui::SetItemDefaultFocus();
+                    ImGui::SameLine();
+                    if (ImGui::Button(u8"取消", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
                     ImGui::EndPopup();
                 }
             }
@@ -750,40 +850,40 @@ void Table_VehDebuger()
             static int selected = -1;
             std::vector<std::string> headers = { u8"Reg" ,u8"Value" };
             std::vector<std::pair<std::string, std::string>> text = {
-                {"RAX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rax)},
-                {"RBX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rbx)},
-                {"RCX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rcx) },
-                {"RDX","0x" + utils::conver::IntegerTohex(curtData.ctx.Rdx)},
-                {"RBP","0x" + utils::conver::IntegerTohex(curtData.ctx.Rbp)},
-                {"RSP","0x" + utils::conver::IntegerTohex(curtData.ctx.Rsp)},
-                {"RSI","0x" + utils::conver::IntegerTohex(curtData.ctx.Rsi)},
-                {"RDI","0x" + utils::conver::IntegerTohex(curtData.ctx.Rdi)},
-                { "R8" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.R8) },
-                { "R9","0x" + utils::conver::IntegerTohex(curtData.ctx.R9) },
-                { "R10","0x" + utils::conver::IntegerTohex(curtData.ctx.R10) },
-                { "R11","0x" + utils::conver::IntegerTohex(curtData.ctx.R11) },
-                { "R12","0x" + utils::conver::IntegerTohex(curtData.ctx.R12) },
-                { "R13" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.R13)},
-                { "R14","0x" + utils::conver::IntegerTohex(curtData.ctx.R14) },
-                { "R15","0x" + utils::conver::IntegerTohex(curtData.ctx.R15) },
-                { "RIP" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.Rip) },
-                { "RFLAGS" ,"0x" + utils::conver::IntegerTohex(curtData.ctx.EFlags) },
-                {"Xmm0","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm0)},
-                {"Xmm1","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm1)},
-                {"Xmm2","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm2)},
-                {"Xmm3","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm3)},
-                {"Xmm4","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm4)},
-                {"Xmm5","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm5)},
-                {"Xmm6","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm6)},
-                {"Xmm7","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm7)},
-                {"Xmm8","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm8)},
-                {"Xmm9","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm9)},
-                {"Xmm10","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm10)},
-                {"Xmm11","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm11)},
-                {"Xmm12","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm12)},
-                {"Xmm13","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm13)},
-                {"Xmm14","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm14)},
-                {"Xmm15","0x" + utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm15)}
+                {"RAX",utils::conver::IntegerTohex(curtData.ctx.Rax)},
+                {"RBX",utils::conver::IntegerTohex(curtData.ctx.Rbx)},
+                {"RCX",utils::conver::IntegerTohex(curtData.ctx.Rcx) },
+                {"RDX",utils::conver::IntegerTohex(curtData.ctx.Rdx)},
+                {"RBP",utils::conver::IntegerTohex(curtData.ctx.Rbp)},
+                {"RSP",utils::conver::IntegerTohex(curtData.ctx.Rsp)},
+                {"RSI",utils::conver::IntegerTohex(curtData.ctx.Rsi)},
+                {"RDI",utils::conver::IntegerTohex(curtData.ctx.Rdi)},
+                { "R8" ,utils::conver::IntegerTohex(curtData.ctx.R8) },
+                { "R9",utils::conver::IntegerTohex(curtData.ctx.R9) },
+                { "R10",utils::conver::IntegerTohex(curtData.ctx.R10) },
+                { "R11",utils::conver::IntegerTohex(curtData.ctx.R11) },
+                { "R12",utils::conver::IntegerTohex(curtData.ctx.R12) },
+                { "R13" ,utils::conver::IntegerTohex(curtData.ctx.R13)},
+                { "R14",utils::conver::IntegerTohex(curtData.ctx.R14) },
+                { "R15",utils::conver::IntegerTohex(curtData.ctx.R15) },
+                { "RIP" ,utils::conver::IntegerTohex(curtData.ctx.Rip) },
+                { "RFLAGS" ,utils::conver::IntegerTohex(curtData.ctx.EFlags) },
+                {"Xmm0",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm0)},
+                {"Xmm1",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm1)},
+                {"Xmm2",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm2)},
+                {"Xmm3",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm3)},
+                {"Xmm4",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm4)},
+                {"Xmm5",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm5)},
+                {"Xmm6",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm6)},
+                {"Xmm7",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm7)},
+                {"Xmm8",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm8)},
+                {"Xmm9",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm9)},
+                {"Xmm10",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm10)},
+                {"Xmm11",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm11)},
+                {"Xmm12",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm12)},
+                {"Xmm13",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm13)},
+                {"Xmm14",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm14)},
+                {"Xmm15",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm15)}
             };
             render::get_instasnce()->AddListBox("##context", selected, headers, text);
             ImGui::EndChild();
@@ -809,12 +909,12 @@ void Table_VehDebuger()
             if (text.size() <= 0)
             {
                 //这个位置将来兼容32的话,8需要改，建议后面动态获取
-                if (curtData.capture.count(JmpToAddress.first.dbginfo.ctx.Rip) > 0)
+                if (curtData.capture.count(JmpToAddress.dbginfo.ctx.Rip) > 0)
                 {
                     if(mitems.size()<=0)
                         ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
 
-                    auto cap = curtData.capture[JmpToAddress.first.dbginfo.ctx.Rip];
+                    auto cap = curtData.capture[JmpToAddress.dbginfo.ctx.Rip];
                     for (int i = 0; i < sizeof(cap.stack) / 8; i++)
                     {
                         std::vector<std::string> tmp{};
@@ -957,7 +1057,7 @@ void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
                         selected = row_n;
                     }
                     ImGui::TableNextColumn();
-                    ImGui::Text(("0x" + utils::conver::IntegerTohex(item->GetThreadEntry())).c_str());
+                    ImGui::Text(utils::conver::IntegerTohex(item->GetThreadEntry()).c_str());
                     ImGui::TableNextColumn();
                     ImGui::Text("%d", item->GetPrority());
                     ImGui::TableNextColumn();
@@ -1019,7 +1119,7 @@ void ChildWnd_ExceptionWindow(bool* show, uint32_t pid)
                     ImGui::PushID(item->GetEntry());
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    if (ImGui::Selectable(("0x" + utils::conver::IntegerTohex(item->GetEntry())).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    if (ImGui::Selectable(utils::conver::IntegerTohex(item->GetEntry()).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
                     {
                         selected = row_n;
                     }
@@ -1086,7 +1186,7 @@ void ChildWnd_MemoryWindow(bool* show, uint32_t pid)
                     ImGui::PushID(item->GetBase());
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    if (ImGui::Selectable(("0x"+utils::conver::IntegerTohex(item->GetBase())).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    if (ImGui::Selectable(utils::conver::IntegerTohex(item->GetBase()).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
                     {
                         selected = row_n;
                     }
@@ -1348,28 +1448,30 @@ void OnIPC(DWORD* a)
 
                     if (curtData.capture.count(pDbg->ctx.Rip) <= 0)
                     {
-                        uint32_t aglim = (pDbg->region_size & 0xfffff000) + 0x1000;
-                        curtData.memoryRegion.start = pDbg->region_start;
-                        curtData.memoryRegion.data.resize(aglim);
-                        //read mem
-                        Mem::ReadMemory(config::global::targetProcess.GetPid(), pDbg->region_start, &curtData.memoryRegion.data[0], aglim);
+                        /*MEMORY_BASIC_INFORMATION meminfo{};
+                        Mem::QueryMem(config::global::targetProcess.GetPid(),(PVOID)pDbg->ctx.Rip,&meminfo,sizeof(MEMORY_BASIC_INFORMATION));
+                        curtData.memoryRegion.start = (uint64_t)meminfo.AllocationBase;
+                        curtData.memoryRegion.data.resize(meminfo.RegionSize);
+                       */
                         //generate region disassembly
-                        auto disam = Debugger::Disassembly(pDbg->region_start, aglim, curtData.memoryRegion.data.data());
+                        uint8_t buf[100]{};
+                        Mem::ReadMemory(config::global::targetProcess.GetPid(), pDbg->ctx.Rip-0x50, buf, 0x100);
+                        auto disam = Debugger::Disassembly(!config::global::targetProcess.IsWow64(), pDbg->ctx.Rip - 0x50, buf, sizeof(buf));
                         for (int i = 0; i < disam.size(); i++)
                         {
-                            if (disam[i][0] == "0x" + utils::conver::IntegerTohex(pDbg->ctx.Rip))
+                            if (disam[i][0] == utils::conver::IntegerTohex(pDbg->ctx.Rip))
                             {
                                 if (config::dbg::Dr[pDbg->id].type == 0)
                                 {
                                     strcpy_s(pDbg->disassembly, disam[i ][2].c_str());
-                                    curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i][0],1 ,disam };
+                                    curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i][0],1 };
                                 }
                                 else
                                 {
                                     //find breakpoint,because the dr-break is interrupt at next line
                                     strcpy_s(pDbg->disassembly, disam[i - 1][2].c_str());
                                     //fix rip to real-rip
-                                    curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i - 1][0],1 ,disam };
+                                    curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i - 1][0],1 };
                                 }
                                 memcpy(curtData.capture[pDbg->ctx.Rip].stack, pDbg->stack, sizeof(pDbg->stack));
                                 break;

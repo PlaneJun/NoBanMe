@@ -2,15 +2,18 @@
 class Debugger
 {
 public:
+    enum
+    {
+        DISAM_BLOCK=0x1000
+    };
+
     typedef struct _THARD_BREAK_INFO
     {
         EDataType type;
         uint8_t id;
         uint64_t addr;
         CONTEXT ctx;
-        uint8_t stack[1024]; //1mb stack
-        uint64_t region_start;
-        uint64_t region_size;
+        uint8_t stack[4096]; //4kb stack
         char disassembly[256];
     }DbgBreakInfo, * PDbgBreakInfo;
 
@@ -19,8 +22,7 @@ public:
         DbgBreakInfo dbginfo;
         std::string text;
         uint64_t count;
-        std::vector<std::vector<std::string>> disamSeg;
-        uint8_t stack[1024]; //1mb stack
+        uint8_t stack[4096]; //4kb stack
     }DbgCaptureInfo, * PDbgCaptureInfo;
 
     typedef struct _TMEM_REGION
@@ -33,45 +35,39 @@ public:
     {
         std::map<uint64_t, DbgCaptureInfo> capture;
         CONTEXT ctx;
-        std::vector<std::vector<std::string>> disassembly{};
         MemRegion memoryRegion;
     }DbgInfo;
 
 public:
-    static std::vector<std::vector<std::string>> Disassembly(uint64_t start, size_t size, const uint8_t* buffer)
+    static std::vector<std::vector<std::string>> Disassembly(bool Is64,uint64_t start, const uint8_t* buffer,size_t size )
     {
         std::vector<std::vector<std::string>> ret;
-        std::vector<std::string> tmp;
-        ZydisDisassembledInstruction instruction;
-        ZyanU64 runtime_address = (ZyanU64)start;
-        for (int i = 0; i < size; )
+        std::vector<std::string> tmp{};
+
+        int i = 0;
+        Zydis dism(Is64);
+        do
         {
             tmp.clear();
-            if (ZYAN_SUCCESS(ZydisDisassembleIntel(
-                /* machine_mode:    */ ZYDIS_MACHINE_MODE_LONG_64,
-                /* runtime_address: */ runtime_address,
-                /* buffer:          */ buffer + i,
-                /* length:          */ size - i,
-                /* instruction:     */ &instruction
-            )))
+            bool status = dism.Disassemble(start + i, buffer + i);
+            if (status)
             {
-                tmp.push_back("0x" + utils::conver::IntegerTohex(runtime_address));
-                tmp.push_back(utils::conver::bytesToHexString(buffer + i, instruction.info.length).c_str());
-                tmp.push_back(instruction.text);
+                tmp.push_back(utils::conver::IntegerTohex(start + i));
+                tmp.push_back(utils::conver::bytesToHexString(buffer + i, dism.Size()).c_str());
+                tmp.push_back(dism.InstructionText().c_str());
                 ret.push_back(tmp);
-                i += instruction.info.length;
-                runtime_address += instruction.info.length;
+                i += dism.Size();
             }
             else
             {
-                tmp.push_back("0x" + utils::conver::IntegerTohex(runtime_address));
-                tmp.push_back(utils::conver::bytesToHexString(buffer + i, 1).c_str());
-                tmp.push_back("db");
+                tmp.push_back(utils::conver::IntegerTohex(start + i));
+                tmp.push_back(utils::conver::bytesToHexString(buffer + i, 1));
+                tmp.push_back("???");
                 ret.push_back(tmp);
                 i++;
-                runtime_address += i;
             }
-        }
+
+        }while (i< size);
 
         return ret;
     }
