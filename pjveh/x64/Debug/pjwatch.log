@@ -1,5 +1,0 @@
-﻿  main.cpp
-C:\Users\SuperRong\Desktop\Todo\PJArk\pjwatch\pipe.h(31,31): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
-  LINK : 没有找到 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Debug\pjwatch.dll 或上一个增量链接没有生成它；正在执行完全链接
-    正在创建库 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Debug\pjwatch.lib 和对象 C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Debug\pjwatch.exp
-  pjwatch.vcxproj -> C:\Users\SuperRong\Desktop\Todo\PJArk\x64\Debug\pjwatch.dll
