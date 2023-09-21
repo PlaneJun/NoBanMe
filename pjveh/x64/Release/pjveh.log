@@ -1,7 +1,13 @@
 ﻿D:\SoftWare\Microsoft Visual Studio\Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: 中间目录(x64\Release\)包含从另一个项目(ConsoleApplication2.vcxproj, pjwatch.vcxproj, SyscallWatch.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
     正在创建库 D:\Code\C_C++\PJArk\build\pjveh_64.lib 和对象 D:\Code\C_C++\PJArk\build\pjveh_64.exp
   正在生成代码
+<<<<<<< HEAD
   Previous IPDB and IOBJ mismatch, fall back to full compilation.
   All 164 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+=======
+  91 of 174 functions (52.3%) were compiled, the rest were copied from previous compilation.
+    11 functions were new in current compilation
+    13 functions had inline decision re-evaluated but remain unchanged
+>>>>>>> c87b23f89f3c7e08c740a0e314fae1d746bd8164
   已完成代码的生成
   pjveh.vcxproj -> D:\Code\C_C++\PJArk\build\pjveh_64.dll

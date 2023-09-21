@@ -5,6 +5,7 @@ bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
     return Mem::RemoteCallFunction(pid,config::global::lpPluginDispatch,&cmd,sizeof(ControlCmd));
 }
 
+
 void Table_Process()
 {
     static std::vector<ProcessItem> pitems;
@@ -192,7 +193,11 @@ void Table_Process()
                         static char plugin_path[MAX_PATH]{};
 
                         bool can = true;
+<<<<<<< HEAD
                         HMODULE plugin_base = NULL;
+=======
+                        HMODULE plugin_base=NULL;
+>>>>>>> c87b23f89f3c7e08c740a0e314fae1d746bd8164
                         //获取插件回调偏移
                         if (Offset_Dispatch <= 0)
                         {
@@ -209,7 +214,11 @@ void Table_Process()
                         if (plugin_base)
                         {
                             //更新回调地址
+<<<<<<< HEAD
                             config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
+=======
+                            config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base)+ Offset_Dispatch;
+>>>>>>> c87b23f89f3c7e08c740a0e314fae1d746bd8164
                             if (config::global::injectProcess.GetPid() == config::global::targetProcess.GetPid())
                             {
                                 MessageBoxA(NULL, "目标进程已经启用插件,无需重复启用!", "pjark", NULL);

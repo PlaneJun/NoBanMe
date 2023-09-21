@@ -214,6 +214,15 @@ namespace Mem
 	}
 
 
-	
+
+	uint64_t GetDllExportRva(const char* module_path, const char* export_fun)
+	{
+		auto base = GetModuleHandleA(module_path);
+		if (base == NULL)
+			base = LoadLibraryA(module_path);
+		uint64_t ret = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(base, export_fun)) - (uint8_t*)base);
+		FreeLibrary(base);
+		return ret;
+	}
 
 }
