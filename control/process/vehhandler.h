@@ -76,7 +76,7 @@ public:
                 uint64_t decode_ptr{};
                 uint64_t key = (uint64_t)addressOfEntry->VectoredHandler;
                 uint32_t ProcessInformation{};
-                uint32_t ret = Mem::NtQueryInformationProcess(pid, 36, &ProcessInformation, 4, 0);
+                uint32_t ret = Mem::NtQueryInformationProcess(pid, ProcessCookie, &ProcessInformation, 4, 0);
                 if (ret >= 0)
                 {
                     if (isWow64)

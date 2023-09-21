@@ -26,7 +26,7 @@ namespace dbg
 		uint64_t address;
 	};
 
-	uint64_t hHandler{};
+	PVOID hHandler{};
 	cbDbgHandler callback;
 	std::map<uint8_t, std::pair<struct DBG_PARAMS, bool>> hbk_list;
 
@@ -78,6 +78,7 @@ namespace dbg
 		hbk_list[2] = {};
 		hbk_list[3] = {};
 
+		//hHandler = AddVectoredExceptionHandler(true, ExceptionHandler);
 		auto kernel = GetModuleHandleA("Kernel32.dll");
 		if (kernel)
 		{
@@ -88,7 +89,7 @@ namespace dbg
 				RtlAddVectoredExceptionHandler = RtlAddVectoredExceptionHandler + offset + 5;
 				if (RtlAddVectoredExceptionHandler)
 				{
-					hHandler = reinterpret_cast<uint64_t(*)(uint32_t, PVECTORED_EXCEPTION_HANDLER, uint32_t)>(RtlAddVectoredExceptionHandler)(1, ExceptionHandler, 0);
+					hHandler = reinterpret_cast<PVOID(*)(uint32_t, PVECTORED_EXCEPTION_HANDLER, uint32_t)>(RtlAddVectoredExceptionHandler)(1, ExceptionHandler, 0);
 				}
 			}
 		}
@@ -98,13 +99,15 @@ namespace dbg
 	{
 		if (hHandler == NULL)
 			return;
+		/*auto ret = RemoveVectoredExceptionHandler(hHandler);
+		printf("%d\n",ret);*/
 		auto kernel = GetModuleHandleA("Kernel32.dll");
 		if (kernel)
 		{
 			auto RtlRemoveVectoredExceptionHandler = (uintptr_t)GetProcAddress(kernel, "RemoveVectoredExceptionHandler");
 			if (RtlRemoveVectoredExceptionHandler)
 			{
-				reinterpret_cast<void(*)(uint64_t)>(RtlRemoveVectoredExceptionHandler)(hHandler);
+				reinterpret_cast<void(*)(PVOID)>(RtlRemoveVectoredExceptionHandler)(hHandler);
 			}
 		}
 	}

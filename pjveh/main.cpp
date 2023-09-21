@@ -166,14 +166,11 @@ void test()
 	freopen_s((_iobuf**)__acrt_iob_func(1), "conout$", "w", (_iobuf*)__acrt_iob_func(1));
 	freopen_s((_iobuf**)__acrt_iob_func(2), "conout$", "w", (_iobuf*)__acrt_iob_func(2));
 	{
-		auto hwnd = FindWindowA("UnrealWindow", "ShooterGame (64-bit Development PCD3D_SM5) ");
-		DWORD pid{};
-		auto threadid = GetWindowThreadProcessId(hwnd, &pid);
 		dbg::init();
-		dbg::set_callback(vehexception_cb);
-		auto base = (uint64_t)GetModuleHandleA(NULL) + 0x5A0D7FF;
-		auto ret = dbg::set_break(0,base, dbg::DBG_SIZE::SIZE_1, dbg::DBG_TYPE::TYPE_EXECUTE);
-		printf("set :%d\n",ret);
+		//dbg::set_callback(vehexception_cb);
+		//auto base = (uint64_t)GetModuleHandleA(NULL) + 0x5A0D7FF;
+		//auto ret = dbg::set_break(0,base, dbg::DBG_SIZE::SIZE_1, dbg::DBG_TYPE::TYPE_EXECUTE);
+		//printf("set :%d\n",ret);
 	}
 
 }
@@ -184,6 +181,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
 		g_hModule = hModule;
+		
 	}
 	return TRUE;
 }

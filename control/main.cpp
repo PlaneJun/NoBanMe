@@ -187,25 +187,43 @@ void Table_Process()
                 {
                     case 0:
                     {
-                        //是否调试过
+                        static const char* plugin_name = config::global::targetProcess.IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
+                        static uint64_t  Offset_Dispatch = 0;
+                        static char plugin_path[MAX_PATH]{};
+
                         bool can = true;
-                        if (config::global::injectProcess.GetPid() > 0)
+                        HMODULE plugin_base = NULL;
+                        //获取插件回调偏移
+                        if (Offset_Dispatch <= 0)
                         {
-                            //1)、是否重复注入
+                            HMODULE plugin_base = GetModuleHandleA(plugin_name);
+                            if (plugin_base == NULL)
+                                plugin_base = LoadLibraryA(plugin_name);
+                            Offset_Dispatch = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(plugin_base, "Dispatch")) - (uint8_t*)plugin_base);
+                            GetModuleFileNameA(plugin_base, plugin_path, MAX_PATH);
+                            FreeLibrary(plugin_base);
+                        }
+
+                        //检查目标进程是否有过注入插件
+                        plugin_base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
+                        if (plugin_base)
+                        {
+                            //更新回调地址
+                            config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
                             if (config::global::injectProcess.GetPid() == config::global::targetProcess.GetPid())
                             {
                                 MessageBoxA(NULL, "目标进程已经启用插件,无需重复启用!", "pjark", NULL);
-                                break;
+                                break;//先前记录过，且注入的进程一致，禁止注入
                             }
-
-                            //2）、是否为新进程
-                            if (config::global::injectProcess.GetPid() != config::global::targetProcess.GetPid())
+                            else
                             {
+                                if (config::global::injectProcess.GetPid() <= 0)
+                                    config::global::injectProcess = config::global::targetProcess;
+                                //清理上一个环境
                                 do
                                 {
-                                    //清理上一个环境
-                                //1)、清空全部断点
-                                    for (int i = 0;i < 4;i++)
+                                    //1)、清空全部断点
+                                    for (int i = 0; i < 4; i++)
                                         config::dbg::Dr->statue = 0; //这里设置0，OnUpdate会自动删除断点
                                     Sleep(500);
                                     //2)、清除veh
@@ -238,7 +256,6 @@ void Table_Process()
                                     }
                                     //清理成功
                                     config::global::injectProcess = ProcessItem();
-                                    can = true;
                                 } while (false);
                             }
                         }
@@ -250,37 +267,24 @@ void Table_Process()
                             {
                                 do
                                 {
-
-                                    //获取dll信息
-                                    static const char* plugin_name[] = { "pjveh_64.dll","pjveh_32.dll" };
-                                    HMODULE base = GetModuleHandleA(plugin_name[config::global::targetProcess.IsWow64()]);
-                                    if (base == NULL)
-                                        base = LoadLibraryA(plugin_name[config::global::targetProcess.IsWow64()]);
-                                    config::global::lpPluginDispatch = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(base, "Dispatch")) - (uint8_t*)base);
-                                    char plugin_path[MAX_PATH]{};
-                                    GetModuleFileNameA(base, plugin_path, MAX_PATH);
-                                    FreeLibrary(base);
                                     Mem::RemoteInjectDLL(config::global::targetProcess.GetPid(), plugin_path);
-                                    base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng((char*)plugin_name[config::global::targetProcess.IsWow64()]).c_str());
-                                    if (!base)
+                                    plugin_base = Mem::GetProcessModuleHandle(config::global::targetProcess.GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
+                                    if (!plugin_base)
                                     {
                                         MessageBoxA(NULL, "注入插件失败!", "pjark", NULL);
                                         break;
                                     }
-                                    config::global::lpPluginDispatch += reinterpret_cast<uint64_t>(base);
                                     if (!config::global::plugin_.init_pipe())
                                     {
                                         MessageBoxA(NULL, "创建管道失败!", "pjark", NULL);
                                         break;
                                     }
-
-                                    //连接管道
+                                    config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
                                     if (!InvokePluginFunction(config::global::targetProcess.GetPid(), { ECMD::pipe_client_connect }))
                                     {
                                         MessageBoxA(NULL, "连接管道失败!", NULL, NULL);
                                         break;
                                     }
-                                    //初始化调试器
                                     if (!InvokePluginFunction(config::global::targetProcess.GetPid(), { ECMD::veh_init }))
                                     {
                                         MessageBoxA(NULL, "初始化插件失败!", NULL, NULL);
@@ -501,15 +505,10 @@ void Table_VehDebuger()
 {
     auto curtData = Debugger::GetDbgInfo(config::dbg::curtChoose);
     static std::pair< Debugger::DbgCaptureInfo, bool> JmpToAddress{};
-    static std::vector<ModuleItem> mitems{};//用于显示模块地址
-    if (config::global::injectProcess.GetPid() > 0)
-        ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
-    else
-        mitems.clear();
 
     if (ImGui::CollapsingHeader(u8"硬件断点", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        static std::string dr_statue[] = { u8"添加",u8"移除" };
+        static const char* dr_statue[] = { u8"添加",u8"移除" };
         static const char* dr_size[] = { "1 byte", "2 byte", "4 byte", "8 byte" };
         static const char* dr_type[] = { u8"执行", u8"读/写", u8"写" };
         for (int i = 0;i < 4;i++)
@@ -549,7 +548,7 @@ void Table_VehDebuger()
             char button_id[100]{};
             sprintf_s(button_id, "btn_dr%d", i);
             ImGui::PushID(button_id);
-            if (ImGui::Button(dr_statue[config::dbg::Dr[i].statue].c_str()))
+            if (ImGui::Button(dr_statue[config::dbg::Dr[i].statue]))
             {
                 config::dbg::Dr[i].statue++;
                 if (config::dbg::Dr[i].statue > 1)
@@ -803,6 +802,7 @@ void Table_VehDebuger()
             //待优化，目前代码一坨屎
             ImGui::SeparatorText(u8"堆栈");
             static int selected = -1;
+            static std::vector<ModuleItem> mitems{};
             static std::vector<std::string> headers = { "Rsp" ,"Value"," " };
             static std::vector<std::vector<std::string>> text{};
             if (text.size() <= 0)
@@ -810,6 +810,9 @@ void Table_VehDebuger()
                 //这个位置将来兼容32的话,8需要改，建议后面动态获取
                 if (curtData.capture.count(JmpToAddress.first.dbginfo.ctx.Rip) > 0)
                 {
+                    if(mitems.size()<=0)
+                        ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
+
                     auto cap = curtData.capture[JmpToAddress.first.dbginfo.ctx.Rip];
                     for (int i = 0; i < sizeof(cap.stack) / 8; i++)
                     {
@@ -818,12 +821,12 @@ void Table_VehDebuger()
                         tmp.push_back(utils::conver::IntegerTohex(curtData.ctx.Rsp + i * 8));
                         tmp.push_back(utils::conver::IntegerTohex(v));
                         tmp.push_back("");
-                        for (auto item : mitems)
+                        for (auto& item : mitems)
                         {
                             if (v >= item.GetBase() && v <= item.GetBase() + item.GetSize())
                             {
                                 uint64_t detal = (item.GetBase() + item.GetSize()) - v;
-                                tmp[2] = std::filesystem::path(item.GetImagePath()).filename().string().append("+0x").append(utils::conver::IntegerTohex(detal));
+                                tmp[2] = std::filesystem::path(item.GetImagePath()).filename().string().append(utils::conver::IntegerTohex(detal));
                                 break;
                             }
                         }
@@ -892,7 +895,7 @@ void Table_VehDebuger()
 }
 void Table_Window()
 {
-    if (ImGui::BeginChild("##window_list", ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
+    /*if (ImGui::BeginChild("##window_list", ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
     {
         ImGui::Text("11");
         ImGui::EndChild();
@@ -902,7 +905,7 @@ void Table_Window()
     {
         ImGui::Text("22");
         ImGui::EndChild();
-    }
+    }*/
 }
 void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
 {
@@ -1111,7 +1114,6 @@ void OnGui(float w,float h)
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowPadding = { 2.f,2.f };
-    style.TabRounding = 0.f;
     ChildWnd_ThreadWindow(&config::process::thread::bShow, config::process::thread::pid);
     ChildWnd_ExceptionWindow(&config::process::veh::bShow, config::process::veh::pid);
     ChildWnd_MemoryWindow(&config::process::memory::bShow, config::process::memory::pid);
@@ -1360,7 +1362,6 @@ void OnIPC(DWORD* a)
                                 {
                                     strcpy_s(pDbg->disassembly, disam[i ][2].c_str());
                                     curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i][0],1 ,disam };
-                                    memcpy(curtData.capture[pDbg->ctx.Rip].stack, pDbg->stack, sizeof(pDbg->stack));
                                 }
                                 else
                                 {
@@ -1369,6 +1370,7 @@ void OnIPC(DWORD* a)
                                     //fix rip to real-rip
                                     curtData.capture[pDbg->ctx.Rip] = { *pDbg ,disam[i - 1][0],1 ,disam };
                                 }
+                                memcpy(curtData.capture[pDbg->ctx.Rip].stack, pDbg->stack, sizeof(pDbg->stack));
                                 break;
                             }
                         }

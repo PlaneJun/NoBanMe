@@ -192,7 +192,7 @@ namespace Mem
 		}
 		typedef NTSTATUS(NTAPI* fnNtQueryInformationProcess)(HANDLE ProcessHandle, int ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
 		fnNtQueryInformationProcess lpNtQueryInformationProcess = (fnNtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryInformationProcess");
-		NTSTATUS ret =lpNtQueryInformationProcess(hProcess, 36, &ProcessInformation, 4, 0);
+		NTSTATUS ret =lpNtQueryInformationProcess(hProcess, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
 		CloseHandle(hProcess);
 		return ret;
 	}
