@@ -467,7 +467,10 @@ namespace utils
 			return ret;
 		}
 
-
+		bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
+		{
+			return Mem::RemoteCallFunction(pid, config::global::lpPluginDispatch, &cmd, sizeof(ControlCmd));
+		}
 	}
 
 	namespace normal

@@ -5,7 +5,9 @@ class DisassemblerWidget
 public:
 	void OnPaint()
 	{
-		ImGui::SeparatorText(u8"反汇编");
+        char title[256]{};
+        sprintf_s(title, u8"反汇编\t 模块:%s", curtModule.c_str());
+		ImGui::SeparatorText(title);
         if (ImGui::BeginTable("#disassembly", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
         {
             ImGui::TableSetupColumn(u8"地址", ImGuiTableColumnFlags_WidthFixed);
@@ -68,8 +70,8 @@ public:
                 {
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
-                    if (ImGui::Selectable(dissambly_block_[i][0].c_str(), select_ == i, ImGuiSelectableFlags_SpanAllColumns))
-                        select_ = i;
+                    if (ImGui::Selectable(dissambly_block_[i][0].c_str(), selected_ == i, ImGuiSelectableFlags_SpanAllColumns))
+                        selected_ = i;
                     for (int j = 1; j < dissambly_block_[i].size(); j++)
                     {
                         ImGui::TableSetColumnIndex(j);
@@ -79,7 +81,7 @@ public:
                     //如果到了指定行就停止滚动
                     if (dissambly_jmp_ > 0 && utils::conver::IntegerTohex(dissambly_jmp_) == dissambly_block_[i][0])
                     {
-                        select_ = i; //只在跳转的时候选择一次
+                        selected_ = i; //只在跳转的时候选择一次
                         dissambly_jmp_ = 0;
                     }
                     if (dissambly_jmp_ > 0)
@@ -91,7 +93,7 @@ public:
                 dissambly_jmp_ = 0;//无论有没有找到都设置为0
             }
 
-            if (select_ != -1)
+            if (selected_ != -1)
             {
                 if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
                     ImGui::OpenPopup("disassembly_option");
@@ -113,17 +115,17 @@ public:
                         {
                             case 0:
                             {
-                                utils::normal::CopyStringToClipboard(dissambly_block_[select_][0].c_str());
+                                utils::normal::CopyStringToClipboard(dissambly_block_[selected_][0].c_str());
                                 break;
                             }
                             case 1:
                             {
-                                utils::normal::CopyStringToClipboard(dissambly_block_[select_][1].c_str());
+                                utils::normal::CopyStringToClipboard(dissambly_block_[selected_][1].c_str());
                                 break;
                             }
                             case 2:
                             {
-                                utils::normal::CopyStringToClipboard(dissambly_block_[select_][2].c_str());
+                                utils::normal::CopyStringToClipboard(dissambly_block_[selected_][2].c_str());
                                 break;
                             }
                         }
@@ -133,7 +135,7 @@ public:
                             case 0:
                             {
                                 char buff[8192]{};
-                                sprintf_s(buff, "%d | %s | %s", dissambly_block_[select_][0].c_str(), dissambly_block_[select_][1].c_str(), dissambly_block_[select_][2].c_str());
+                                sprintf_s(buff, "%d | %s | %s", dissambly_block_[selected_][0].c_str(), dissambly_block_[selected_][1].c_str(), dissambly_block_[selected_][2].c_str());
                                 utils::normal::CopyStringToClipboard(buff);
                                 break;
                             }
@@ -159,6 +161,7 @@ public:
                     if (ImGui::Button(u8"确认", ImVec2(120, 0)))
                     {
                         dissambly_jmp_ = utils::conver::hexToInteger(buf);
+                        SetData(DataSource_, dissambly_jmp_);
                         ImGui::CloseCurrentPopup();
                     }
                     ImGui::SetItemDefaultFocus();
@@ -173,27 +176,50 @@ public:
 
     auto GetSelected() 
     {
-        return select_;
+        return selected_;
     }
 
-    auto SetData(ProcessItem proc,uint64_t base)
+    auto SetData(ProcessItem proc,uint64_t jmpto)
     {
         DataSource_ = proc;
-        dissambly_base_ = base;
-    }
+        if (DataSource_.GetPid() > 0)
+        {
+            //查询地址对应的模块基地址
+            MEMORY_BASIC_INFORMATION meminfo{};
+            Mem::QueryMem(DataSource_.GetPid(), (PVOID)jmpto, &meminfo, sizeof(MEMORY_BASIC_INFORMATION));
+            std::vector<uint64_t> bases{};
+            bases.push_back((uint64_t)meminfo.BaseAddress);
+            bases.push_back((uint64_t)meminfo.AllocationBase);
+            for (auto& i : bases)
+            {
+                if (i <= 0)
+                    continue;
+                curtModule = Mem::GetModuleFullName(DataSource_.GetPid(), i);
+                if (!curtModule.empty())
+                {
+                    curtModule = curtModule.substr(curtModule.rfind("\\")+1);
+                    if (dissambly_base_ != i)
+                        dissambly_base_ = i;
+                    break;//找到就返回
+                }
+            }
+            
+            //碰到shellcode类似
+            if (curtModule.empty())
+                dissambly_base_ = (uint64_t)meminfo.BaseAddress > 0 ? (uint64_t)meminfo.BaseAddress : (uint64_t)meminfo.AllocationBase;
 
-    auto Jmpto(uint64_t base)
-    {
-        dissambly_jmp_ = base;
+            dissambly_jmp_ = jmpto;
+        }
     }
 
 private:
     ProcessItem DataSource_;
-    uint32_t select_;
+    int selected_ = -1;
     std::vector<std::vector<std::string>> dissambly_block_{};
     uint64_t dissambly_base_;
     uint64_t dissambly_jmp_;
     uint32_t curt_page_index_;
     uint32_t max_page_index_;
     uint8_t wheel_count_; //轮动记录5次翻页
+    std::string curtModule;
 };

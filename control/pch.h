@@ -41,6 +41,8 @@
 #include "EasyPdb.h"
 #include "plugin.h"
 
+#include "config.h"
+
 #include "render.h"
 #include "utils.h"
 //Process
@@ -52,10 +54,14 @@
 #include "window.h"
 //Debugger
 #include "debugger.h"
-#include "config.h"
 
+//Widget
 #include "DisassemblyWidget.h"
 #include "ProcessWidget.h"
+#include "ModuleWidget.h"
+#include "BreakRecordWidget.h"
+#include "ContextWidget.h"
+#include "StackWidget.h"
 
 
 

@@ -119,9 +119,6 @@
     <ClInclude Include="Zydis\Zydis.h">
       <Filter>zydis</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="config.h">
       <Filter>config</Filter>
     </ClInclude>
@@ -173,11 +170,23 @@
     <ClInclude Include="Zydis\zydis_wrapper.h">
       <Filter>zydis</Filter>
     </ClInclude>
+    <ClInclude Include="widget\BreakRecordWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
     <ClInclude Include="widget\DisassemblyWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ModuleWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
     <ClInclude Include="widget\ProcessWidget.h">
       <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\StackWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\utils.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

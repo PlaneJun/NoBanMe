@@ -5,8 +5,6 @@ namespace config
     namespace global
     {
         plugin plugin_;
-        ProcessItem targetProcess;
-        ProcessItem injectProcess;
         uint64_t lpPluginDispatch;
     }
     namespace process

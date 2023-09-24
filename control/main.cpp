@@ -2,109 +2,29 @@
 
 DisassemblerWidget disassemblerWidget;
 ProcessWidget processWidget;
-bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
-{
-    return Mem::RemoteCallFunction(pid,config::global::lpPluginDispatch,&cmd,sizeof(ControlCmd));
-}
-
+ModuleWidget moduleWidget;
+BreakRecordWidget breakrecordWidget;
+ContextWidget contextWidget;
+StackWidget stackWidget;
 
 void Table_Process()
 {
-    static std::vector<ProcessItem> pitems;
-    static std::vector<ModuleItem> mitems;
+    static ProcessItem lastChooseProcess{};
     if (ImGui::BeginChild("#process", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.7), false, ImGuiWindowFlags_HorizontalScrollbar))
     {
         processWidget.OnPaint();
+  
         ImGui::EndChild();
     }
     if (ImGui::BeginChild("#module", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
     {
-        static int selected_module = -1;
-        if (config::global::targetProcess.GetPid() != 0)
+        //设置数据源
+        if (processWidget.GetCurtProcessItem().GetPid() != lastChooseProcess.GetPid())
         {
-            //Enum Modules
-            if (mitems.size() == 0)
-            {
-                ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
-            }
+            moduleWidget.SetDataSource(processWidget.GetCurtProcessItem().GetPid());
+            lastChooseProcess = processWidget.GetCurtProcessItem();
         }
-        if (ImGui::BeginTable("#modulelist", 6, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV))
-        {
-            ImGui::TableSetupColumn(u8"模块路径", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, ModuleItem::EInfo::IMAGEPATH);
-            ImGui::TableSetupColumn(u8"基地址", ImGuiTableColumnFlags_WidthFixed, 0.0f, ModuleItem::EInfo::BASE);
-            ImGui::TableSetupColumn(u8"大小", ImGuiTableColumnFlags_WidthFixed, 0.0f, ModuleItem::EInfo::SIZE);
-            ImGui::TableSetupColumn(u8"描述", ImGuiTableColumnFlags_WidthFixed, 0.0f);
-            ImGui::TableSetupColumn(u8"文件厂商", ImGuiTableColumnFlags_WidthFixed, 0.0f);
-            ImGui::TableSetupColumn(u8"文件版本", ImGuiTableColumnFlags_WidthFixed, 0.0f);
-            ImGui::TableHeadersRow();
-            if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
-            {
-                if (sorts_specs->SpecsDirty)
-                {
-                    ModuleItem::SetSortSpecs(sorts_specs); // Store in variable accessible by the sort function.
-                    if (mitems.size() > 1)
-                        qsort(&mitems[0], (size_t)mitems.size(), sizeof(mitems[0]), ModuleItem::CompareWithSortSpecs);
-                    ModuleItem::SetSortSpecs(NULL);
-                    sorts_specs->SpecsDirty = false;
-                }
-            }
-            ImGuiListClipper clipper;
-            clipper.Begin(mitems.size());
-            while (clipper.Step())
-            {
-                for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
-                {
-                    ModuleItem* item = &mitems[row_n];
-                    ImGui::PushID(item->GetBase());
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::Selectable(utils::conver::string_To_UTF8(item->GetImagePath()).c_str(), selected_module == row_n, ImGuiSelectableFlags_SpanAllColumns))
-                        selected_module = row_n;
-                    ImGui::TableNextColumn();
-                    ImGui::Text("0x%p", item->GetBase());
-                    ImGui::TableNextColumn();
-                    ImGui::Text("0x%llx", item->GetSize());
-                    ImGui::TableNextColumn();
-                    ImGui::Text(utils::conver::string_To_UTF8(item->GetDecription()).c_str());
-                    ImGui::TableNextColumn();
-                    ImGui::Text(utils::conver::string_To_UTF8(item->GetCompanyName()).c_str());
-                    ImGui::TableNextColumn();
-                    ImGui::Text(utils::conver::string_To_UTF8(item->GetFileVersion()).c_str());
-                    ImGui::PopID();
-                }
-            }
-
-            if (selected_module != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
-                ImGui::OpenPopup("module_option");
-
-            if (ImGui::BeginPopup("module_option"))
-            {
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"内存转储" }))
-                {
-                    case 0:
-                    {
-                        
-                        break;
-                    }
-                }
-                ImGui::Separator();
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"文件定位",u8"文件属性" }))
-                {
-                    case 0:
-                    {
-                        utils::file::OpenFolderAndSelectFile(mitems[selected_module].GetImagePath().c_str());
-                        break;
-                    }
-                    case 1:
-                    {
-                        utils::file::OpenFilePropertyDlg(mitems[selected_module].GetImagePath().c_str());
-                        break;
-                    }
-                }
-                ImGui::EndPopup();
-            }
-            ImGui::EndTable();
-        }
+        moduleWidget.OnPaint();
         ImGui::EndChild();
     }
 }
@@ -133,10 +53,8 @@ void Table_SyscallMonitor()
 }
 void Table_VehDebuger()
 {
-
+    static Debugger::DbgCaptureInfo last_choose_capture;
     auto curtData = Debugger::GetDbgInfo(config::dbg::curtChoose);
-    static Debugger::DbgCaptureInfo JmpToAddress{}; //触发记录中的选择项
-
     if (ImGui::CollapsingHeader(u8"硬件断点", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static const char* dr_statue[] = { u8"添加",u8"移除" };
@@ -206,89 +124,17 @@ void Table_VehDebuger()
         }
         if (ImGui::BeginChild("ChildAccess", ImVec2(ImGui::GetContentRegionAvail().x * 0.25, ImGui::GetContentRegionAvail().y * 0.66), false, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            ImGui::SeparatorText(u8"触发记录");
-            static int selected = -1;
-            static const std::vector<std::string> headers = { u8"计数" ,u8"地址" ,u8"指令" };
-            std::vector<std::vector<std::string>> text{};
-            for (auto i : curtData.capture)
+            breakrecordWidget.SetDataSource(curtData.capture);
+            breakrecordWidget.OnPaint();
+            if (last_choose_capture.text != breakrecordWidget.GetCurtSelect().text)
             {
-                std::vector<std::string> tmp{};
-                tmp.push_back(std::to_string(i.second.count));
-                tmp.push_back(i.second.text);
-                tmp.push_back(i.second.dbginfo.disassembly);
-                text.push_back(tmp);
-            }
-            render::get_instasnce()->AddListBox("##bp_access", selected, 1, headers, text);
-            if (selected != -1)
-            {
-                int i = 0;
-                for (auto ii : curtData.capture)
-                {
-                    if (i == selected)
-                    {
-                        curtData.ctx = ii.second.dbginfo.ctx; //设置上下文显示的数据
-                        if (JmpToAddress.text != ii.second.text)
-                        {
-                            dissambly_jmp = utils::conver::hexToInteger(ii.second.text);
-                            JmpToAddress = ii.second; //设置要跳转的地址
-                        }
-                        break;
-                    }
-                    i++;
-                }
-
-                if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
-                    ImGui::OpenPopup("access_option");
-
-                if (ImGui::BeginPopup("access_option"))
-                {
-                    if (ImGui::BeginMenu(u8"复制"))
-                    {
-                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"计数",u8"地址",u8"指令" }))
-                        {
-                            case 0:
-                            {
-                                utils::normal::CopyStringToClipboard(std::to_string(JmpToAddress.count).c_str());
-                                break;
-                            }
-                            case 1:
-                            {
-                                utils::normal::CopyStringToClipboard(JmpToAddress.text.c_str());
-                                break;
-                            }
-                            case 2:
-                            {
-                                utils::normal::CopyStringToClipboard(JmpToAddress.dbginfo.disassembly);
-                                break;
-                            }
-                        }
-                        ImGui::Separator();
-                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行",u8"整个表" }))
-                        {
-                            case 0:
-                            {
-                                char buff[8192]{};
-                                sprintf_s(buff, "%d | %s | %s", JmpToAddress.count, JmpToAddress.text.c_str(), JmpToAddress.dbginfo.disassembly);
-                                utils::normal::CopyStringToClipboard(buff);
-                                break;
-                            }
-                            case 1:
-                            {
-                                std::string ret{};
-                                for (auto i : curtData.capture)
-                                {
-                                    char buff[8192]{};
-                                    sprintf_s(buff, "%d | %s | %s", i.second.count,i.second.text.c_str(), i.second.dbginfo.disassembly);
-                                    ret += buff;
-                                }
-                                utils::normal::CopyStringToClipboard(ret.c_str());
-                                break;
-                            }
-                        }
-                        ImGui::EndMenu();
-                    }
-                    ImGui::EndPopup();
-                }
+                contextWidget.SetDataSource(curtData.ctx);
+                disassemblerWidget.SetData(processWidget.GetPluginProcessItem(),utils::conver::hexToInteger(breakrecordWidget.GetCurtSelect().text));
+                std::vector<uint8_t> stack{};
+                stack.resize(sizeof(breakrecordWidget.GetCurtSelect().stack));
+                memcpy(&stack[0], breakrecordWidget.GetCurtSelect().stack, sizeof(breakrecordWidget.GetCurtSelect().stack));
+                stackWidget.SetDataSource(processWidget.GetPluginProcessItem().GetPid(), stack,curtData.ctx.Rsp);
+                last_choose_capture = breakrecordWidget.GetCurtSelect();
             }
             ImGui::EndChild();
         }
@@ -301,168 +147,25 @@ void Table_VehDebuger()
         ImGui::SameLine();
         if (ImGui::BeginChild("ChildContext", ImVec2(ImGui::GetContentRegionAvail().x * 0.98, ImGui::GetContentRegionAvail().y * 0.66)))
         {
-            ImGui::SeparatorText(u8"寄存器");ImGui::SameLine();
-            render::get_instasnce()->HelpMarker(u8"当前显示的上下文为断点执行后数据\n");
-            static int selected = -1;
-            std::vector<std::string> headers = { u8"Reg" ,u8"Value" };
-            std::vector<std::pair<std::string, std::string>> text = {
-                {"RAX",utils::conver::IntegerTohex(curtData.ctx.Rax)},
-                {"RBX",utils::conver::IntegerTohex(curtData.ctx.Rbx)},
-                {"RCX",utils::conver::IntegerTohex(curtData.ctx.Rcx) },
-                {"RDX",utils::conver::IntegerTohex(curtData.ctx.Rdx)},
-                {"RBP",utils::conver::IntegerTohex(curtData.ctx.Rbp)},
-                {"RSP",utils::conver::IntegerTohex(curtData.ctx.Rsp)},
-                {"RSI",utils::conver::IntegerTohex(curtData.ctx.Rsi)},
-                {"RDI",utils::conver::IntegerTohex(curtData.ctx.Rdi)},
-                { "R8" ,utils::conver::IntegerTohex(curtData.ctx.R8) },
-                { "R9",utils::conver::IntegerTohex(curtData.ctx.R9) },
-                { "R10",utils::conver::IntegerTohex(curtData.ctx.R10) },
-                { "R11",utils::conver::IntegerTohex(curtData.ctx.R11) },
-                { "R12",utils::conver::IntegerTohex(curtData.ctx.R12) },
-                { "R13" ,utils::conver::IntegerTohex(curtData.ctx.R13)},
-                { "R14",utils::conver::IntegerTohex(curtData.ctx.R14) },
-                { "R15",utils::conver::IntegerTohex(curtData.ctx.R15) },
-                { "RIP" ,utils::conver::IntegerTohex(curtData.ctx.Rip) },
-                { "RFLAGS" ,utils::conver::IntegerTohex(curtData.ctx.EFlags) },
-                {"Xmm0",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm0)},
-                {"Xmm1",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm1)},
-                {"Xmm2",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm2)},
-                {"Xmm3",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm3)},
-                {"Xmm4",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm4)},
-                {"Xmm5",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm5)},
-                {"Xmm6",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm6)},
-                {"Xmm7",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm7)},
-                {"Xmm8",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm8)},
-                {"Xmm9",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm9)},
-                {"Xmm10",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm10)},
-                {"Xmm11",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm11)},
-                {"Xmm12",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm12)},
-                {"Xmm13",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm13)},
-                {"Xmm14",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm14)},
-                {"Xmm15",utils::conver::IntegerTohex(*(uint64_t*)&curtData.ctx.Xmm15)}
-            };
-            render::get_instasnce()->AddListBox("##context", selected, headers, text);
+            
+            contextWidget.OnPaint();
             ImGui::EndChild();
         }
         ImGui::Separator();
         if (ImGui::BeginChild("ChildMem", ImVec2(ImGui::GetContentRegionAvail().x * 0.65, ImGui::GetContentRegionAvail().y)))
         {
-            ImGui::SeparatorText(u8"内存");
+            /*ImGui::SeparatorText(u8"内存");
             static MemoryEditor mem_edit;
-            mem_edit.DrawWindow("Memory Editor", curtData.memoryRegion.data.data(), curtData.memoryRegion.data.size(), curtData.memoryRegion.start);
+            mem_edit.DrawWindow("Memory Editor", curtData.memoryRegion.data.data(), curtData.memoryRegion.data.size(), curtData.memoryRegion.start);*/
             ImGui::EndChild();
         }
         ImGui::SameLine();
         if (ImGui::BeginChild("ChildStack"))
         {
-            //-------------------------------------------------
-            //待优化，目前代码一坨屎
-            ImGui::SeparatorText(u8"堆栈");
-            static int selected = -1;
-            static std::vector<ModuleItem> mitems{};
-            static std::vector<std::string> headers = { "Rsp" ,"Value"," " };
-            static std::vector<std::vector<std::string>> text{};
-            if (text.size() <= 0)
-            {
-                //这个位置将来兼容32的话,8需要改，建议后面动态获取
-                if (curtData.capture.count(JmpToAddress.dbginfo.ctx.Rip) > 0)
-                {
-                    if(mitems.size()<=0)
-                        ModuleItem::EnumPidModules(config::global::targetProcess.GetPid(), mitems);
-
-                    auto cap = curtData.capture[JmpToAddress.dbginfo.ctx.Rip];
-                    for (int i = 0; i < sizeof(cap.stack) / 8; i++)
-                    {
-                        std::vector<std::string> tmp{};
-                        uint64_t v = *(uint64_t*)&cap.stack[i * 8];
-                        tmp.push_back(utils::conver::IntegerTohex(curtData.ctx.Rsp + i * 8));
-                        tmp.push_back(utils::conver::IntegerTohex(v));
-                        tmp.push_back("");
-                        for (auto& item : mitems)
-                        {
-                            if (v >= item.GetBase() && v <= item.GetBase() + item.GetSize())
-                            {
-                                uint64_t detal = (item.GetBase() + item.GetSize()) - v;
-                                tmp[2] = std::filesystem::path(item.GetImagePath()).filename().string().append(utils::conver::IntegerTohex(detal));
-                                break;
-                            }
-                        }
-
-                        text.push_back(tmp);
-                    }
-                }
-            }
-            else
-            {
-                if (text[0][0] != utils::conver::IntegerTohex(curtData.ctx.Rsp))
-                {
-                    mitems.clear();
-                    selected = -1;
-                }
-            }
-
-            if (selected != -1)
-            {
-                if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
-                    ImGui::OpenPopup("stack_option");
-
-                if (ImGui::BeginPopup("stack_option"))
-                {
-                    if (ImGui::BeginMenu(u8"复制"))
-                    {
-                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"Rsp",u8"Value",u8"注释" }))
-                        {
-                            case 0:
-                            {
-                                utils::normal::CopyStringToClipboard(text[selected][0].c_str());
-                                break;
-                            }
-                            case 1:
-                            {
-                                utils::normal::CopyStringToClipboard(text[selected][1].c_str());
-                                break;
-                            }
-                            case 2:
-                            {
-                                utils::normal::CopyStringToClipboard(text[selected][2].c_str());
-                                break;
-                            }
-                        }
-                        ImGui::Separator();
-                        switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行" }))
-                        {
-                            case 0:
-                            {
-                                char buff[8192]{};
-                                sprintf_s(buff, "%d | %s | %s", text[selected][0].c_str(), text[selected][1].c_str(), text[selected][2].c_str());
-                                utils::normal::CopyStringToClipboard(buff);
-                                break;
-                            }
-                        }
-                        ImGui::EndMenu();
-                    }
-                    ImGui::EndPopup();
-                }
-            }
-
-            render::get_instasnce()->AddListBox("##Stack", selected,0, headers, text);
+            stackWidget.OnPaint();
             ImGui::EndChild();
         }
     }
-}
-void Table_Window()
-{
-    /*if (ImGui::BeginChild("##window_list", ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
-    {
-        ImGui::Text("11");
-        ImGui::EndChild();
-    }
-    ImGui::SameLine();
-    if (ImGui::BeginChild("##window_info", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar))
-    {
-        ImGui::Text("22");
-        ImGui::EndChild();
-    }*/
 }
 void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
 {
@@ -711,7 +414,7 @@ void OnGui(float w,float h)
             }
             if (ImGui::BeginTabItem(u8"窗口"))
             {
-                Table_Window();
+             
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -723,7 +426,7 @@ void OnUpdate(DWORD* a)
 {
     while (true)
     {
-        if (config::global::injectProcess.GetPid() > 0)
+        if (processWidget.GetPluginProcessItem().GetPid() > 0)
         {
             //Syscall Monotor
             {
@@ -735,7 +438,7 @@ void OnUpdate(DWORD* a)
                         ControlCmd cmd{};
                         cmd.cmd = ECMD::syscallmonitor_init;
                         cmd.syscall_state = config::syscall::active;
-                        if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                        if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                         {
                             MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
                             config::syscall::active = false; //clear checked
@@ -752,7 +455,7 @@ void OnUpdate(DWORD* a)
                         ControlCmd cmd{};
                         cmd.cmd = ECMD::syscallmonitor_init;
                         cmd.syscall_state = config::syscall::active;
-                        if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                        if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                         {
                             MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
                             config::syscall::active = true; //clear check
@@ -791,7 +494,7 @@ void OnUpdate(DWORD* a)
                             cmd.hardbread.addr = strlen(tmp_dr.addr) > 0 ? utils::conver::hexToInteger(tmp_dr.addr) : 0;
                             cmd.hardbread.size = tmp_dr.size;
                             cmd.hardbread.type = tmp_dr.type;
-                            if (cmd.hardbread.addr <= 0 || !InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            if (cmd.hardbread.addr <= 0 || !utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                             {
                                 MessageBoxA(NULL, "Add BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.statue = 0; //add fault,so set button title to "Add"
@@ -810,7 +513,7 @@ void OnUpdate(DWORD* a)
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_unset_dr;
                             cmd.dr_index = i;
-                            if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                             {
                                 MessageBoxA(NULL, "Remove BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.statue = 1; //remove fault,set button title to "Remove"
@@ -834,7 +537,7 @@ void OnUpdate(DWORD* a)
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_enable_dr;
                             cmd.dr_index = i;
-                            if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                             {
                                 MessageBoxA(NULL, "Enable BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.active = 0;
@@ -854,7 +557,7 @@ void OnUpdate(DWORD* a)
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_disable_dr;
                             cmd.dr_index = i;
-                            if (!InvokePluginFunction(config::global::injectProcess.GetPid(), cmd))
+                            if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                             {
                                 MessageBoxA(NULL, "Disable BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.active = 1;
@@ -904,15 +607,11 @@ void OnIPC(DWORD* a)
 
                     if (curtData.capture.count(pDbg->ctx.Rip) <= 0)
                     {
-                        /*MEMORY_BASIC_INFORMATION meminfo{};
-                        Mem::QueryMem(config::global::targetProcess.GetPid(),(PVOID)pDbg->ctx.Rip,&meminfo,sizeof(MEMORY_BASIC_INFORMATION));
-                        curtData.memoryRegion.start = (uint64_t)meminfo.AllocationBase;
-                        curtData.memoryRegion.data.resize(meminfo.RegionSize);
-                       */
+                        curtData.ctx = pDbg->ctx;
                         //generate region disassembly
                         uint8_t buf[100]{};
-                        Mem::ReadMemory(config::global::targetProcess.GetPid(), pDbg->ctx.Rip-0x50, buf, 0x100);
-                        auto disam = Debugger::Disassembly(!config::global::targetProcess.IsWow64(), pDbg->ctx.Rip - 0x50, buf, sizeof(buf));
+                        Mem::ReadMemory(processWidget.GetPluginProcessItem().GetPid(), pDbg->ctx.Rip - 0x50, buf, 0x100);
+                        auto disam = Debugger::Disassembly(!processWidget.GetPluginProcessItem().IsWow64(), pDbg->ctx.Rip - 0x50, buf, sizeof(buf));
                         for (int i = 0; i < disam.size(); i++)
                         {
                             if (disam[i][0] == utils::conver::IntegerTohex(pDbg->ctx.Rip))
@@ -939,6 +638,7 @@ void OnIPC(DWORD* a)
                         //update count、stack
                         auto& t = curtData.capture[pDbg->ctx.Rip];
                         memcpy(t.stack, pDbg->stack,sizeof(t.dbginfo.stack));
+                        curtData.ctx = pDbg->ctx;
                         t.count++;
                     }
                     break;

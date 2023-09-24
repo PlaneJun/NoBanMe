@@ -5,10 +5,12 @@ class ProcessWidget
 public:
 	void OnPaint()
 	{
+        //如果没有获取过则获取一次
         if (DataSource_.size() == 0)
         {
             ProcessItem::EnumCurtAllProcess(DataSource_);
         }
+        //绘制
         if (ImGui::BeginTable("#processlist", 9, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV))
         {
             ImGui::TableSetupColumn("##icon", ImGuiTableColumnFlags_NoSort, 0.0f);
@@ -45,9 +47,9 @@ public:
                     if (item->GetIcon())
                         ImGui::Image(item->GetIcon(), ImVec2(16, 16));
                     ImGui::TableNextColumn();
-                    if (ImGui::Selectable(std::to_string(item->GetPid()).c_str(), select_ == row_n, ImGuiSelectableFlags_SpanAllColumns))
+                    if (ImGui::Selectable(std::to_string(item->GetPid()).c_str(), selected_ == row_n, ImGuiSelectableFlags_SpanAllColumns))
                     {
-                        select_ = row_n;
+                        selected_ = row_n;
                     }
                     ImGui::TableNextColumn();
                     ImGui::Text(utils::conver::string_To_UTF8(item->GetName().append(item->IsWow64() ? "*32" : "")).c_str());
@@ -67,7 +69,7 @@ public:
                 }
             }
 
-            if (select_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
+            if (selected_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
                 ImGui::OpenPopup("process_option");
 
             if (ImGui::BeginPopup("process_option"))
@@ -86,19 +88,19 @@ public:
                     case 1:
                     {
                         config::process::memory::bShow = true;
-                        config::process::memory::pid = DataSource_[select_].GetPid();
+                        config::process::memory::pid = DataSource_[selected_].GetPid();
                         break;
                     }
                     case 2:
                     {
                         config::process::thread::bShow = true;
-                        config::process::thread::pid = DataSource_[select_].GetPid();
+                        config::process::thread::pid = DataSource_[selected_].GetPid();
                         break;
                     }
                     case 4:
                     {
                         config::process::veh::bShow = true;
-                        config::process::veh::pid = DataSource_[select_].GetPid();;
+                        config::process::veh::pid = DataSource_[selected_].GetPid();;
                         break;
                     }
                 }
@@ -107,7 +109,7 @@ public:
                 {
                     case 0:
                     {
-                        HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DataSource_[select_].GetPid());
+                        HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DataSource_[selected_].GetPid());
                         if (handLe)
                         {
                             TerminateProcess(handLe, 0);
@@ -117,7 +119,7 @@ public:
                     }
                     case 2:
                     {
-                        utils::file::OpenFilePropertyDlg(DataSource_[select_].GetFullPath().c_str());
+                        utils::file::OpenFilePropertyDlg(DataSource_[selected_].GetFullPath().c_str());
                         break;
                     }
                 }
@@ -131,7 +133,7 @@ public:
                     }
                     case 2:
                     {
-                        utils::file::OpenFolderAndSelectFile(DataSource_[select_].GetFullPath().c_str());
+                        utils::file::OpenFolderAndSelectFile(DataSource_[selected_].GetFullPath().c_str());
                         break;
                     }
                 }
@@ -156,7 +158,7 @@ public:
                                 case 0:
                                 {
 
-                                    if (Mem::RemoteInjectDLL(DataSource_[select_].GetPid(), dllPath.c_str()))
+                                    if (Mem::RemoteInjectDLL(DataSource_[selected_].GetPid(), dllPath.c_str()))
                                     {
                                         MessageBoxA(NULL, "注入成功!", "pjark", NULL);
                                     }
@@ -175,7 +177,7 @@ public:
                 {
                     case 0:
                     {
-                        static const char* plugin_name = DataSource_[select_].IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
+                        static const char* plugin_name = DataSource_[selected_].IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
                         static uint64_t  Offset_Dispatch = 0;
                         static char plugin_path[MAX_PATH]{};
 
@@ -201,20 +203,20 @@ public:
                         }
 
                         //检查目标进程是否有过注入插件
-                        plugin_base = Mem::GetProcessModuleHandle(DataSource_[select_].GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
+                        plugin_base = Mem::GetProcessModuleHandle(DataSource_[selected_].GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
                         if (plugin_base)
                         {
                             //更新回调地址
                             config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
-                            if (config::global::injectProcess.GetPid() == DataSource_[select_].GetPid())
+                            if (pluginProcess_.GetPid() == DataSource_[selected_].GetPid())
                             {
                                 MessageBoxA(NULL, "目标进程已经启用插件,无需重复启用!", "pjark", NULL);
                                 break;//先前记录过，且注入的进程一致，禁止注入
                             }
                             else
                             {
-                                if (config::global::injectProcess.GetPid() <= 0)
-                                    config::global::injectProcess = DataSource_[select_];
+                                if (pluginProcess_.GetPid() <= 0)
+                                    pluginProcess_ = DataSource_[selected_];
                                 //清理上一个环境
                                 do
                                 {
@@ -223,48 +225,48 @@ public:
                                         config::dbg::Dr->statue = 0; //这里设置0，OnUpdate会自动删除断点
                                     Sleep(500);
                                     //2)、清除veh
-                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::veh_uninstall }))
+                                    if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::veh_uninstall }))
                                     {
                                         MessageBoxA(NULL, "启用插件失败[1]!", NULL, NULL);
                                         can = false;
                                         break;
                                     }
                                     //3)、清除syscall
-                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::syscallmonitor_uninstall }))
+                                    if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::syscallmonitor_uninstall }))
                                     {
                                         MessageBoxA(NULL, "启用插件失败[2]!", NULL, NULL);
                                         can = false;
                                         break;
                                     }
                                     //3)、清除pipe
-                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::pipe_client_close }))
+                                    if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::pipe_client_close }))
                                     {
                                         MessageBoxA(NULL, "启用插件失败[3]!", NULL, NULL);
                                         can = false;
                                         break;
                                     }
                                     //3)、清除plugin
-                                    if (!InvokePluginFunction(config::global::injectProcess.GetPid(), { ECMD::plugin_uninstall }))
+                                    if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::plugin_uninstall }))
                                     {
                                         MessageBoxA(NULL, "启用插件失败[4]!", NULL, NULL);
                                         can = false;
                                         break;
                                     }
                                     //清理成功
-                                    config::global::injectProcess = ProcessItem();
+                                    pluginProcess_ = ProcessItem();
                                 } while (false);
                             }
                         }
                         if (can)
                         {
                             char caption[256]{};
-                            sprintf_s(caption, "[%d]%s\n是否需要启用插件?", DataSource_[select_].GetPid(), DataSource_[select_].GetName().c_str());
+                            sprintf_s(caption, "[%d]%s\n是否需要启用插件?", DataSource_[selected_].GetPid(), DataSource_[selected_].GetName().c_str());
                             if (MessageBoxA(NULL, caption, NULL, MB_OKCANCEL) == IDOK)
                             {
                                 do
                                 {
-                                    Mem::RemoteInjectDLL(DataSource_[select_].GetPid(), plugin_path);
-                                    plugin_base = Mem::GetProcessModuleHandle(DataSource_[select_].GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
+                                    Mem::RemoteInjectDLL(DataSource_[selected_].GetPid(), plugin_path);
+                                    plugin_base = Mem::GetProcessModuleHandle(DataSource_[selected_].GetPid(), utils::conver::string_to_wstirng(plugin_name).c_str());
                                     if (!plugin_base)
                                     {
                                         MessageBoxA(NULL, "注入插件失败!", "pjark", NULL);
@@ -276,18 +278,18 @@ public:
                                         break;
                                     }
                                     config::global::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
-                                    if (!InvokePluginFunction(DataSource_[select_].GetPid(), { ECMD::pipe_client_connect }))
+                                    if (!utils::mem::InvokePluginFunction(DataSource_[selected_].GetPid(), { ECMD::pipe_client_connect }))
                                     {
                                         MessageBoxA(NULL, "连接管道失败!", NULL, NULL);
                                         break;
                                     }
-                                    if (!InvokePluginFunction(DataSource_[select_].GetPid(), { ECMD::veh_init }))
+                                    if (!utils::mem::InvokePluginFunction(DataSource_[selected_].GetPid(), { ECMD::veh_init }))
                                     {
                                         MessageBoxA(NULL, "初始化插件失败!", NULL, NULL);
                                         break;
                                     }
                                     MessageBoxA(NULL, "插件初始化成功!", NULL, NULL);
-                                    config::global::injectProcess = DataSource_[select_];
+                                    pluginProcess_ = DataSource_[selected_];
                                 } while (false);
                             }
                         }
@@ -305,42 +307,42 @@ public:
                     {
                         case 0:
                         {
-                            utils::normal::CopyStringToClipboard(std::to_string(DataSource_[select_].GetPid()).c_str());
+                            utils::normal::CopyStringToClipboard(std::to_string(DataSource_[selected_].GetPid()).c_str());
                             break;
                         }
                         case 1:
                         {
-                            utils::normal::CopyStringToClipboard(DataSource_[select_].GetName().c_str());
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetName().c_str());
                             break;
                         }
                         case 2:
                         {
-                            utils::normal::CopyStringToClipboard(std::to_string(DataSource_[select_].GetPPid()).c_str());
+                            utils::normal::CopyStringToClipboard(std::to_string(DataSource_[selected_].GetPPid()).c_str());
                             break;
                         }
                         case 3:
                         {
-                            utils::normal::CopyStringToClipboard(DataSource_[select_].GetStartUpTime().c_str());
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetStartUpTime().c_str());
                             break;
                         }
                         case 4:
                         {
-                            utils::normal::CopyStringToClipboard(DataSource_[select_].GetDecription().c_str());
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetDecription().c_str());
                             break;
                         }
                         case 5:
                         {
-                            utils::normal::CopyStringToClipboard(DataSource_[select_].GetCompanyName().c_str());
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetCompanyName().c_str());
                             break;
                         }
                         case 6:
                         {
-                            utils::normal::CopyStringToClipboard(DataSource_[select_].GetFileVersion().c_str());
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetFileVersion().c_str());
                             break;
                         }
                         case 7:
                         {
-                            utils::normal::CopyStringToClipboard(DataSource_[select_].GetFullPath().c_str());
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetFullPath().c_str());
                             break;
                         }
                     }
@@ -350,11 +352,11 @@ public:
                         case 0:
                         {
                             char buff[8192]{};
-                            sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s", DataSource_[select_].GetPid(),
-                                DataSource_[select_].GetName().c_str(), DataSource_[select_].GetPPid(),
-                                DataSource_[select_].GetStartUpTime().c_str(), DataSource_[select_].GetDecription().c_str(),
-                                DataSource_[select_].GetCompanyName().c_str(), DataSource_[select_].GetFileVersion().c_str(),
-                                DataSource_[select_].GetFullPath().c_str());
+                            sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s", DataSource_[selected_].GetPid(),
+                                DataSource_[selected_].GetName().c_str(), DataSource_[selected_].GetPPid(),
+                                DataSource_[selected_].GetStartUpTime().c_str(), DataSource_[selected_].GetDecription().c_str(),
+                                DataSource_[selected_].GetCompanyName().c_str(), DataSource_[selected_].GetFileVersion().c_str(),
+                                DataSource_[selected_].GetFullPath().c_str());
                             utils::normal::CopyStringToClipboard(buff);
                             break;
                         }
@@ -385,10 +387,17 @@ public:
 
     auto GetCurtProcessItem()
     {
-        return DataSource_[select_];
+        if(DataSource_.size()>0 && selected_>=0)
+            return DataSource_[selected_];
+        return ProcessItem();
     }
 
+    auto GetPluginProcessItem()
+    {
+        return pluginProcess_;
+    }
 private:
-    uint32_t select_;
+    int selected_ = -1;
+    ProcessItem pluginProcess_;
 	std::vector<ProcessItem> DataSource_;
 };
