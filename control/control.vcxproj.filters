@@ -188,5 +188,14 @@
     <ClInclude Include="utils\utils.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="widget\SyscallMonitorWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\VehDebuggerWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

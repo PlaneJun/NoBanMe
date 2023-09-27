@@ -3,6 +3,47 @@
 class DisassemblerWidget
 {
 public:
+
+
+    auto GetSelected()
+    {
+        return selected_;
+    }
+
+    auto SetData(ProcessItem proc, uint64_t jmpto)
+    {
+        DataSource_ = proc;
+        if (DataSource_.GetPid() > 0)
+        {
+            //查询地址对应的模块基地址
+            MEMORY_BASIC_INFORMATION meminfo{};
+            Mem::QueryMem(DataSource_.GetPid(), (PVOID)jmpto, &meminfo, sizeof(MEMORY_BASIC_INFORMATION));
+            std::vector<uint64_t> bases{};
+            bases.push_back((uint64_t)meminfo.BaseAddress);
+            bases.push_back((uint64_t)meminfo.AllocationBase);
+            for (auto& i : bases)
+            {
+                if (i <= 0)
+                    continue;
+                curtModule = Mem::GetModuleFullName(DataSource_.GetPid(), i);
+                if (!curtModule.empty())
+                {
+                    curtModule = curtModule.substr(curtModule.rfind("\\") + 1);
+                    if (dissambly_base_ != i)
+                        dissambly_base_ = i;
+                    break;//找到就返回
+                }
+            }
+
+            //碰到shellcode类似
+            if (curtModule.empty())
+                dissambly_base_ = (uint64_t)meminfo.BaseAddress > 0 ? (uint64_t)meminfo.BaseAddress : (uint64_t)meminfo.AllocationBase;
+
+            dissambly_jmp_ = jmpto;
+        }
+    }
+
+
 	void OnPaint()
 	{
         char title[256]{};
@@ -174,44 +215,7 @@ public:
         }
 	}
 
-    auto GetSelected() 
-    {
-        return selected_;
-    }
-
-    auto SetData(ProcessItem proc,uint64_t jmpto)
-    {
-        DataSource_ = proc;
-        if (DataSource_.GetPid() > 0)
-        {
-            //查询地址对应的模块基地址
-            MEMORY_BASIC_INFORMATION meminfo{};
-            Mem::QueryMem(DataSource_.GetPid(), (PVOID)jmpto, &meminfo, sizeof(MEMORY_BASIC_INFORMATION));
-            std::vector<uint64_t> bases{};
-            bases.push_back((uint64_t)meminfo.BaseAddress);
-            bases.push_back((uint64_t)meminfo.AllocationBase);
-            for (auto& i : bases)
-            {
-                if (i <= 0)
-                    continue;
-                curtModule = Mem::GetModuleFullName(DataSource_.GetPid(), i);
-                if (!curtModule.empty())
-                {
-                    curtModule = curtModule.substr(curtModule.rfind("\\")+1);
-                    if (dissambly_base_ != i)
-                        dissambly_base_ = i;
-                    break;//找到就返回
-                }
-            }
-            
-            //碰到shellcode类似
-            if (curtModule.empty())
-                dissambly_base_ = (uint64_t)meminfo.BaseAddress > 0 ? (uint64_t)meminfo.BaseAddress : (uint64_t)meminfo.AllocationBase;
-
-            dissambly_jmp_ = jmpto;
-        }
-    }
-
+   
 private:
     ProcessItem DataSource_;
     int selected_ = -1;

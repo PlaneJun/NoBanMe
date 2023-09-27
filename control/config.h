@@ -25,12 +25,6 @@ namespace config
             uint32_t pid;
         }
     }
-    namespace syscall
-    {
-        std::map<std::string, std::map<std::string, uint64_t>> monitor{};
-        bool active;
-        bool save;
-    }
     namespace dbg
     {
         typedef struct _TDR_SET

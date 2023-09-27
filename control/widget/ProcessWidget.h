@@ -93,8 +93,8 @@ public:
                     }
                     case 2:
                     {
-                        config::process::thread::bShow = true;
-                        config::process::thread::pid = DataSource_[selected_].GetPid();
+                        threadWidget.SetDataSource(DataSource_[selected_].GetPid());
+                        threadWidget.Load();
                         break;
                     }
                     case 4:
@@ -104,6 +104,7 @@ public:
                         break;
                     }
                 }
+                threadWidget.OnPaint();
                 ImGui::Separator();
                 switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"隐藏进程",u8"进程属性" }))
                 {
@@ -400,4 +401,6 @@ private:
     int selected_ = -1;
     ProcessItem pluginProcess_;
 	std::vector<ProcessItem> DataSource_;
+
+    ThreadWidget threadWidget;
 };

@@ -43,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -184,12 +184,15 @@
     <ClInclude Include="imgui_theme.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="plugin.h" />
+    <ClInclude Include="ThreadWidget.h" />
     <ClInclude Include="utils\utils.h" />
     <ClInclude Include="widget\BreakRecordWidget.h" />
     <ClInclude Include="widget\DisassemblyWidget.h" />
     <ClInclude Include="widget\ModuleWidget.h" />
     <ClInclude Include="widget\ProcessWidget.h" />
     <ClInclude Include="widget\StackWidget.h" />
+    <ClInclude Include="widget\SyscallMonitorWidget.h" />
+    <ClInclude Include="widget\VehDebuggerWidget.h" />
     <ClInclude Include="Zydis\Zydis.h" />
     <ClInclude Include="Zydis\zydis_wrapper.h" />
   </ItemGroup>

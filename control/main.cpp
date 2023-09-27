@@ -1,239 +1,13 @@
 ﻿#include "pch.h"
 
-DisassemblerWidget disassemblerWidget;
+
 ProcessWidget processWidget;
 ModuleWidget moduleWidget;
-BreakRecordWidget breakrecordWidget;
-ContextWidget contextWidget;
-StackWidget stackWidget;
+SysCallMonitorWidget syscallMonitorWidget;
+VehDebuggerWidget vehDebuggerWidget;
 
-void Table_Process()
-{
-    static ProcessItem lastChooseProcess{};
-    if (ImGui::BeginChild("#process", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.7), false, ImGuiWindowFlags_HorizontalScrollbar))
-    {
-        processWidget.OnPaint();
-  
-        ImGui::EndChild();
-    }
-    if (ImGui::BeginChild("#module", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
-    {
-        //设置数据源
-        if (processWidget.GetCurtProcessItem().GetPid() != lastChooseProcess.GetPid())
-        {
-            moduleWidget.SetDataSource(processWidget.GetCurtProcessItem().GetPid());
-            lastChooseProcess = processWidget.GetCurtProcessItem();
-        }
-        moduleWidget.OnPaint();
-        ImGui::EndChild();
-    }
-}
-void Table_SyscallMonitor()
-{
-    ImGui::SeparatorText(u8"选项");
-    ImGui::Checkbox(u8"启用", &config::syscall::active); ImGui::SameLine();
-    ImGui::Checkbox(u8"保存日志", &config::syscall::save); ImGui::SameLine();
-    ImGui::Button(u8"清除");
-    ImGui::SeparatorText(u8"输出");
-    if (ImGui::TreeNode("root"))
-    {
-        for (auto n : config::syscall::monitor)
-        {
-            if (ImGui::TreeNode(n.first.c_str()))
-            {
-                for (auto m : n.second)
-                {
-                    ImGui::Text("%d : %s", m.second, m.first.c_str());
-                }
-                ImGui::TreePop();
-            }
-        }
-        ImGui::TreePop();
-    }
-}
-void Table_VehDebuger()
-{
-    static Debugger::DbgCaptureInfo last_choose_capture;
-    auto curtData = Debugger::GetDbgInfo(config::dbg::curtChoose);
-    if (ImGui::CollapsingHeader(u8"硬件断点", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        static const char* dr_statue[] = { u8"添加",u8"移除" };
-        static const char* dr_size[] = { "1 byte", "2 byte", "4 byte", "8 byte" };
-        static const char* dr_type[] = { u8"执行", u8"读/写", u8"写" };
-        for (int i = 0;i < 4;i++)
-        {
-            char check_title[100]{};
-            sprintf_s(check_title, u8"启用     Dr%d:", i);
-            if (config::dbg::Dr[i].statue == 0)//未添加断点时不可启用
-                ImGui::BeginDisabled();
-            ImGui::Checkbox(check_title, &config::dbg::Dr[i].active); ImGui::SameLine();
-            if (config::dbg::Dr[i].statue == 0)
-                ImGui::EndDisabled();
 
-            //启用时,不可修改地址、类型、大小
-            if (config::dbg::Dr[i].active)
-                ImGui::BeginDisabled();
-            char input_title[100]{};
-            sprintf_s(input_title, "##input_dr%d", i);
-            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.3);
-            ImGui::InputTextWithHint(input_title, "adrress", config::dbg::Dr[i].addr, 1024); ImGui::SameLine();
-            ImGui::PopItemWidth();
 
-            ImGui::Text(u8"类型:");ImGui::SameLine();
-            char combo_type_title[100]{};
-            sprintf_s(combo_type_title, "##combot_type_dr%d", i);
-            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.2);
-            ImGui::Combo(combo_type_title, &config::dbg::Dr[i].type, dr_type, IM_ARRAYSIZE(dr_type));ImGui::SameLine();
-            ImGui::PopItemWidth();
-
-            ImGui::Text(u8"大小:");ImGui::SameLine();
-            char combo_size_title[100]{};
-            sprintf_s(combo_size_title, "##combot_size_dr%d", i);
-            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.2);
-            ImGui::Combo(combo_size_title, &config::dbg::Dr[i].size, dr_size, IM_ARRAYSIZE(dr_size));ImGui::SameLine();
-            ImGui::PopItemWidth();
-            if (config::dbg::Dr[i].active)
-                ImGui::EndDisabled();
-            char button_id[100]{};
-            sprintf_s(button_id, "btn_dr%d", i);
-            ImGui::PushID(button_id);
-            if (ImGui::Button(dr_statue[config::dbg::Dr[i].statue]))
-            {
-                config::dbg::Dr[i].statue++;
-                if (config::dbg::Dr[i].statue > 1)
-                    config::dbg::Dr[i].statue = 0;
-            }
-            ImGui::PopID();
-        }
-    }
-    if (ImGui::CollapsingHeader(u8"数据窗口", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        if (ImGui::BeginTabBar("DrSelector_Tables", ImGuiTabBarFlags_None))
-        {
-            for (int i = 0;i < 4;i++)
-            {
-                char buf[10]{};
-                sprintf_s(buf, "Dr%d", i);
-                if (ImGui::BeginTabItem(buf))
-                {
-                    config::dbg::curtChoose = i;
-                    ImGui::EndTabItem();
-                }
-            }
-            ImGui::EndTabBar();
-        }
-        if (ImGui::BeginChild("ChildAccess", ImVec2(ImGui::GetContentRegionAvail().x * 0.25, ImGui::GetContentRegionAvail().y * 0.66), false, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-            breakrecordWidget.SetDataSource(curtData.capture);
-            breakrecordWidget.OnPaint();
-            if (last_choose_capture.text != breakrecordWidget.GetCurtSelect().text)
-            {
-                contextWidget.SetDataSource(curtData.ctx);
-                disassemblerWidget.SetData(processWidget.GetPluginProcessItem(),utils::conver::hexToInteger(breakrecordWidget.GetCurtSelect().text));
-                std::vector<uint8_t> stack{};
-                stack.resize(sizeof(breakrecordWidget.GetCurtSelect().stack));
-                memcpy(&stack[0], breakrecordWidget.GetCurtSelect().stack, sizeof(breakrecordWidget.GetCurtSelect().stack));
-                stackWidget.SetDataSource(processWidget.GetPluginProcessItem().GetPid(), stack,curtData.ctx.Rsp);
-                last_choose_capture = breakrecordWidget.GetCurtSelect();
-            }
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-        if (ImGui::BeginChild("ChildDisassembly", ImVec2(ImGui::GetContentRegionAvail().x * 0.66, ImGui::GetContentRegionAvail().y * 0.66)))
-        {
-            disassemblerWidget.OnPaint();
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-        if (ImGui::BeginChild("ChildContext", ImVec2(ImGui::GetContentRegionAvail().x * 0.98, ImGui::GetContentRegionAvail().y * 0.66)))
-        {
-            
-            contextWidget.OnPaint();
-            ImGui::EndChild();
-        }
-        ImGui::Separator();
-        if (ImGui::BeginChild("ChildMem", ImVec2(ImGui::GetContentRegionAvail().x * 0.65, ImGui::GetContentRegionAvail().y)))
-        {
-            /*ImGui::SeparatorText(u8"内存");
-            static MemoryEditor mem_edit;
-            mem_edit.DrawWindow("Memory Editor", curtData.memoryRegion.data.data(), curtData.memoryRegion.data.size(), curtData.memoryRegion.start);*/
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-        if (ImGui::BeginChild("ChildStack"))
-        {
-            stackWidget.OnPaint();
-            ImGui::EndChild();
-        }
-    }
-}
-void ChildWnd_ThreadWindow(bool* show,uint32_t pid)
-{
-    static std::vector<ThreadItem> items{};
-    static int selected = -1;
-    if (*show)
-    {
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowPadding = { 0.f,0.f };
-        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        ImGui::Begin(u8"线程列表", show, ImGuiWindowFlags_NoCollapse);
-        if (items.size() <= 0)
-            ThreadItem::EnumPidThread(pid, items);
-        if (ImGui::BeginTable("#threadlist", 4, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY  | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
-        {
-            ImGui::TableSetupColumn(u8"线程ID", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::THREAID);
-            ImGui::TableSetupColumn(u8"线程入口", ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::STARTADDR);
-            ImGui::TableSetupColumn(u8"优先级", ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::PRIORITY);
-            ImGui::TableSetupColumn(u8"所属模块", ImGuiTableColumnFlags_WidthFixed, 0.0f, ThreadItem::EInfo::MODULEPATH);
-            ImGui::TableHeadersRow();
-
-            if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
-            {
-                if (sorts_specs->SpecsDirty)
-                {
-                    ProcessItem::SetSortSpecs(sorts_specs); // Store in variable accessible by the sort function.
-                    if (items.size() > 1)
-                        qsort(&items[0], (size_t)items.size(), sizeof(items[0]), ProcessItem::CompareWithSortSpecs);
-                    ProcessItem::SetSortSpecs(NULL);
-                    sorts_specs->SpecsDirty = false;
-                }
-            }
-
-            ImGuiListClipper clipper;
-            clipper.Begin(items.size());
-            while (clipper.Step())
-            {
-                for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
-                {
-                    // Display a data item
-                    ThreadItem* item = &items[row_n];
-                    ImGui::PushID(item->GetThreadId());
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::Selectable(std::to_string(item->GetThreadId()).c_str(), selected == row_n, ImGuiSelectableFlags_SpanAllColumns))
-                    {
-                        selected = row_n;
-                    }
-                    ImGui::TableNextColumn();
-                    ImGui::Text(utils::conver::IntegerTohex(item->GetThreadEntry()).c_str());
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%d", item->GetPrority());
-                    ImGui::TableNextColumn();
-                    ImGui::Text(utils::conver::string_To_UTF8(item->GetModulePath()).c_str());
-                    ImGui::PopID();
-                }
-            }
-            ImGui::EndTable();
-        }
-        ImGui::End();
-    }
-    else
-    {
-        selected = -1;
-        items.clear();
-    }
-}
 void ChildWnd_ExceptionWindow(bool* show, uint32_t pid)
 {
     static std::vector<VehHandlerItem> items{};
@@ -370,11 +144,11 @@ void ChildWnd_MemoryWindow(bool* show, uint32_t pid)
         items.clear();
     }
 }
+
 void OnGui(float w,float h)
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowPadding = { 2.f,2.f };
-    ChildWnd_ThreadWindow(&config::process::thread::bShow, config::process::thread::pid);
     ChildWnd_ExceptionWindow(&config::process::veh::bShow, config::process::veh::pid);
     ChildWnd_MemoryWindow(&config::process::memory::bShow, config::process::memory::pid);
     if (ImGui::Begin("main", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
@@ -386,7 +160,23 @@ void OnGui(float w,float h)
         {
             if (ImGui::BeginTabItem(u8"进程"))
             {
-                Table_Process();
+                static ProcessItem lastChooseProcess{};
+                if (ImGui::BeginChild("#process", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.7), false, ImGuiWindowFlags_HorizontalScrollbar))
+                {
+                    processWidget.OnPaint();
+                    ImGui::EndChild();
+                }
+                if (ImGui::BeginChild("#module", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
+                {
+                    //设置数据源
+                    if (processWidget.GetCurtProcessItem().GetPid() != lastChooseProcess.GetPid())
+                    {
+                        moduleWidget.SetDataSource(processWidget.GetCurtProcessItem().GetPid());
+                        lastChooseProcess = processWidget.GetCurtProcessItem();
+                    }
+                    moduleWidget.OnPaint();
+                    ImGui::EndChild();
+                }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem(u8"VEH插件"))
@@ -405,8 +195,16 @@ void OnGui(float w,float h)
                     }
                     switch (choose)
                     {
-                        case 0: Table_SyscallMonitor();break;
-                        case 1: Table_VehDebuger();break;
+                        case 0:    
+                        {
+                            syscallMonitorWidget.OnPaint();
+                            break;
+                        }
+                        case 1:     
+                        {
+                            vehDebuggerWidget.OnPaint();
+                            break;
+                        }
                     }
                     ImGui::EndTabBar();
                 }
@@ -414,7 +212,6 @@ void OnGui(float w,float h)
             }
             if (ImGui::BeginTabItem(u8"窗口"))
             {
-             
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -422,6 +219,7 @@ void OnGui(float w,float h)
         ImGui::End();
     }
 }
+
 void OnUpdate(DWORD* a)
 {
     while (true)
@@ -431,34 +229,34 @@ void OnUpdate(DWORD* a)
             //Syscall Monotor
             {
                 static bool signal_syscallmonitor = false;
-                if (config::syscall::active)
+                if (syscallMonitorWidget.GetActive())
                 {
                     if (!signal_syscallmonitor)
                     {
                         ControlCmd cmd{};
                         cmd.cmd = ECMD::syscallmonitor_init;
-                        cmd.syscall_state = config::syscall::active;
+                        cmd.syscall_state = syscallMonitorWidget.GetActive();
                         if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                         {
                             MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
-                            config::syscall::active = false; //clear checked
+                            syscallMonitorWidget.SetActive(false); //clear checked
                         }
                         else {
                             signal_syscallmonitor = true; // make sure do once
                         }
                     }
                 }
-                else if (!config::syscall::active)
+                else if (!syscallMonitorWidget.GetActive())
                 {
                     if (signal_syscallmonitor)
                     {
                         ControlCmd cmd{};
                         cmd.cmd = ECMD::syscallmonitor_init;
-                        cmd.syscall_state = config::syscall::active;
+                        cmd.syscall_state = syscallMonitorWidget.GetActive();
                         if (!utils::mem::InvokePluginFunction(processWidget.GetPluginProcessItem().GetPid(), cmd))
                         {
                             MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
-                            config::syscall::active = true; //clear check
+                            syscallMonitorWidget.SetActive(true); //clear check
                         }
                         else {
                             signal_syscallmonitor = false;// make sure do once
@@ -574,6 +372,7 @@ void OnUpdate(DWORD* a)
         Sleep(500);
     }
 }
+
 void OnIPC(DWORD* a)
 {
     char* buff = new char[8192];
@@ -587,13 +386,13 @@ void OnIPC(DWORD* a)
                 case API:
                 {
                     PApiMonitorInfo pApi = reinterpret_cast<PApiMonitorInfo>(buff);
-                    if (config::syscall::monitor.count(pApi->modulename) <= 0)
+                    if (!syscallMonitorWidget.IsExsist(pApi->modulename))
                     {
-                        config::syscall::monitor[pApi->modulename][pApi->function] = 1;
+                        syscallMonitorWidget.SetValue(pApi->modulename,pApi->function , 1);
                     }
                     else
                     {
-                        config::syscall::monitor[pApi->modulename][pApi->function]++;
+                        syscallMonitorWidget.SetValue(pApi->modulename, pApi->function, 1,true);
                     }
                     break;
                 } 
@@ -652,7 +451,6 @@ void OnIPC(DWORD* a)
     delete[] buff;
 }
 
-
 int main()
 {
     //检查目录是否存在
@@ -687,6 +485,5 @@ int main()
     CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnIPC, NULL, NULL, NULL);
     CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)OnUpdate, NULL, NULL, NULL);
     render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, OnGui);
-    //WindowItem::EnumAllWindows();
     return 0;
 }

@@ -56,12 +56,15 @@
 #include "debugger.h"
 
 //Widget
+#include "SyscallMonitorWidget.h"
 #include "DisassemblyWidget.h"
+#include "ThreadWidget.h"
 #include "ProcessWidget.h"
 #include "ModuleWidget.h"
 #include "BreakRecordWidget.h"
 #include "ContextWidget.h"
 #include "StackWidget.h"
+#include "VehDebuggerWidget.h"
 
 
 
