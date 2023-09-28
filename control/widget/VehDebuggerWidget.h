@@ -81,11 +81,11 @@ public:
                 if (last_choose_capture.text != breakrecordWidget_.GetCurtSelect().text)
                 {
                     contextWidget_.SetDataSource(curtData.ctx);
-                    disassemblerWidget_.SetData(processWidget.GetPluginProcessItem(), utils::conver::hexToInteger(breakrecordWidget_.GetCurtSelect().text));
+                    disassemblerWidget_.SetData(DataSource_, utils::conver::hexToInteger(breakrecordWidget_.GetCurtSelect().text));
                     std::vector<uint8_t> stack{};
                     stack.resize(sizeof(breakrecordWidget_.GetCurtSelect().stack));
                     memcpy(&stack[0], breakrecordWidget_.GetCurtSelect().stack, sizeof(breakrecordWidget_.GetCurtSelect().stack));
-                    stackWidget_.SetDataSource(processWidget.GetPluginProcessItem().GetPid(), stack, curtData.ctx.Rsp);
+                    stackWidget_.SetDataSource(DataSource_.GetPid(), stack, curtData.ctx.Rsp);
                     last_choose_capture = breakrecordWidget_.GetCurtSelect();
                 }
                 ImGui::EndChild();
@@ -119,8 +119,14 @@ public:
             }
         }
 	}
-private:
 
+    void SetDataSource(ProcessItem d)
+    {
+        DataSource_ = d;
+    }
+
+private:
+    ProcessItem DataSource_;
     DisassemblerWidget disassemblerWidget_;
     BreakRecordWidget breakrecordWidget_;
     ContextWidget contextWidget_;

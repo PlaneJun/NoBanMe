@@ -170,10 +170,22 @@
     <ClInclude Include="Zydis\zydis_wrapper.h">
       <Filter>zydis</Filter>
     </ClInclude>
+    <ClInclude Include="utils\utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
     <ClInclude Include="widget\BreakRecordWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
+    <ClInclude Include="widget\ContextWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
     <ClInclude Include="widget\DisassemblyWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ExceptionWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\MemoryWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
     <ClInclude Include="widget\ModuleWidget.h">
@@ -185,16 +197,16 @@
     <ClInclude Include="widget\StackWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
-    <ClInclude Include="utils\utils.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="widget\SyscallMonitorWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ThreadWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
     <ClInclude Include="widget\VehDebuggerWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadWidget.h">
+    <ClInclude Include="widget\MainWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
   </ItemGroup>

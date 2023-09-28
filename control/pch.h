@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <functional>
 
+
 #include <Zydis.h>
 #include "zydis_wrapper.h"
 #include <gdiplus.h>
@@ -33,7 +34,6 @@
 #include <tchar.h>
 #include <imgui_memory_editor.h>
 
-
 #include "defs.h"
 #include "struct.h"
 #include "memstub.h"
@@ -45,26 +45,28 @@
 
 #include "render.h"
 #include "utils.h"
-//Process
+
 #include "process.h"
 #include "module.h"
 #include "thread.h"
 #include "memory.h"
 #include "vehhandler.h"
 #include "window.h"
-//Debugger
 #include "debugger.h"
 
 //Widget
 #include "SyscallMonitorWidget.h"
 #include "DisassemblyWidget.h"
 #include "ThreadWidget.h"
+#include "ExceptionWidget.h"
+#include "MemoryWidget.h"
 #include "ProcessWidget.h"
 #include "ModuleWidget.h"
 #include "BreakRecordWidget.h"
 #include "ContextWidget.h"
 #include "StackWidget.h"
 #include "VehDebuggerWidget.h"
+#include "MainWidget.h"
 
 
 

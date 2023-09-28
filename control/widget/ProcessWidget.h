@@ -87,8 +87,8 @@ public:
                 {
                     case 1:
                     {
-                        config::process::memory::bShow = true;
-                        config::process::memory::pid = DataSource_[selected_].GetPid();
+                        memoryWidget.SetDataSource(DataSource_[selected_].GetPid());
+                        memoryWidget.Load();
                         break;
                     }
                     case 2:
@@ -99,12 +99,11 @@ public:
                     }
                     case 4:
                     {
-                        config::process::veh::bShow = true;
-                        config::process::veh::pid = DataSource_[selected_].GetPid();;
+                        exceptionWidget.SetDataSource(DataSource_[selected_].GetPid());
+                        exceptionWidget.Load();
                         break;
                     }
                 }
-                threadWidget.OnPaint();
                 ImGui::Separator();
                 switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"隐藏进程",u8"进程属性" }))
                 {
@@ -382,6 +381,10 @@ public:
                 }
                 ImGui::EndPopup();
             }
+
+            threadWidget.OnPaint();
+            exceptionWidget.OnPaint();
+            memoryWidget.OnPaint();
             ImGui::EndTable();
         }
 	}
@@ -403,4 +406,6 @@ private:
 	std::vector<ProcessItem> DataSource_;
 
     ThreadWidget threadWidget;
+    ExceptionWidget exceptionWidget;
+    MemoryWidget memoryWidget;
 };

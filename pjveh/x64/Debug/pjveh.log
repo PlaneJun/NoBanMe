@@ -1,2 +1,5 @@
-﻿D:\SoftWare\Microsoft Visual Studio\Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppClean.targets(77,5): warning : 对路径“d:\code\c_c++\pjark\build\pjveh_64.pdb”的访问被拒绝。
-D:\SoftWare\Microsoft Visual Studio\Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppClean.targets(77,5): warning : 对路径“d:\code\c_c++\pjark\build\pjveh_64.dll”的访问被拒绝。
+﻿  Assembling callback.asm...
+  main.cpp
+D:\Code\C_C++\PJArk\pjveh\plugin.h(51,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+    正在创建库 D:\Code\C_C++\PJArk\build\pjveh_64.lib 和对象 D:\Code\C_C++\PJArk\build\pjveh_64.exp
+  pjveh.vcxproj -> D:\Code\C_C++\PJArk\build\pjveh_64.dll
