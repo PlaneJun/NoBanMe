@@ -39,6 +39,18 @@ std::vector<HWND> GetSystemWnds()
 {
     std::vector<HWND> wnds;
     EnumChildWindows(GetDesktopWindow(), (WNDENUMPROC)RetrieveWndCallback, (LPARAM)&wnds);
+
+    for (auto wnd : wnds)
+    {
+        DWORD pid{};
+        GetWindowThreadProcessId(wnd,&pid);
+        char title[256]{};
+        GetWindowTextA(wnd,title,256);
+        char klassname[256]{};
+        GetClassNameA(wnd,klassname,256);
+        printf("pid:%d title:%s classname:%s\n",pid,title,klassname);
+    }
+    
     return wnds;
 }
 
@@ -76,7 +88,6 @@ int main()
     VehHandlerItem::SetLdrpVectorHandlerList(rva_LdrpVectorHandlerList);
     EasyPdb::EzPdbUnload(&pdb);
 
-    //auto hv = GetSystemWnds();
     render::get_instasnce()->CreatGui(L"PJArk", L"CPJArk", 1440, 900, Init);
     return 0;
 }

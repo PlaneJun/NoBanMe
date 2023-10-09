@@ -95,12 +95,49 @@ namespace utils
 		}
 	}
 	
+	namespace process
+	{
+		std::string GetFullProcessName(DWORD pid) {
+			HANDLE hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid));
+			if (hProcess) {
+				WCHAR path[MAX_PATH];
+				DWORD size = MAX_PATH;
+				if (::QueryFullProcessImageName(hProcess, 0, path, &size))
+					return conver::wstring_to_stirng(path);
+			}
+			return "";
+		}
+	}
+
 	namespace image
 	{
+		HICON GetWindowIcon(HWND hwnd) {
+			HICON hIcon{ nullptr };
+			SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT, 100, (DWORD_PTR*)&hIcon);
+			if (!hIcon) {
+				hIcon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
+			}
+			return hIcon;
+		}
+
 		HICON GetProcessIcon(std::string path)
 		{
 			HICON hIcon{};
 			ExtractIconExA(path.c_str(), 0, nullptr, &hIcon, 1);
+			return hIcon;
+		}
+
+		HICON GetProcessIcon(HWND hwnd)
+		{
+			auto hIcon = GetWindowIcon(hwnd);
+			if (!hIcon) {
+				DWORD pid = 0;
+				GetWindowThreadProcessId(hwnd, &pid);
+				if (pid) {
+					ExtractIconExA(process::GetFullProcessName(pid).c_str(), 0, nullptr, &hIcon, 1);
+				}
+			}
+
 			return hIcon;
 		}
 
@@ -486,6 +523,43 @@ namespace utils
 				SetClipboardData(CF_UNICODETEXT, hData);
 				CloseClipboard();
 			}
+		}
+	}
+
+	namespace window
+	{
+		HWND GetHwnd(DWORD dwProcessID)
+		{
+			HWND hTop = GetTopWindow(0);
+			HWND retHwnd = NULL;
+			while (hTop)
+			{
+				DWORD pid = 0;
+				DWORD dwTheardId = GetWindowThreadProcessId(hTop, &pid);
+				if (dwTheardId != 0)
+				{
+					if (pid == dwProcessID && GetParent(hTop) == NULL && ::IsWindowVisible(hTop))
+					{
+						retHwnd = hTop;    //会有多个相等值
+					}
+				}
+				hTop = GetNextWindow(hTop, GW_HWNDNEXT);
+			}
+			return retHwnd;
+		}
+
+		std::string GetTitleName(HWND hwnd)
+		{
+			char title[256]{};
+			GetWindowTextA(hwnd,title,256);
+			return title;
+		}
+
+		std::string GetKlassName(HWND hwnd)
+		{
+			char klassname[256]{};
+			GetClassNameA(hwnd, klassname, 256);
+			return klassname;
 		}
 	}
 }

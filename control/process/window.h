@@ -2,9 +2,20 @@
 class WindowItem
 {
 public:
+	enum EInfo
+	{
+		TITLE,
+		CLASSNAME,
+		STYLE,
+		STYLEEX,
+		HWND,
+		PHWND,
+		TID
+	};
+
+
 	WindowItem()
 	{
-		this->id_ = NULL;
 		this->text_ = std::string();
 		this->type_ = NULL;
 		this->title_ =std::string();
@@ -17,11 +28,11 @@ public:
 		this->pid_ = NULL;
 		this->thread_ = NULL;
 		this->hwnd_ = NULL;
-		this->hwndTop_ = NULL;
 		this->hwndParen_ = NULL;
+		this->icon_ = NULL;
 	}
 
-	WindowItem(uint32_t id,
+	WindowItem(
 				std::string text,
 				uint32_t type,
 				std::string title,
@@ -33,11 +44,10 @@ public:
 				RECT rectScreen,
 				uint32_t pid,
 				uint32_t thread,
-				HWND hwnd,
-				HWND  hwndTop,
-				HWND hwndParen)
+				::HWND hwnd,
+				::HWND hwndParen,
+				bool visible)
 	{
-		this->id_ = id;
 		this->text_ = text;
 		this->type_ = type;
 		this->title_ = title;
@@ -50,17 +60,183 @@ public:
 		this->pid_ = pid;
 		this->thread_ = thread;
 		this->hwnd_ = hwnd;
-		this->hwndTop_ = hwndTop;
 		this->hwndParen_ = hwndParen;
+		this->visible_ = visible;
 	}
 
-
-	static void EnumAllWindows()
+	void SetProcessName(std::string fullname)
 	{
-		EnumWindows(EnumWindowsProc, 0);
+		int index = fullname.rfind("\\");
+		if (index != std::string::npos)
+			index++;
+		else
+			index = 0;
+		procName_ = fullname.substr(index);
 	}
+
+	auto GetProcessName()
+	{
+		return procName_;
+	}
+
+	void SetHwnd(::HWND hwnd)
+	{
+		hwnd_ = hwnd;
+	}
+
+	auto GetHwnd()
+	{
+		return hwnd_;
+	}
+
+	void SetParent(::HWND hwnd)
+	{
+		hwndParen_ = hwnd;
+	}
+
+	auto GetParent()
+	{
+		return hwndParen_;
+	}
+
+	void SetVisible(bool b)
+	{
+		visible_ = b;
+	}
+
+	void SetTitle(const char* title)
+	{
+		title_ = title;
+	}
+
+	auto GetTitle()
+	{
+		return title_;
+	}
+
+	void SetKlassName(const char* klass)
+	{
+		classname_ = klass;
+	}
+
+	auto GetKlassName()
+	{
+		return classname_;
+	}
+
+	std::string GetText()
+	{
+		char buf[1024]{};
+		if (!title_.empty())
+			title_ = "[" + title_ + "]";
+		sprintf_s(buf, "0x%zX (%s) %s", hwnd_, classname_.c_str(), title_.c_str());
+		return buf;
+	}
+
+	void SetIcon(ID3D11ShaderResourceView* icon)
+	{
+		icon_ = icon;
+	}
+
+	auto GetIcon()
+	{
+		return icon_;
+	}
+
+	void SetStyle(int style)
+	{
+		style_ = style;
+	}
+
+	auto GetStyle()
+	{
+		return style_;
+	}
+
+	void SetStyleEx(int styleEx)
+	{
+		styleEx_ = styleEx;
+	}
+
+	auto GetStyleEx()
+	{
+		return styleEx_;
+	}
+
+	void SetWndCb(uintptr_t cb)
+	{
+		callback_ = cb;
+	}
+
+	auto GetWndCb()
+	{
+		return callback_;
+	}
+
+	void SetPid(DWORD pid)
+	{
+		pid_ = pid;
+	}
+
+	auto GetPid()
+	{
+		return pid_;
+	}
+
+	void SetThreadId(DWORD tid)
+	{
+		thread_ = tid;
+	}
+
+	auto GetThreadId()
+	{
+		return thread_;
+	}
+
+	static void SetSortSpecs(ImGuiTableSortSpecs* a)
+	{
+		s_current_sort_specs_ = a;
+	}
+
+	static void SortWithSortSpecs(ImGuiTableSortSpecs* sort_specs, WindowItem* items, int items_count)
+	{
+		s_current_sort_specs_ = sort_specs; // Store in variable accessible by the sort function.
+		if (items_count > 1)
+			qsort(items, (size_t)items_count, sizeof(items[0]), ThreadItem::CompareWithSortSpecs);
+		s_current_sort_specs_ = NULL;
+	}
+
+	static int __cdecl CompareWithSortSpecs(const void* lhs, const void* rhs)
+	{
+		const WindowItem* a = (const WindowItem*)lhs;
+		const WindowItem* b = (const WindowItem*)rhs;
+		for (int n = 0; n < s_current_sort_specs_->SpecsCount; n++)
+		{
+			// Here we identify columns using the ColumnUserID value that we ourselves passed to TableSetupColumn()
+			// We could also choose to identify columns based on their index (sort_spec->ColumnIndex), which is simpler!
+			const ImGuiTableColumnSortSpecs* sort_spec = &s_current_sort_specs_->Specs[n];
+			int delta = 0;
+			switch (sort_spec->ColumnUserID)
+			{
+				case TITLE:                   delta = (strcmp(a->title_ .c_str(), b->title_.c_str()));   break;
+				case CLASSNAME:                  delta = (strcmp(a->classname_.c_str(), b->classname_.c_str()));                                      break;
+				case STYLE:                 delta = (a->style_ - b->style_);                                    break;
+				case STYLEEX:                delta = (a->styleEx_ - b->styleEx_);                                    break;
+				case HWND:                delta = (a->hwnd_ - b->hwnd_);                                   break;
+				case PHWND:                delta = (a->hwndParen_ - b->hwndParen_);                                    break;
+				case TID:                delta = (a->thread_ - b->thread_);                                    break;
+				default: IM_ASSERT(0); break;
+			}
+			if (delta > 0)
+				return (sort_spec->SortDirection == ImGuiSortDirection_Ascending) ? +1 : -1;
+			if (delta < 0)
+				return (sort_spec->SortDirection == ImGuiSortDirection_Ascending) ? -1 : +1;
+		}
+
+		return (a->hwnd_ - b->hwnd_);
+	}
+
 private:
-	uint32_t id_;
 	std::string text_;
 	uint32_t type_;
 	std::string title_;
@@ -72,37 +248,13 @@ private:
 	RECT rectScreen_;
 	uint32_t pid_;
 	uint32_t thread_;
-	HWND hwnd_;
-	HWND  hwndTop_;
-	HWND hwndParen_;
+	::HWND hwnd_;
+	::HWND hwndParen_;
+	bool visible_;
+	uintptr_t callback_;
+	ID3D11ShaderResourceView* icon_;
 
-	//BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
-	//{
-
-	//	LPWSTR lpString = (LPWSTR)malloc(1024 * sizeof(WCHAR));
-	//	LPWSTR ClassString = (LPWSTR)malloc(1024 * sizeof(WCHAR));
-	//	GetWindowText(hwnd, lpString, 1024);
-	//	GetClassName(hwnd, ClassString, 1024);
-	//	if (wcscmp(ClassString, _T("Edit")) == 0) {
-
-	//		Ghwnd[i] = hwnd;
-	//		i++;
-	//	}
-	//	//wprintf(L"%s\n", lpString);
-	//	return true;
-	//}
-
-
-
-	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) // 回调函数
-	{
-		TCHAR szTitle[200];
-		TCHAR szClass[200];
-		GetWindowText(hwnd, szTitle, sizeof(szTitle) / sizeof(TCHAR)); // 获取窗口名称
-		GetClassName(hwnd, szClass, sizeof(szClass) / sizeof(TCHAR)); // 窗口类
-		if (szTitle[0] != '\0' && IsWindowVisible(hwnd)) { // 判断窗口标题不为空，并且窗口可见
-			printf("%s,%s\n", szTitle, szClass);
-		}
-		return TRUE;
-	}
+	static const ImGuiTableSortSpecs* s_current_sort_specs_;
 };
+
+const ImGuiTableSortSpecs* WindowItem::s_current_sort_specs_ = nullptr;

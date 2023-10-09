@@ -68,6 +68,7 @@ public:
                 }
                 if (ImGui::BeginTabItem(u8"´°¿Ú"))
                 {
+                    windowsWidget_.OnPaint();
                     ImGui::EndTabItem();
                 }
                 ImGui::EndTabBar();
@@ -318,4 +319,5 @@ private:
     ModuleWidget moduleWidget_;
     SysCallMonitorWidget syscallMonitorWidget_;
     VehDebuggerWidget vehDebuggerWidget_;
+    WindowsWidget windowsWidget_;
 };

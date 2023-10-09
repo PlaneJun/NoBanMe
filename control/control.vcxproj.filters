@@ -170,9 +170,6 @@
     <ClInclude Include="Zydis\zydis_wrapper.h">
       <Filter>zydis</Filter>
     </ClInclude>
-    <ClInclude Include="utils\utils.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="widget\BreakRecordWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
@@ -207,6 +204,12 @@
       <Filter>widget</Filter>
     </ClInclude>
     <ClInclude Include="widget\MainWidget.h">
+      <Filter>widget</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\WindowsWidget.h">
       <Filter>widget</Filter>
     </ClInclude>
   </ItemGroup>

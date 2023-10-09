@@ -66,6 +66,7 @@
 #include "ContextWidget.h"
 #include "StackWidget.h"
 #include "VehDebuggerWidget.h"
+#include "WindowsWidget.h"
 #include "MainWidget.h"
 
 
