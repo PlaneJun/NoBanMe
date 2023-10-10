@@ -7,7 +7,7 @@
 #include <Psapi.h>
 #include <tlhelp32.h>
 #include <stdint.h>
-
+#include <versionhelpers.h>
 
 #include <algorithm>
 #include <fstream>

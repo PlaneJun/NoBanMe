@@ -5,7 +5,7 @@ public:
     void OnPaint()
     {
         static int last_selected = -1;
-        if (ImGui::BeginChild("#desktopwnd", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y*0.5),false,ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::BeginChild("#desktopwnd", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y*0.4),false,ImGuiWindowFlags_HorizontalScrollbar))
         {
             if (MainDataSource_.empty())
                 Refresh();
@@ -40,13 +40,38 @@ public:
                     ImGui::TreePop();
                 }
             }
-            ImGui::TreePop();
+
+            if (main_selected_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
+                ImGui::OpenPopup("window_option");
+
+            if (ImGui::BeginPopup("window_option"))
+            {
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"Ë¢ÐÂ",u8"ÖÃ¶¥" }))
+                {
+                    case 0:
+                    {
+                        Refresh();
+                        break;
+                    }
+                    case 1:
+                    {
+                        for (auto wnd : MainDataSource_)
+                        {
+                            wnd.second[main_selected_].Show();
+                            break;
+                        }
+                        break;
+                    }
+                }
+                ImGui::EndPopup();
+            }
+
             ImGui::EndChild();
         }
         
         if (ImGui::BeginChild("#childwnd", ImVec2(0, 0), false))
         {
-            if (ImGui::BeginTable("#childwndinfo", 13, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
+            if (ImGui::BeginTable("#childwndinfo", 13, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
             {
                 ImGui::TableSetupColumn("##icon", ImGuiTableColumnFlags_NoSort, 0.0f);
                 ImGui::TableSetupColumn(u8"ÀàÃû", ImGuiTableColumnFlags_DefaultSort|ImGuiTableColumnFlags_WidthFixed, 0.0f, WindowItem::EInfo::CLASSNAME);
@@ -95,9 +120,9 @@ public:
                         ImGui::TableNextColumn();
                         ImGui::Text(utils::conver::string_To_UTF8(item->GetTitle()).c_str());
                         ImGui::TableNextColumn();
-                        ImGui::Text("0x%zX",item->GetStyle());
+                        ImGui::Text("%s", utils::window::GetWindowStyleToString(item->GetStyle()).c_str());
                         ImGui::TableNextColumn();
-                        ImGui::Text("0x%zX", item->GetStyleEx());
+                        ImGui::Text("%s", utils::window::GetWindowExtendedStyleToString(item->GetStyleEx()).c_str());
                         ImGui::TableNextColumn();
                         ImGui::Text("%d",item->GetPid());
                         ImGui::TableNextColumn();
@@ -105,11 +130,13 @@ public:
                         ImGui::TableNextColumn();
                         ImGui::Text("%s",item->GetProcessName().c_str());
                         ImGui::TableNextColumn();
-                        ImGui::Text("1");
+                        auto r = item->GetRectRelativa();
+                        ImGui::Text("(%d,%d)-(%d,%d)",r.left,r.top,r.right,r.bottom);
                         ImGui::TableNextColumn();
-                        ImGui::Text("1");
+                         r = item->GetRectScreen();
+                        ImGui::Text("(%d,%d)-(%d,%d)", r.left, r.top, r.right, r.bottom);
                         ImGui::TableNextColumn();
-                        ImGui::Text("%d",item->GetParent());
+                        ImGui::Text("0x%zX",item->GetParent());
                         ImGui::TableNextColumn();
                         ImGui::Text("0x%zX",item->GetWndCb());
                         ImGui::PopID();
@@ -150,7 +177,6 @@ private:
         WindowItem wnd{};
         wnd.SetHwnd(hwnd);
         wnd.SetParent(GetAncestor(hwnd, GA_PARENT));
-        wnd.SetVisible(IsWindowVisible(hwnd));
         wnd.SetTitle(utils::window::GetTitleName(hwnd).c_str());
         wnd.SetKlassName(utils::window::GetKlassName(hwnd).c_str());
         wnd.SetStyle(GetWindowLong(hwnd, GWL_STYLE));
@@ -162,6 +188,11 @@ private:
         wnd.SetPid(pid);
         wnd.SetThreadId(GetWindowThreadProcessId(hwnd, nullptr));
         wnd.SetProcessName(utils::process::GetFullProcessName(pid));
+        RECT r{};
+        GetWindowRect(hwnd,&r);
+        wnd.SetRectScreen(r);
+        GetClientRect(hwnd, &r);
+        wnd.SetRectRelativa(r);
         ID3D11ShaderResourceView* icon = nullptr;
         auto hIcon = utils::image::GetProcessIcon(hwnd);
         if (hIcon != NULL && utils::image::SaveIconToPng(hIcon, ("./Data/icon/##" + std::to_string((int)hwnd) + ".png").c_str()))

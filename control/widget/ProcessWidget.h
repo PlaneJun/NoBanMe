@@ -11,7 +11,7 @@ public:
             ProcessItem::EnumCurtAllProcess(DataSource_);
         }
         //绘制
-        if (ImGui::BeginTable("#processlist", 9, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV))
+        if (ImGui::BeginTable("#processlist", 10, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable | ImGuiTableFlags_SortMulti | ImGuiTableFlags_Sortable | ImGuiTableFlags_BordersV))
         {
             ImGui::TableSetupColumn("##icon", ImGuiTableColumnFlags_NoSort, 0.0f);
             ImGui::TableSetupColumn(u8"进程ID", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::PID);
@@ -22,6 +22,7 @@ public:
             ImGui::TableSetupColumn(u8"文件厂商", ImGuiTableColumnFlags_WidthFixed, 0.0f);
             ImGui::TableSetupColumn(u8"文件版本", ImGuiTableColumnFlags_WidthFixed, 0.0f);
             ImGui::TableSetupColumn(u8"进程路径", ImGuiTableColumnFlags_WidthFixed, 0.0f, ProcessItem::EInfo::FULLPATH);
+            ImGui::TableSetupColumn(u8"命令行", ImGuiTableColumnFlags_WidthFixed, 0.0f);
             ImGui::TableHeadersRow();
             if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs())
             {
@@ -65,6 +66,8 @@ public:
                     ImGui::Text(utils::conver::string_To_UTF8(item->GetFileVersion()).c_str());
                     ImGui::TableNextColumn();
                     ImGui::Text(utils::conver::string_To_UTF8(item->GetFullPath()).c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text(utils::conver::string_To_UTF8(item->GetCmdLine()).c_str());
                     ImGui::PopID();
                 }
             }
@@ -105,19 +108,40 @@ public:
                     }
                 }
                 ImGui::Separator();
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"隐藏进程",u8"进程属性" }))
+                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"结束进程",u8"挂起线程",u8"恢复线程",u8"隐藏进程",u8"进程属性" }))
                 {
                     case 0:
                     {
                         HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DataSource_[selected_].GetPid());
                         if (handLe)
                         {
-                            TerminateProcess(handLe, 0);
+                            reinterpret_cast<DWORD(WINAPI*)(HANDLE hProcess, DWORD DwExitCode)>(GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtTerminateProcess"))(handLe,0);
+                            CloseHandle(handLe);
+                        }
+                        break;
+                    }
+                    case 1:
+                    {
+                       
+                        HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DataSource_[selected_].GetPid());
+                        if (handLe)
+                        {
+                            reinterpret_cast<DWORD(WINAPI*)(HANDLE ProcessHandle)>(GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtSuspendProcess"))(handLe);
                             CloseHandle(handLe);
                         }
                         break;
                     }
                     case 2:
+                    {
+                        HANDLE handLe = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DataSource_[selected_].GetPid());
+                        if (handLe)
+                        {
+                            reinterpret_cast<DWORD(WINAPI*)(HANDLE ProcessHandle)>(GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtResumeProcess"))(handLe);
+                            CloseHandle(handLe);
+                        }
+                        break;
+                    }
+                    case 3:
                     {
                         utils::file::OpenFilePropertyDlg(DataSource_[selected_].GetFullPath().c_str());
                         break;
@@ -303,7 +327,7 @@ public:
                 ImGui::Separator();
                 if (ImGui::BeginMenu(u8"复制"))
                 {
-                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"进程ID",u8"进程名",u8"父进程ID",u8"创建时间"  ,u8"描述" ,u8"文件厂商" ,u8"文件版本",u8"进程路径" }))
+                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"进程ID",u8"进程名",u8"父进程ID",u8"创建时间"  ,u8"描述" ,u8"文件厂商" ,u8"文件版本",u8"进程路径",u8"命令行" }))
                     {
                         case 0:
                         {
@@ -345,6 +369,11 @@ public:
                             utils::normal::CopyStringToClipboard(DataSource_[selected_].GetFullPath().c_str());
                             break;
                         }
+                        case 8:
+                        {
+                            utils::normal::CopyStringToClipboard(DataSource_[selected_].GetCmdLine().c_str());
+                            break;
+                        }
                     }
                     ImGui::Separator();
                     switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行" ,u8"整个表" }))
@@ -352,11 +381,11 @@ public:
                         case 0:
                         {
                             char buff[8192]{};
-                            sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s", DataSource_[selected_].GetPid(),
+                            sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s | %s", DataSource_[selected_].GetPid(),
                                 DataSource_[selected_].GetName().c_str(), DataSource_[selected_].GetPPid(),
                                 DataSource_[selected_].GetStartUpTime().c_str(), DataSource_[selected_].GetDecription().c_str(),
                                 DataSource_[selected_].GetCompanyName().c_str(), DataSource_[selected_].GetFileVersion().c_str(),
-                                DataSource_[selected_].GetFullPath().c_str());
+                                DataSource_[selected_].GetFullPath().c_str(), DataSource_[selected_].GetCmdLine().c_str());
                             utils::normal::CopyStringToClipboard(buff);
                             break;
                         }
@@ -366,11 +395,11 @@ public:
                             for (auto p : DataSource_)
                             {
                                 char buff[8192]{};
-                                sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s\n", p.GetPid(),
+                                sprintf_s(buff, "%d | %s | %d | %s | %s | %s | %s | %s | %s\n", p.GetPid(),
                                     p.GetName().c_str(), p.GetPPid(),
                                     p.GetStartUpTime().c_str(), p.GetDecription().c_str(),
                                     p.GetCompanyName().c_str(), p.GetFileVersion().c_str(),
-                                    p.GetFullPath().c_str());
+                                    p.GetFullPath().c_str(), p.GetCmdLine().c_str());
                                 ret += buff;
                             }
                             utils::normal::CopyStringToClipboard(ret.c_str());

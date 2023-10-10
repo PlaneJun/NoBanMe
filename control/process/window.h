@@ -18,35 +18,36 @@ public:
 	{
 		this->text_ = std::string();
 		this->type_ = NULL;
-		this->title_ =std::string();
-		this->classname_= std::string();
-		this->procName_	 =std::string();
+		this->title_ = std::string();
+		this->classname_ = std::string();
+		this->procName_ = std::string();
 		this->style_ = NULL;
 		this->styleEx_ = NULL;
-		this->rectRelativa_ = {0};
-		this->rectScreen_ = {0};
+		this->rectRelativa_ = { 0 };
+		this->rectScreen_ = { 0 };
 		this->pid_ = NULL;
 		this->thread_ = NULL;
 		this->hwnd_ = NULL;
 		this->hwndParen_ = NULL;
 		this->icon_ = NULL;
+		this->callback_ = NULL;
 	}
 
 	WindowItem(
-				std::string text,
-				uint32_t type,
-				std::string title,
-				std::string classname,
-				std::string procName,
-				uint32_t style,
-				uint32_t styleEx,
-				RECT rectRelativa,
-				RECT rectScreen,
-				uint32_t pid,
-				uint32_t thread,
-				::HWND hwnd,
-				::HWND hwndParen,
-				bool visible)
+		std::string text,
+		uint32_t type,
+		std::string title,
+		std::string classname,
+		std::string procName,
+		uint32_t style,
+		uint32_t styleEx,
+		RECT rectRelativa,
+		RECT rectScreen,
+		uint32_t pid,
+		uint32_t thread,
+		::HWND hwnd,
+		::HWND hwndParen,
+		uintptr_t callback)
 	{
 		this->text_ = text;
 		this->type_ = type;
@@ -61,7 +62,27 @@ public:
 		this->thread_ = thread;
 		this->hwnd_ = hwnd;
 		this->hwndParen_ = hwndParen;
-		this->visible_ = visible;
+		this->callback_ = callback;
+	}
+
+	void SetRectRelativa(RECT r)
+	{
+		rectRelativa_ = r;
+	}
+
+	auto GetRectRelativa()
+	{
+		return rectRelativa_;
+	}
+
+	void SetRectScreen(RECT r)
+	{
+		rectScreen_ = r;
+	}
+
+	auto GetRectScreen()
+	{
+		return rectScreen_;
 	}
 
 	void SetProcessName(std::string fullname)
@@ -97,11 +118,6 @@ public:
 	auto GetParent()
 	{
 		return hwndParen_;
-	}
-
-	void SetVisible(bool b)
-	{
-		visible_ = b;
 	}
 
 	void SetTitle(const char* title)
@@ -236,6 +252,44 @@ public:
 		return (a->hwnd_ - b->hwnd_);
 	}
 
+	void Show()
+	{
+		if (!hwnd_ || !::IsWindow(hwnd_))
+			return;
+
+		::HWND hWndCurrentWindow = GetForegroundWindow();
+		if (hWndCurrentWindow == NULL)
+		{
+			SetForegroundWindow(hwnd_);
+			return;
+		}
+
+		DWORD dwCurProcId, dwCurThreadId = ::GetWindowThreadProcessId(hWndCurrentWindow, &dwCurProcId);
+		DWORD dwHWndProcId;
+		::GetWindowThreadProcessId(hwnd_, &dwHWndProcId);
+
+		BOOL bReturn = FALSE;
+
+		if (dwHWndProcId == dwCurProcId)
+		{
+			SetForegroundWindow(hwnd_);
+		}
+		else
+		{
+			DWORD dwMyThreadId = GetCurrentThreadId();
+
+			if (AttachThreadInput(dwMyThreadId, dwCurThreadId, TRUE))
+			{
+				SetForegroundWindow(hwnd_);
+				AttachThreadInput(dwMyThreadId, dwCurThreadId, FALSE);
+			}
+			else
+			{
+				SetForegroundWindow(hwnd_);
+			}
+		}
+	}
+
 private:
 	std::string text_;
 	uint32_t type_;
@@ -250,7 +304,6 @@ private:
 	uint32_t thread_;
 	::HWND hwnd_;
 	::HWND hwndParen_;
-	bool visible_;
 	uintptr_t callback_;
 	ID3D11ShaderResourceView* icon_;
 

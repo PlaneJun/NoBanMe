@@ -107,6 +107,42 @@ namespace utils
 			}
 			return "";
 		}
+
+		std::wstring GetCommandLine(uint32_t pid) {
+			if (::IsWindows8OrGreater()) {
+				ULONG size = 8192;
+				auto buffer = std::make_unique<BYTE[]>(size);
+				auto status = Mem::NtQueryInformationProcess(pid, ProcessCommandLineInformation, buffer.get(), size, &size);
+				if (status == NULL ) {
+					auto str = (UNICODE_STRING*)buffer.get();
+					return std::wstring(str->Buffer, str->Length / sizeof(WCHAR));
+				}
+				if (status == 0xC0000003) {
+					return L"";
+				}
+			}
+			else {
+				/*
+					std::wstring cmdLine;
+						PEB peb;
+						if (!GetProcessPeb(hProcess, &peb))
+							return cmdLine;
+
+						RTL_USER_PROCESS_PARAMETERS processParams;
+						if (!::ReadProcessMemory(hProcess, peb.ProcessParameters, &processParams, sizeof(processParams), nullptr))
+							return cmdLine;
+
+						cmdLine.resize(processParams.CommandLine.Length / sizeof(WCHAR) + 1);
+						if (!::ReadProcessMemory(hProcess, processParams.CommandLine.Buffer, cmdLine.data(),
+							processParams.CommandLine.Length, nullptr))
+							return L"";
+
+						return cmdLine;
+				
+				*/
+			}
+			return L"";
+		}
 	}
 
 	namespace image
@@ -561,6 +597,86 @@ namespace utils
 			GetClassNameA(hwnd, klassname, 256);
 			return klassname;
 		}
+
+		std::string GetWindowStyleToString(int style) {
+			std::string text;
+
+			static struct {
+				DWORD style;
+				PCSTR text;
+			} styles[] = {
+				{ WS_POPUP			, "POPUP"},
+				{ WS_CHILD			, "CHILD"},
+				{ WS_MINIMIZE		, "MINIMIZE"},
+				{ WS_VISIBLE		, "VISIBLE"},
+				{ WS_DISABLED		, "DISABLED" },
+				{ WS_CLIPSIBLINGS	, "CLIPSIBLINGS" },
+				{ WS_CLIPCHILDREN	, "CLIPCHILDREN" },
+				{ WS_MAXIMIZE		, "MAXIMIZE" },
+				{ WS_BORDER			, "BORDER" },
+				{ WS_DLGFRAME		, "DLGFRAME" },
+				{ WS_VSCROLL		, "VSCROLL" },
+				{ WS_HSCROLL		, "HSCROLL" },
+				{ WS_SYSMENU		, "SYSMENU" },
+				{ WS_THICKFRAME		, "THICKFRAME" },
+				{ WS_MINIMIZEBOX	, "MINIMIZEBOX" },
+				{ WS_MAXIMIZEBOX	, "MAXIMIZEBOX" },
+			};
+			
+			for (auto& item : styles) {
+				if (style & item.style)
+					text += std::string(item.text) += ", ";
+			}
+			if (text.empty())
+				return "OVERLAPPED, ";
+
+			return "(WS_) " + text.substr(0,text.length() - 2);
+		}
+
+		std::string GetWindowExtendedStyleToString(int style) {
+			std::string text;
+
+			static struct {
+				DWORD style;
+				PCSTR text;
+			} styles[] = {
+				{ WS_EX_DLGMODALFRAME		, "DLGMODALFRAME" },
+				{ WS_EX_NOPARENTNOTIFY		, "NOPARENTNOTIFY" },
+				{ WS_EX_TOPMOST				, "TOPMOST" },
+				{ WS_EX_ACCEPTFILES			, "ACCEPTFILES" },
+				{ WS_EX_TRANSPARENT			, "TRANSPARENT" },
+				{ WS_EX_MDICHILD			, "MDICHILD" },
+				{ WS_EX_TOOLWINDOW			, "TOOLWINDOW" },
+				{ WS_EX_WINDOWEDGE			, "WINDOWEDGE" },
+				{ WS_EX_CLIENTEDGE			, "CLIENTEDGE" },
+				{ WS_EX_CONTEXTHELP			, "CONTEXTHELP" },
+				{ WS_EX_RIGHT				, "RIGHT" },
+				{ WS_EX_RTLREADING			, "RTLREADING" },
+				{ WS_EX_LTRREADING			, "LTRREADING" },
+				{ WS_EX_LEFTSCROLLBAR		, "LEFTSCROLLBAR" },
+				{ WS_EX_CONTROLPARENT		, "CONTROLPARENT" },
+				{ WS_EX_STATICEDGE			, "STATICEDGE" },
+				{ WS_EX_APPWINDOW			, "APPWINDOW" },
+				{ WS_EX_LAYERED				, "LAYERED" },
+				{ WS_EX_NOINHERITLAYOUT		, "NOINHERITLAYOUT" },
+				//{ WS_EX_NOREDIRECTIONBITMAP , L"NOREDIRECTIONBITMAP" },
+				{ WS_EX_LAYOUTRTL			, "LAYOUTRTL" },
+				{ WS_EX_COMPOSITED			, "COMPOSITED" },
+				{ WS_EX_NOACTIVATE			, "NOACTIVATE" },
+			};
+
+			for (auto& item : styles) {
+				if (style & item.style)
+					text += std::string(item.text) += ", ";
+			}
+
+			if (text.empty())
+				text = "LEFT, RIGHISCROLLBAR";
+
+			return "(WS_EX_) " + text.substr(0, text.length() - 2);
+		}
 	}
+
+		
 }
 

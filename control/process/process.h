@@ -25,10 +25,11 @@ public:
         this->companyname_ = std::string();
         this->description_ = std::string();
         this->bWow64 = false;
+        this->cmdline_ = std::string();
     }
 
     ProcessItem(ID3D11ShaderResourceView* icon, uint32_t pid, std::string name,uint32_t ppid,std::string fullpath,std::string startuptime,
-                bool isWow64,std::string descripttion,std::string fileversion,std::string companyname)
+                bool isWow64,std::string descripttion,std::string fileversion,std::string companyname,std::string cmdline)
     {
         this->icon_ = icon;
         this->pid_ = pid;
@@ -40,6 +41,7 @@ public:
         this->fileversion_ = fileversion;
         this->companyname_ = companyname;
         this->description_ = descripttion;
+        this->cmdline_ = cmdline;
     }
 
     auto GetIcon()
@@ -92,6 +94,11 @@ public:
         return bWow64;
     }
 
+    auto GetCmdLine()
+    {
+        return cmdline_;
+    }
+
 public:
 
     static void EnumCurtAllProcess(std::vector<ProcessItem>& items)
@@ -130,11 +137,6 @@ public:
                     }
                     IsWow64Process(hProc, &bIsWow64);
 
-                    //PROCESS_BASIC_INFORMATION pbi;
-                    //Mem::NtQueryInformationProcess(pid, 0, (PVOID)&pbi, sizeof(PROCESS_BASIC_INFORMATION), 0);
-
-
-
                     CloseHandle(hProc);
                 }
                 std::string proName(std::filesystem::path(fullPath).filename().string());
@@ -142,7 +144,9 @@ public:
                 auto hIcon = utils::image::GetProcessIcon(imagepath);
                 if (hIcon != NULL && utils::image::SaveIconToPng(hIcon, ("./Data/icon/" + proName + ".png").c_str()))
                     icon = render::get_instasnce()->DX11LoadTextureImageFromFile(("./Data/icon/" + proName + ".png").c_str());
-                items.push_back(ProcessItem(icon, pe.th32ProcessID, proName, pe.th32ParentProcessID, imagepath, startuptime, bIsWow64, utils::file::GetFileDescription(imagepath), utils::file::GetFileVersion(imagepath), utils::file::GetProductName(imagepath)));
+
+                auto cmd = utils::conver::wstring_to_stirng(utils::process::GetCommandLineW(pe.th32ProcessID));
+                items.push_back(ProcessItem(icon, pe.th32ProcessID, proName, pe.th32ParentProcessID, imagepath, startuptime, bIsWow64, utils::file::GetFileDescription(imagepath), utils::file::GetFileVersion(imagepath), utils::file::GetProductName(imagepath), cmd));
                 bprocess = Process32Next(hSnapshot_proc, &pe);
             }
             CloseHandle(hSnapshot_proc);
@@ -202,6 +206,7 @@ private:
     std::string fileversion_;
     std::string companyname_;
     std::string description_;
+    std::string cmdline_;
 
     bool bWow64;
 };
