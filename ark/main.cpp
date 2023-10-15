@@ -27,6 +27,7 @@ void Init(float w, float h)
     g_main_widget.SetWindowSize(w, h);
     g_main_widget.OnPaint();
 }
+
 int main()
 {
     std::filesystem::path data_dir("./Data");

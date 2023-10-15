@@ -5,6 +5,7 @@
 #include "../widget/SyscallMonitorWidget.h"
 #include "../widget/VehDebuggerWidget.h"
 #include "../widget/WindowsWidget.h"
+#include "../widget/RegBrowserWidget.h"
 
 class MainWidget
 {
@@ -25,4 +26,5 @@ private:
     SysCallMonitorWidget syscallMonitorWidget_;
     VehDebuggerWidget vehDebuggerWidget_;
     WindowsWidget windowsWidget_;
+    RegBrowserWidget regbrowserWidget_;
 };

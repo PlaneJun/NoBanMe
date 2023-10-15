@@ -178,6 +178,7 @@
     <ClCompile Include="widget\MemoryWidget.cpp" />
     <ClCompile Include="widget\ModuleWidget.cpp" />
     <ClCompile Include="widget\ProcessWidget.cpp" />
+    <ClCompile Include="widget\RegBrowserWidget.cpp" />
     <ClCompile Include="widget\StackWidget.cpp" />
     <ClCompile Include="widget\SyscallMonitorWidget.cpp" />
     <ClCompile Include="widget\ThreadWidget.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="widget\MemoryWidget.h" />
     <ClInclude Include="widget\ModuleWidget.h" />
     <ClInclude Include="widget\ProcessWidget.h" />
+    <ClInclude Include="widget\RegBrowserWidget.h" />
     <ClInclude Include="widget\StackWidget.h" />
     <ClInclude Include="widget\SyscallMonitorWidget.h" />
     <ClInclude Include="widget\ThreadWidget.h" />

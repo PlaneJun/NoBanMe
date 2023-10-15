@@ -161,6 +161,9 @@
     <ClCompile Include="widget\StackWidget.cpp">
       <Filter>widget</Filter>
     </ClCompile>
+    <ClCompile Include="widget\RegBrowserWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\imgui\imconfig.h">
@@ -290,7 +293,10 @@
       <Filter>widget\headers</Filter>
     </ClInclude>
     <ClInclude Include="widget\StackWidget.h">
-      <Filter>widget</Filter>
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\RegBrowserWidget.h">
+      <Filter>widget\headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

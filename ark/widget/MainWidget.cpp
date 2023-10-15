@@ -75,6 +75,11 @@ void MainWidget::OnPaint()
                 windowsWidget_.OnPaint();
                 ImGui::EndTabItem();
             }
+            if (ImGui::BeginTabItem(u8"×¢²á±í"))
+            {
+                regbrowserWidget_.OnPaint();
+                ImGui::EndTabItem();
+            }
             ImGui::EndTabBar();
         }
         ImGui::End();
