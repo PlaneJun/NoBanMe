@@ -24,7 +24,9 @@ void DisassemblyWidget::SetData(ProcessItem proc, uint64_t jmpto)
         for (auto& i : bases)
         {
             if (i <= 0)
+            {
                 continue;
+            }
             curtModule = MemStub::GetModuleFullName(DataSource_.GetPid(), i);
             if (!curtModule.empty())
             {

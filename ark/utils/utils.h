@@ -27,6 +27,8 @@ namespace utils
 		std::string GetFullProcessName(DWORD pid);
 
 		std::wstring GetCommandLine(uint32_t pid);
+
+		bool DumpMemory(uint32_t pid,const wchar_t* module_name,const char* save_path);
 	}
 
 	namespace image

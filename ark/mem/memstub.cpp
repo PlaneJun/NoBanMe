@@ -197,7 +197,7 @@ bool MemStub::RemoteCallFunction(uint32_t PID, uint64_t addr, uintptr_t pargs, s
 	return true;
 }
 
-void MemStub::IsWow64(uint32_t pid, bool* ret)
+void MemStub::IsWow64(uint32_t pid, PBOOL ret)
 {
 	auto hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 	if (hProcess == NULL)
@@ -206,7 +206,7 @@ void MemStub::IsWow64(uint32_t pid, bool* ret)
 		return;
 	}
 
-	IsWow64Process(hProcess, reinterpret_cast<PBOOL>(ret));
+	IsWow64Process(hProcess, ret);
 	CloseHandle(hProcess);
 	return;
 }

@@ -75,11 +75,6 @@ void MainWidget::OnPaint()
                 windowsWidget_.OnPaint();
                 ImGui::EndTabItem();
             }
-            if (ImGui::BeginTabItem(u8"×¢²á±í"))
-            {
-                regbrowserWidget_.OnPaint();
-                ImGui::EndTabItem();
-            }
             ImGui::EndTabBar();
         }
         ImGui::End();
@@ -244,7 +239,7 @@ void MainWidget::OnIPC()
     char* buff = new char[8192];
     while (true)
     {
-        if (global::plugin::plugin_.read_pipe(buff))
+        if (global::plugin::plugin_.read_buffer(buff))
         {
             EDataType type = (EDataType)(*(uint8_t*)buff);
             switch (type)

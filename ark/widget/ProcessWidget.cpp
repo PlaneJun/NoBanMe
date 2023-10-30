@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "ProcessWidget.h"
 #include <imgui.h>
 #include "../utils/utils.h"
@@ -88,21 +89,26 @@ void ProcessWidget::OnPaint()
                 }
             }
             ImGui::Separator();
-            switch (int s = render::get_instasnce()->DrawItemBlock({ u8"枚举窗口",u8"内存列表",u8"线程列表",u8"进程句柄",u8"异常回调" }))
+            switch (int s = render::get_instasnce()->DrawItemBlock({ u8"内存列表",u8"线程列表",u8"进程句柄",u8"异常回调" }))
             {
-                case 1:
+                case 0:
                 {
                     memoryWidget.SetDataSource(DataSource_[selected_].GetPid());
                     memoryWidget.Load();
                     break;
                 }
-                case 2:
+                case 1:
                 {
                     threadWidget.SetDataSource(DataSource_[selected_].GetPid());
                     threadWidget.Load();
                     break;
                 }
-                case 4:
+                case 2:
+                {
+                    
+                    break;
+                }
+                case 3:
                 {
                     exceptionWidget.SetDataSource(DataSource_[selected_].GetPid());
                     exceptionWidget.Load();
@@ -145,19 +151,25 @@ void ProcessWidget::OnPaint()
                 }
                 case 3:
                 {
+                    break;
+                }
+                case 4:
+                {
                     utils::file::OpenFilePropertyDlg(DataSource_[selected_].GetFullPath().c_str());
                     break;
                 }
             }
             ImGui::Separator();
-            switch (int s = render::get_instasnce()->DrawItemBlock({ u8"转储内存",u8"拷贝文件",u8"文件定位" }))
+            switch (int s = render::get_instasnce()->DrawItemBlock({ u8"转储内存",u8"文件定位" }))
             {
                 case 0:
                 {
-
+                    std::filesystem::path tmp(DataSource_[selected_].GetFullPath());
+                    
+                    utils::process::DumpMemory(DataSource_[selected_].GetPid(),utils::conver::string_to_wstirng(tmp.filename().string()).c_str(),"dump.exe");
                     break;
                 }
-                case 2:
+                case 1:
                 {
                     utils::file::OpenFolderAndSelectFile(DataSource_[selected_].GetFullPath().c_str());
                     break;
@@ -299,7 +311,7 @@ void ProcessWidget::OnPaint()
                                     MessageBoxA(NULL, "注入插件失败!", "pjark", NULL);
                                     break;
                                 }
-                                if (!global::plugin::plugin_.init_pipe())
+                                if (!global::plugin::plugin_.create(L"\\\\.\\pipe\\pjark"))
                                 {
                                     MessageBoxA(NULL, "创建管道失败!", "pjark", NULL);
                                     break;

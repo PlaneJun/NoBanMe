@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -147,6 +147,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -170,7 +171,7 @@
     <ClCompile Include="module\window.cpp" />
     <ClCompile Include="pdb\EasyPdb.cpp" />
     <ClCompile Include="pdb\md5.cpp" />
-    <ClCompile Include="plugin\plugin.cpp" />
+    <ClCompile Include="pipe\pipe.cpp" />
     <ClCompile Include="render\render.cpp" />
     <ClCompile Include="utils\utils.cpp" />
     <ClCompile Include="widget\BreakRecordWidget.cpp" />
@@ -181,7 +182,6 @@
     <ClCompile Include="widget\MemoryWidget.cpp" />
     <ClCompile Include="widget\ModuleWidget.cpp" />
     <ClCompile Include="widget\ProcessWidget.cpp" />
-    <ClCompile Include="widget\RegBrowserWidget.cpp" />
     <ClCompile Include="widget\StackWidget.cpp" />
     <ClCompile Include="widget\SyscallMonitorWidget.cpp" />
     <ClCompile Include="widget\ThreadWidget.cpp" />
@@ -215,7 +215,7 @@
     <ClInclude Include="ntStruct.h" />
     <ClInclude Include="pdb\EasyPdb.h" />
     <ClInclude Include="pdb\md5.h" />
-    <ClInclude Include="plugin\plugin.h" />
+    <ClInclude Include="pipe\pipe.h" />
     <ClInclude Include="render\render.h" />
     <ClInclude Include="render\stb_image.h" />
     <ClInclude Include="nativeStruct.h" />
@@ -228,7 +228,6 @@
     <ClInclude Include="widget\MemoryWidget.h" />
     <ClInclude Include="widget\ModuleWidget.h" />
     <ClInclude Include="widget\ProcessWidget.h" />
-    <ClInclude Include="widget\RegBrowserWidget.h" />
     <ClInclude Include="widget\StackWidget.h" />
     <ClInclude Include="widget\SyscallMonitorWidget.h" />
     <ClInclude Include="widget\ThreadWidget.h" />

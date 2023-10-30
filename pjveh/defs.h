@@ -48,8 +48,8 @@ typedef struct _TCONTROL_CMD
 	struct
 	{
 		uint64_t addr;
-		dbg::DBG_SIZE size;
-		dbg::DBG_TYPE type;
+		vehdbg::DBG_SIZE size;
+		vehdbg::DBG_TYPE type;
 	}hardbread;
 	bool syscall_state;
 }ControlCmd, * PControlCmd;

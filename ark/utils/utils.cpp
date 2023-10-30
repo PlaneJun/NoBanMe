@@ -149,6 +149,69 @@ namespace utils
 			}
 			return L"";
 		}
+
+		bool DumpMemory(uint32_t pid, const wchar_t* module_name, const char* save_path)
+		{
+			uint64_t hBase = (uint64_t)MemStub::GetProcessModuleHandle(pid, module_name);
+			if (hBase <= 0)
+			{
+				return false;
+			}
+			BOOL is32 = false;
+			MemStub::IsWow64(pid,&is32);
+
+			IMAGE_DOS_HEADER dos{};
+			MemStub::ReadMemory(pid, hBase, (uintptr_t)&dos,sizeof(IMAGE_DOS_HEADER));
+			uint64_t tmp = hBase + dos.e_lfanew;
+			uint32_t SizeOfImage = 0;
+			uint32_t SizeOfOptionalHeader = 0;
+			uint32_t NumberOfSections = 0;
+			if (is32)
+			{
+				IMAGE_NT_HEADERS32 nt32{};
+				MemStub::ReadMemory(pid, tmp, (uintptr_t)&nt32, sizeof(IMAGE_NT_HEADERS32));
+				SizeOfImage = nt32.OptionalHeader.SizeOfImage;
+				SizeOfOptionalHeader = nt32.FileHeader.SizeOfOptionalHeader;
+				NumberOfSections= nt32.FileHeader.NumberOfSections;
+			}
+			else 
+			{
+				IMAGE_NT_HEADERS64 nt64{};
+				MemStub::ReadMemory(pid, tmp, (uintptr_t)&nt64, sizeof(IMAGE_NT_HEADERS64));
+				SizeOfImage = nt64.OptionalHeader.SizeOfImage;
+				SizeOfOptionalHeader = nt64.FileHeader.SizeOfOptionalHeader;
+				NumberOfSections = nt64.FileHeader.NumberOfSections;
+			}
+
+			PCHAR pBuffer =new CHAR[SizeOfImage];
+			if (pBuffer==NULL) 
+			{
+				return false;
+			}
+			RtlZeroMemory(pBuffer, SizeOfImage);
+			MemStub::ReadMemory(pid, hBase, (uintptr_t)pBuffer, SizeOfImage);
+
+			PIMAGE_SECTION_HEADER SectionHeader = NULL;
+			PIMAGE_DOS_HEADER pNewDos = (PIMAGE_DOS_HEADER)pBuffer;
+			PCHAR pNewNtHeader = (PCHAR)(pNewDos->e_lfanew + (ULONG_PTR)pBuffer);
+			SectionHeader = reinterpret_cast<PIMAGE_SECTION_HEADER>(pNewNtHeader +sizeof(IMAGE_FILE_HEADER)+4 + SizeOfOptionalHeader);
+			for (int i = 0; i < NumberOfSections; i++, SectionHeader++)
+			{
+				SectionHeader->PointerToRawData = SectionHeader->VirtualAddress;
+				SectionHeader->SizeOfRawData = SectionHeader->Misc.VirtualSize;
+			}
+
+			HANDLE hFile = CreateFileA(save_path, GENERIC_WRITE, FILE_SHARE_WRITE,NULL, CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+			if (GetLastError() != NULL)
+			{
+				delete[] pBuffer;
+				return false;
+			}
+			WriteFile(hFile, pBuffer, SizeOfImage,NULL,NULL);
+			delete[] pBuffer;
+			CloseHandle(hFile);
+
+		}
 	}
 
 	namespace image

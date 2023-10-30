@@ -8,7 +8,7 @@ class MemStub
 {
 public:
 
-	template<class T>
+	template<typename T>
 	T Read(uint32_t pid, uint64_t ptr)
 	{
 		T buff;
@@ -40,7 +40,7 @@ public:
 
 	static bool RemoteCallFunction(uint32_t PID, uint64_t addr, uintptr_t pargs, size_t args_size);
 
-	static void IsWow64(uint32_t pid, bool* ret);
+	static void IsWow64(uint32_t pid, PBOOL ret);
 
 	static NTSTATUS NtQueryInformationProcess(uint32_t pid, int ProcessInformationClass, uintptr_t ProcessInformation, uint32_t ProcessInformationLength, uint32_t* ReturnLength);
 

@@ -1,3 +1,9 @@
+#include <Windows.h>
+#include <winternl.h>
+#include <winnt.h>
+#include <stdint.h>
+#pragma comment (lib, "imagehlp.lib")
+#pragma comment( lib, "ntdll.lib" )
 
 #define MAX_INSTRUMENTATION_CALLBACKS 64
 

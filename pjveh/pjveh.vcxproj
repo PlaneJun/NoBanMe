@@ -20,14 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pipe.cpp" />
+    <ClCompile Include="vehdbg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="veh.h" />
+    <ClInclude Include="vehdbg.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="InstrumentationCallback.hpp" />
-    <ClInclude Include="log.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="plugin.h" />
+    <ClInclude Include="pipe.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="callback.asm">
@@ -59,13 +59,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

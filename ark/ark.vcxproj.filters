@@ -30,9 +30,6 @@
     <Filter Include="zydis">
       <UniqueIdentifier>{7cd07a4b-a6d3-4c8d-9be9-1599afa18ae5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="plugin">
-      <UniqueIdentifier>{68323c15-6b32-4a5d-99c2-4a42db8e72cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{f08d4143-bf24-437c-985f-95d355430575}</UniqueIdentifier>
     </Filter>
@@ -50,6 +47,9 @@
     </Filter>
     <Filter Include="pe">
       <UniqueIdentifier>{51f2b8f5-76fd-4f07-ab8b-ef114ee7653d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{68323c15-6b32-4a5d-99c2-4a42db8e72cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,9 +97,6 @@
     </ClCompile>
     <ClCompile Include="zydis\zydis_wrapper.cpp">
       <Filter>zydis</Filter>
-    </ClCompile>
-    <ClCompile Include="plugin\plugin.cpp">
-      <Filter>plugin</Filter>
     </ClCompile>
     <ClCompile Include="utils\utils.cpp">
       <Filter>utils</Filter>
@@ -164,8 +161,8 @@
     <ClCompile Include="widget\StackWidget.cpp">
       <Filter>widget</Filter>
     </ClCompile>
-    <ClCompile Include="widget\RegBrowserWidget.cpp">
-      <Filter>widget</Filter>
+    <ClCompile Include="pipe\pipe.cpp">
+      <Filter>pipe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -225,9 +222,6 @@
     </ClInclude>
     <ClInclude Include="zydis\zydis_wrapper.h">
       <Filter>zydis</Filter>
-    </ClInclude>
-    <ClInclude Include="plugin\plugin.h">
-      <Filter>plugin</Filter>
     </ClInclude>
     <ClInclude Include="ntStruct.h">
       <Filter>头文件</Filter>
@@ -298,11 +292,11 @@
     <ClInclude Include="widget\StackWidget.h">
       <Filter>widget\headers</Filter>
     </ClInclude>
-    <ClInclude Include="widget\RegBrowserWidget.h">
-      <Filter>widget\headers</Filter>
-    </ClInclude>
     <ClInclude Include="bytes.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe\pipe.h">
+      <Filter>pipe</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

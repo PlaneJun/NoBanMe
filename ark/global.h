@@ -1,12 +1,12 @@
 #pragma once
 #include <stdint.h>
-#include "plugin/plugin.h"
+#include "pipe/pipe.h"
 
 namespace global
 {
     namespace plugin
     {
-        inline  ::plugin plugin_{};
+        inline  ::PipeCom plugin_{};
         inline  uint64_t lpPluginDispatch{};
     }
 

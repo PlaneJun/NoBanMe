@@ -91,14 +91,19 @@ void VehHandlerItem::EnumVehHandler(uint32_t pid, std::vector<VehHandlerItem>& i
     };
 
 
-    bool bIsWow64 = false;
+    BOOL bIsWow64 = FALSE;
     MemStub::IsWow64(pid, &bIsWow64);
     auto veh = QueryList(pid, VehHandlerItem::GetLdrpVectorHandlerList(), true, bIsWow64);
     for (auto v : veh)
+    {
         items.push_back(v);
+    }
     veh = QueryList(pid, VehHandlerItem::GetLdrpVectorHandlerList(), false, bIsWow64);
     for (auto v : veh)
+    {
         items.push_back(v);
+    }
+        
 }
 
 void VehHandlerItem::SortWithSortSpecs(ImGuiTableSortSpecs* sort_specs, VehHandlerItem* items, int items_count)

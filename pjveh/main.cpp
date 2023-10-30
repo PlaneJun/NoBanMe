@@ -1,16 +1,24 @@
-#include "pch.h"
+#include <mutex>
+#include <Windows.h>
+#include <DbgHelp.h>
+#include "InstrumentationCallback.hpp"
+#include "vehdbg.h"
+#include "pipe.h"
+#include "defs.h"
 
-std::mutex g_mutex;
+
 HMODULE g_hModule;
-bool g_lock = false;
-plugin g_plugin;
+PipeCom g_plugin;
+vehdbg g_vehdbg;
 
+#define PIPE_NAME L"\\\\.\\pipe\\pjark"
 
 void syscall_cb(PCONTEXT Context )
 {
-	if (!g_lock)
+	static bool init = false;
+	if (!init)
 	{
-		g_lock = true;
+		init = true;
 		uint8_t buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME] = { 0 };
 		PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
 		pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -28,24 +36,41 @@ void syscall_cb(PCONTEXT Context )
 			strcpy_s(apiinfo.function, pSymbol->Name);
 			strcpy_s(apiinfo.modulename, image_module.ModuleName);
 			apiinfo.retvale = Context->Rax;
-			g_plugin.write_pipe(& apiinfo,sizeof(ApiMonitorInfo));
+			g_plugin.write_buffer((char*) & apiinfo, sizeof(ApiMonitorInfo));
 		}
-		g_lock = false;
+		init = false;
 	}
 	
 }
 
-void vehexception_cb(uint8_t id,uint64_t addr,PCONTEXT ctx)
+void vehexception_cb(uint8_t id,PCONTEXT& ctx)
 {
-	g_mutex.lock();
-	DbgBreakInfo dbginfo{};
-	dbginfo.id = id;
-	dbginfo.type = EDataType::DEBG;
-	dbginfo.addr = addr;
-	dbginfo.ctx = *ctx;
-	memcpy(dbginfo.stack, (PVOID)ctx->Rsp,sizeof(dbginfo.stack));
-	g_plugin.write_pipe(&dbginfo, sizeof(DbgBreakInfo));
-	g_mutex.unlock();
+	static std::mutex lock;
+	std::pair<vehdbg::DBG_PARAMS, bool> hbk{};
+	if (g_vehdbg.get_hardBreak_by_index(id, hbk) && hbk.second)
+	{
+		lock.lock();
+		DbgBreakInfo dbginfo{};
+		dbginfo.id = id;
+		dbginfo.type = EDataType::DEBG;
+		dbginfo.addr = hbk.first.address;
+		dbginfo.ctx = *ctx;
+		memcpy(dbginfo.stack, (PVOID)ctx->Rsp, sizeof(dbginfo.stack));
+		if (hbk.first.type == vehdbg::DBG_TYPE::TYPE_EXECUTE)
+		{
+			//È¡Ïû¶Ïµã
+			if (id == 0)
+				ctx->Dr7 &= ~1;
+			else if (id == 1)
+				ctx->Dr7 &= ~2;
+			else if (id == 2)
+				ctx->Dr7 &= ~0x10;
+			else if (id == 3)
+				ctx->Dr7 &= ~0x40;
+		}
+		g_plugin.write_buffer((char*)&dbginfo, sizeof(DbgBreakInfo));
+		lock.unlock();
+	}
 }
 
 extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
@@ -63,7 +88,7 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 		}
 		case pipe_client_connect:
 		{
-			g_plugin.client_connect_pipe();
+			g_plugin.client_disconnect(PIPE_NAME);
 			break;
 		}
 		case syscallmonitor_init:
@@ -94,45 +119,52 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 		}
 		case veh_init:
 		{
-			dbg::init();
-			dbg::set_callback(vehexception_cb);
+			g_vehdbg.init();
+			g_vehdbg.set_callback(vehexception_cb);
 			break;
 		}
 		case veh_uninstall:
 		{
-			for (auto& i : dbg::hbk_list)
+			for (int i = 0; i < 4; i++)
 			{
-				dbg::unset_hardbreak(i.first);
+				g_vehdbg.unset_hardbreak(i);
 				Sleep(500);
 			}
-			dbg::close();
+			g_vehdbg.close();
 			break;
 		}
 		case pipe_client_close:
 		{
-			g_plugin.client_disconnect_pipe();
+			g_plugin.client_connect(PIPE_NAME);
 			break;
 		}
 		case veh_set_dr:
 		{
-			int i = dbg::set_break(cmd->dr_index,cmd->hardbread.addr, cmd->hardbread.size, cmd->hardbread.type);
+			int i = g_vehdbg.set_break(cmd->dr_index,cmd->hardbread.addr, cmd->hardbread.size, cmd->hardbread.type);
 			break;
 		}
 		case veh_unset_dr:
 		{
-			dbg::unset_hardbreak(cmd->dr_index);
+			g_vehdbg.unset_hardbreak(cmd->dr_index);
 			break;
 		}
 		case veh_enable_dr:
 		{
-			auto& dr = dbg::hbk_list[cmd->dr_index];
-			dr.second = true;
+			
+			std::pair<vehdbg::DBG_PARAMS, bool> ret{};
+			if (g_vehdbg.get_hardBreak_by_index(cmd->dr_index, ret))
+			{
+				ret.second = true;
+			}
 			break;
 		}
 		case veh_disable_dr:
 		{
-			auto& dr = dbg::hbk_list[cmd->dr_index];
-			dr.second = false;
+			std::pair<vehdbg::DBG_PARAMS, bool> ret{};
+			if (g_vehdbg.get_hardBreak_by_index(cmd->dr_index, ret))
+			{
+				ret.second = false;
+			}
 			break;
 		}
 	}
@@ -146,7 +178,7 @@ void test()
 	freopen_s((_iobuf**)__acrt_iob_func(1), "conout$", "w", (_iobuf*)__acrt_iob_func(1));
 	freopen_s((_iobuf**)__acrt_iob_func(2), "conout$", "w", (_iobuf*)__acrt_iob_func(2));
 	{
-		dbg::init();
+		//dbg::init();
 		//dbg::set_callback(vehexception_cb);
 		//auto base = (uint64_t)GetModuleHandleA(NULL) + 0x5A0D7FF;
 		//auto ret = dbg::set_break(0,base, dbg::DBG_SIZE::SIZE_1, dbg::DBG_TYPE::TYPE_EXECUTE);
