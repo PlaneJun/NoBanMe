@@ -203,10 +203,9 @@ void ProcessWidget::OnPaint()
             {
                 case 0:
                 {
-                    static const char* plugin_name = DataSource_[selected_].IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
+                    const char* plugin_name = DataSource_[selected_].IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
                     static uint64_t  Offset_Dispatch = 0;
                     static char plugin_path[MAX_PATH]{};
-
                     bool can = true;
                     HMODULE plugin_base = NULL;
                     //获取插件回调偏移
@@ -224,6 +223,8 @@ void ProcessWidget::OnPaint()
                         }
 
                         Offset_Dispatch = (uint64_t)(reinterpret_cast<uint8_t*>(GetProcAddress(plugin_base, "Dispatch")) - (uint8_t*)plugin_base);
+                        //printf("[DBG]plugin_base=%p\n", plugin_base);
+                        //printf("[DBG]Offset_Dispatch=%p\n", Offset_Dispatch);
                         GetModuleFileNameA(plugin_base, plugin_path, MAX_PATH);
                         FreeLibrary(plugin_base);
                     }

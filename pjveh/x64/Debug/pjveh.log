@@ -1,4 +1,0 @@
-﻿  main.cpp
-C:\Users\SuperRong\Desktop\Todo\PJArk\pjveh\plugin.h(51,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
-    正在创建库 C:\Users\SuperRong\Desktop\Todo\PJArk\build\pjveh_64.lib 和对象 C:\Users\SuperRong\Desktop\Todo\PJArk\build\pjveh_64.exp
-  pjveh.vcxproj -> C:\Users\SuperRong\Desktop\Todo\PJArk\build\pjveh_64.dll

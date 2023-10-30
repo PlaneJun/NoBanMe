@@ -548,6 +548,7 @@ namespace utils
 
 		bool InvokePluginFunction(DWORD pid, ControlCmd cmd)
 		{
+			//printf("[DBG]global::plugin::lpPluginDispatch=%p\n", global::plugin::lpPluginDispatch);
 			return MemStub::RemoteCallFunction(pid, global::plugin::lpPluginDispatch, reinterpret_cast<uintptr_t>(&cmd), sizeof(ControlCmd));
 		}
 	}

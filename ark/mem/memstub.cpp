@@ -146,6 +146,8 @@ bool MemStub::RemoteInjectDLL(uint32_t PID, const char* Path)
 	HANDLE pRemoteThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)func, PDllAddr, 0, NULL);
 	if (pRemoteThread == NULL)
 	{
+		VirtualFreeEx(hProcess, PDllAddr, sizeof(ControlCmd), MEM_COMMIT);
+		CloseHandle(hProcess);
 		MessageBoxA(NULL, "CreateRemoteThread Error", "control", NULL);
 		return false;
 	}
@@ -179,17 +181,9 @@ bool MemStub::RemoteCallFunction(uint32_t PID, uint64_t addr, uintptr_t pargs, s
 		return false;
 	}
 
-	ZECREATETHREADEX lpZwCreateThreadEx = (ZECREATETHREADEX)GetProcAddress(LoadLibraryA("ntdll.dll"), "ZwCreateThreadEx");
-	if (!lpZwCreateThreadEx)
-	{
-		VirtualFreeEx(hProcess, lpParam, sizeof(ControlCmd), MEM_COMMIT);
-		CloseHandle(hProcess);
-		return false;
-	}
 
-	HANDLE hRemoteThread{};
-	auto dwStatus = lpZwCreateThreadEx(&hRemoteThread, PROCESS_ALL_ACCESS, NULL, hProcess, (LPTHREAD_START_ROUTINE)addr, lpParam, 0, 0, 0, 0, NULL);
-	if (dwStatus != NULL)
+	HANDLE pRemoteThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)addr, lpParam, 0, NULL);
+	if (pRemoteThread == NULL)
 	{
 		VirtualFreeEx(hProcess, lpParam, sizeof(ControlCmd), MEM_COMMIT);
 		CloseHandle(hProcess);
@@ -197,7 +191,7 @@ bool MemStub::RemoteCallFunction(uint32_t PID, uint64_t addr, uintptr_t pargs, s
 		return false;
 	}
 
-	WaitForSingleObject(hRemoteThread, INFINITE);
+	WaitForSingleObject(pRemoteThread, INFINITE);
 	VirtualFreeEx(hProcess, lpParam, sizeof(ControlCmd), MEM_COMMIT);
 	CloseHandle(hProcess);
 	return true;

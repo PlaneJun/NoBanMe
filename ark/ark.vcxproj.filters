@@ -48,6 +48,9 @@
     <Filter Include="widget\headers">
       <UniqueIdentifier>{138c63f7-eadc-4319-ba3a-f1c2aafc9937}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pe">
+      <UniqueIdentifier>{51f2b8f5-76fd-4f07-ab8b-ef114ee7653d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -297,6 +300,9 @@
     </ClInclude>
     <ClInclude Include="widget\RegBrowserWidget.h">
       <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="bytes.hpp">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

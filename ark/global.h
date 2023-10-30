@@ -6,8 +6,8 @@ namespace global
 {
     namespace plugin
     {
-        static ::plugin plugin_{};
-        static uint64_t lpPluginDispatch{};
+        inline  ::plugin plugin_{};
+        inline  uint64_t lpPluginDispatch{};
     }
 
     namespace dbg
@@ -21,7 +21,7 @@ namespace global
             char addr[50];      //∂œµ„µÿ÷∑
         }DrSet;
 
-        static int curtChoose{};
-        static DrSet Dr[4]{};
+        inline int curtChoose{};
+        inline DrSet Dr[4]{};
     }
 }
