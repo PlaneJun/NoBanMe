@@ -164,6 +164,9 @@
     <ClCompile Include="pipe\pipe.cpp">
       <Filter>pipe</Filter>
     </ClCompile>
+    <ClCompile Include="pe\pefile.cpp">
+      <Filter>pe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\imgui\imconfig.h">
@@ -297,6 +300,9 @@
     </ClInclude>
     <ClInclude Include="pipe\pipe.h">
       <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="pe\pefile.h">
+      <Filter>pe</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

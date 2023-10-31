@@ -42,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -171,6 +171,7 @@
     <ClCompile Include="module\window.cpp" />
     <ClCompile Include="pdb\EasyPdb.cpp" />
     <ClCompile Include="pdb\md5.cpp" />
+    <ClCompile Include="pe\pefile.cpp" />
     <ClCompile Include="pipe\pipe.cpp" />
     <ClCompile Include="render\render.cpp" />
     <ClCompile Include="utils\utils.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="ntStruct.h" />
     <ClInclude Include="pdb\EasyPdb.h" />
     <ClInclude Include="pdb\md5.h" />
+    <ClInclude Include="pe\pefile.h" />
     <ClInclude Include="pipe\pipe.h" />
     <ClInclude Include="render\render.h" />
     <ClInclude Include="render\stb_image.h" />
