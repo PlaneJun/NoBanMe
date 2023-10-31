@@ -6,6 +6,7 @@
 #include "../nativeStruct.h"
 #include "../global.h"
 
+
 void MainWidget::OnPaint()
 {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -43,7 +44,7 @@ void MainWidget::OnPaint()
                 if (ImGui::BeginTabBar("Plugin_Tables", ImGuiTabBarFlags_None))
                 {
                     static int choose = -1;
-                    static std::vector<std::string> plugin_tables = { u8"系统调用" ,u8"调试器",u8"模拟器" };
+                    static std::vector<std::string> plugin_tables = { u8"SYSCALL监控" ,u8"调试器",u8"蓝图" };
                     for (int i = 0;i < plugin_tables.size();i++)
                     {
                         if (ImGui::BeginTabItem(plugin_tables[i].c_str()))
@@ -65,6 +66,12 @@ void MainWidget::OnPaint()
                             vehDebuggerWidget_.OnPaint();
                             break;
                         }
+						case 2:
+						{
+                           
+
+							break;
+						}
                     }
                     ImGui::EndTabBar();
                 }

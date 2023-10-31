@@ -165,8 +165,14 @@ void ProcessWidget::OnPaint()
                 case 0:
                 {
                     std::filesystem::path tmp(DataSource_[selected_].GetFullPath());
-                    
-                    utils::process::DumpMemory(DataSource_[selected_].GetPid(),utils::conver::string_to_wstirng(tmp.filename().string()).c_str(),"dump.exe");
+                    if (utils::process::DumpMemory(DataSource_[selected_].GetPid(), utils::conver::string_to_wstirng(tmp.filename().string()).c_str(), "dump.exe"))
+                    {
+                        MessageBoxA(NULL,"dump ok!","pjark",NULL);
+                    }
+                    else
+                    {
+                        MessageBoxA(NULL, "dump failed!", "pjark", NULL);
+                    }
                     break;
                 }
                 case 1:

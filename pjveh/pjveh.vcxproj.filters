@@ -21,6 +21,9 @@
     <Filter Include="pipe">
       <UniqueIdentifier>{c2dd85a2-aca4-47ce-bdf0-8b2296e0e8f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hook">
+      <UniqueIdentifier>{b1f57d1e-9ac4-472b-a727-d2dc91f254c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
