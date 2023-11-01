@@ -1,7 +1,10 @@
+#include<filesystem>
 #include "ModuleWidget.h"
 #include <imgui.h>
 #include "../render/render.h"
 #include "../utils/utils.h"
+
+
 
 void ModuleWidget::OnPaint()
 {
@@ -51,7 +54,7 @@ void ModuleWidget::OnPaint()
             }
         }
 
-        if (selected_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
+        if (selected_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
             ImGui::OpenPopup("module_option");
 
         if (ImGui::BeginPopup("module_option"))
@@ -60,7 +63,16 @@ void ModuleWidget::OnPaint()
             {
                 case 0:
                 {
-                        
+					std::filesystem::path tmp(DataSource_[selected_].GetImagePath());
+                    std::string dump_name = tmp.filename().string();
+					if (utils::process::DumpMemory(pid_, utils::conver::string_to_wstirng(dump_name).c_str(), ("dump_" + dump_name).c_str()))
+					{
+						MessageBoxA(NULL, "dump ok!", "pjark", NULL);
+					}
+					else
+					{
+						MessageBoxA(NULL, "dump failed!", "pjark", NULL);
+					}
                     break;
                 }
             }
@@ -86,6 +98,7 @@ void ModuleWidget::OnPaint()
 
 void ModuleWidget::SetDataSource(uint32_t pid)
 {
+    pid_ = pid;
     DataSource_.clear();
     ModuleItem::EnumPidModules(pid, DataSource_);
 }

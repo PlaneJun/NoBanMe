@@ -75,7 +75,7 @@ void ProcessWidget::OnPaint()
             }
         }
 
-        if (selected_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
+        if (selected_ != -1 && ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
             ImGui::OpenPopup("process_option");
 
         if (ImGui::BeginPopup("process_option"))
@@ -93,14 +93,14 @@ void ProcessWidget::OnPaint()
             {
                 case 0:
                 {
-                    memoryWidget.SetDataSource(DataSource_[selected_].GetPid());
-                    memoryWidget.Load();
+                    memoryWidget_.SetDataSource(DataSource_[selected_].GetPid());
+                    memoryWidget_.Load();
                     break;
                 }
                 case 1:
                 {
-                    threadWidget.SetDataSource(DataSource_[selected_].GetPid());
-                    threadWidget.Load();
+                    threadWidget_.SetDataSource(DataSource_[selected_].GetPid());
+                    threadWidget_.Load();
                     break;
                 }
                 case 2:
@@ -110,8 +110,8 @@ void ProcessWidget::OnPaint()
                 }
                 case 3:
                 {
-                    exceptionWidget.SetDataSource(DataSource_[selected_].GetPid());
-                    exceptionWidget.Load();
+                    exceptionWidget_.SetDataSource(DataSource_[selected_].GetPid());
+                    exceptionWidget_.Load();
                     break;
                 }
             }
@@ -165,7 +165,8 @@ void ProcessWidget::OnPaint()
                 case 0:
                 {
                     std::filesystem::path tmp(DataSource_[selected_].GetFullPath());
-                    if (utils::process::DumpMemory(DataSource_[selected_].GetPid(), utils::conver::string_to_wstirng(tmp.filename().string()).c_str(), "dump.exe"))
+                    std::string dump_name = tmp.filename().string();
+                    if (utils::process::DumpMemory(DataSource_[selected_].GetPid(), utils::conver::string_to_wstirng(dump_name).c_str(), ("dump_"+dump_name).c_str()))
                     {
                         MessageBoxA(NULL,"dump ok!","pjark",NULL);
                     }
@@ -217,9 +218,15 @@ void ProcessWidget::OnPaint()
                 }
                 ImGui::EndMenu();
             }
-            switch (int s = render::get_instasnce()->DrawItemBlock({ u8"调试插件" }))
+
+            switch (int s = render::get_instasnce()->DrawItemBlock({ u8"扫描进程",u8"调试插件" }))
             {
-                case 0:
+				case 0:
+				{
+                    scanHooksWidget_.Load();
+					break;
+				}
+                case 1:
                 {
                     const char* plugin_name = DataSource_[selected_].IsWow64() ? "pjveh_32.dll" : "pjveh_64.dll";
                     static uint64_t  Offset_Dispatch = 0;
@@ -432,9 +439,10 @@ void ProcessWidget::OnPaint()
             ImGui::EndPopup();
         }
 
-        threadWidget.OnPaint();
-        exceptionWidget.OnPaint();
-        memoryWidget.OnPaint();
+        threadWidget_.OnPaint();
+        exceptionWidget_.OnPaint();
+        memoryWidget_.OnPaint();
+        scanHooksWidget_.OnPaint();
         ImGui::EndTable();
     }
 }

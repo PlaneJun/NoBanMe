@@ -167,6 +167,12 @@
     <ClCompile Include="pe\pefile.cpp">
       <Filter>pe</Filter>
     </ClCompile>
+    <ClCompile Include="widget\ScanHooksWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="module\hooks.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\imgui\imconfig.h">
@@ -295,14 +301,26 @@
     <ClInclude Include="widget\StackWidget.h">
       <Filter>widget\headers</Filter>
     </ClInclude>
-    <ClInclude Include="bytes.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="pipe\pipe.h">
       <Filter>pipe</Filter>
     </ClInclude>
     <ClInclude Include="pe\pefile.h">
       <Filter>pe</Filter>
     </ClInclude>
+    <ClInclude Include="widget\ScanHooksWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\hooks.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ark.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
   </ItemGroup>
 </Project>

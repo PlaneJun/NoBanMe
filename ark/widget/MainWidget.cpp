@@ -15,7 +15,11 @@ void MainWidget::OnPaint()
     {
         ImGui::SetWindowPos("main", { 0,0 });
         ImGui::SetWindowSize("main", size_);
-        ImGuiTheme::ApplyTheme(ImGuiTheme::ImGuiTheme_MaterialFlat);
+        //static ImGuiTheme::ImGuiTweakedTheme theme;
+        //ImGuiTheme::ShowThemeTweakGui(&theme);
+        //ImGuiTheme::ApplyTweakedTheme(theme);
+        ImGui::StyleColorsLight();
+        //ImGuiTheme::ApplyTheme(ImGuiTheme::ImGuiTheme_MaterialFlat);
         if (ImGui::BeginTabBar("Main_Tabls", ImGuiTabBarFlags_None))
         {
             if (ImGui::BeginTabItem(u8"½ø³Ì"))

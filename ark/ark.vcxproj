@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -163,6 +163,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mem\memstub.cpp" />
     <ClCompile Include="module\debugger.cpp" />
+    <ClCompile Include="module\hooks.cpp" />
     <ClCompile Include="module\memory.cpp" />
     <ClCompile Include="module\module.cpp" />
     <ClCompile Include="module\process.cpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="widget\MemoryWidget.cpp" />
     <ClCompile Include="widget\ModuleWidget.cpp" />
     <ClCompile Include="widget\ProcessWidget.cpp" />
+    <ClCompile Include="widget\ScanHooksWidget.cpp" />
     <ClCompile Include="widget\StackWidget.cpp" />
     <ClCompile Include="widget\SyscallMonitorWidget.cpp" />
     <ClCompile Include="widget\ThreadWidget.cpp" />
@@ -202,11 +204,11 @@
     <ClInclude Include="3rdParty\imgui\imstb_textedit.h" />
     <ClInclude Include="3rdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="3rdParty\Zydis\Zydis.h" />
-    <ClInclude Include="bytes.hpp" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="mem\memstub.h" />
     <ClInclude Include="module\debugger.h" />
+    <ClInclude Include="module\hooks.h" />
     <ClInclude Include="module\memory.h" />
     <ClInclude Include="module\module.h" />
     <ClInclude Include="module\process.h" />
@@ -221,6 +223,7 @@
     <ClInclude Include="render\render.h" />
     <ClInclude Include="render\stb_image.h" />
     <ClInclude Include="nativeStruct.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="utils\utils.h" />
     <ClInclude Include="widget\BreakRecordWidget.h" />
     <ClInclude Include="widget\ContextWidget.h" />
@@ -230,12 +233,19 @@
     <ClInclude Include="widget\MemoryWidget.h" />
     <ClInclude Include="widget\ModuleWidget.h" />
     <ClInclude Include="widget\ProcessWidget.h" />
+    <ClInclude Include="widget\ScanHooksWidget.h" />
     <ClInclude Include="widget\StackWidget.h" />
     <ClInclude Include="widget\SyscallMonitorWidget.h" />
     <ClInclude Include="widget\ThreadWidget.h" />
     <ClInclude Include="widget\VehDebuggerWidget.h" />
     <ClInclude Include="widget\WindowsWidget.h" />
     <ClInclude Include="zydis\zydis_wrapper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ark.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

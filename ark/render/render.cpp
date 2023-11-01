@@ -1,9 +1,11 @@
-#include "render.h"
 #include <fstream>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_theme.h>
+#include "render.h"
+#include "../resource.h"
+
 
 render* render::instance_ = NULL;
 uint32_t render::ResizeWidth_ = 0;
@@ -119,7 +121,7 @@ bool render::CreatGui(const wchar_t* title, const wchar_t* classname, uint32_t w
         0L,
         0L,
         GetModuleHandleA(nullptr),
-        nullptr,
+        static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 256, 256, 0)),
         nullptr,
         nullptr,
         nullptr,
