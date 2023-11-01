@@ -51,6 +51,9 @@
     <Filter Include="pipe">
       <UniqueIdentifier>{68323c15-6b32-4a5d-99c2-4a42db8e72cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lua">
+      <UniqueIdentifier>{a51e88f0-2a72-41f1-8cad-114c51b86e54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -172,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="module\hooks.cpp">
       <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\luaScript.cpp">
+      <Filter>lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -315,6 +321,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaScript.h">
+      <Filter>lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
