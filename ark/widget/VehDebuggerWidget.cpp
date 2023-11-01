@@ -1,4 +1,5 @@
 #include "VehDebuggerWidget.h"
+#include "../3rdParty/imgui/Imgui_text_editor.h"
 #include "../utils/utils.h"
 #include "../global.h"
 
@@ -59,62 +60,84 @@ void VehDebuggerWidget::OnPaint()
     }
     if (ImGui::CollapsingHeader(u8"数据窗口", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        if (ImGui::BeginTabBar("DrSelector_Tables", ImGuiTabBarFlags_None))
+        if (ImGui::BeginTabBar("DataCollect_Tables", ImGuiTabBarFlags_None))
         {
-            for (int i = 0;i < 4;i++)
+            if (ImGui::BeginTabItem(u8"查找访问"))
             {
-                char buf[10]{};
-                sprintf_s(buf, "Dr%d", i);
-                if (ImGui::BeginTabItem(buf))
+                if (ImGui::BeginTabBar("DrSelector_Tables", ImGuiTabBarFlags_None))
                 {
-                    global::dbg::curtChoose = i;
-                    ImGui::EndTabItem();
+                    for (int i = 0; i < 4; i++)
+                    {
+                        char buf[10]{};
+                        sprintf_s(buf, "Dr%d", i);
+                        if (ImGui::BeginTabItem(buf))
+                        {
+                            global::dbg::curtChoose = i;
+                            ImGui::EndTabItem();
+                        }
+                    }
+                    ImGui::EndTabBar();
                 }
+                if (ImGui::BeginChild("ChildAccess", ImVec2(ImGui::GetContentRegionAvail().x * 0.25, ImGui::GetContentRegionAvail().y * 0.66), false, ImGuiWindowFlags_HorizontalScrollbar))
+                {
+                    breakrecordWidget_.SetDataSource(curtData.capture);
+                    breakrecordWidget_.OnPaint();
+                    if (last_choose_capture.text != breakrecordWidget_.GetCurtSelect().text)
+                    {
+                        contextWidget_.SetDataSource(curtData.ctx);
+                        disassemblerWidget_.SetData(DataSource_, utils::conver::hexToInteger(breakrecordWidget_.GetCurtSelect().text));
+                        std::vector<uint8_t> stack{};
+                        stack.resize(sizeof(breakrecordWidget_.GetCurtSelect().stack));
+                        memcpy(&stack[0], breakrecordWidget_.GetCurtSelect().stack, sizeof(breakrecordWidget_.GetCurtSelect().stack));
+                        stackWidget_.SetDataSource(DataSource_.GetPid(), stack, curtData.ctx.Rsp);
+                        last_choose_capture = breakrecordWidget_.GetCurtSelect();
+                    }
+                    ImGui::EndChild();
+                }
+                ImGui::SameLine();
+                if (ImGui::BeginChild("ChildDisassembly", ImVec2(ImGui::GetContentRegionAvail().x * 0.66, ImGui::GetContentRegionAvail().y * 0.66)))
+                {
+                    disassemblerWidget_.OnPaint();
+                    ImGui::EndChild();
+                }
+                ImGui::SameLine();
+                if (ImGui::BeginChild("ChildContext", ImVec2(ImGui::GetContentRegionAvail().x * 0.98, ImGui::GetContentRegionAvail().y * 0.66)))
+                {
+
+                    contextWidget_.OnPaint();
+                    ImGui::EndChild();
+                }
+                ImGui::Separator();
+                if (ImGui::BeginChild("ChildMem", ImVec2(ImGui::GetContentRegionAvail().x * 0.65, ImGui::GetContentRegionAvail().y)))
+                {
+                    /*ImGui::SeparatorText(u8"内存");
+                    static MemoryEditor mem_edit;
+                    mem_edit.DrawWindow("Memory Editor", curtData.memoryRegion.data.data(), curtData.memoryRegion.data.size(), curtData.memoryRegion.start);*/
+                    ImGui::EndChild();
+                }
+                ImGui::SameLine();
+                if (ImGui::BeginChild("ChildStack"))
+                {
+                    stackWidget_.OnPaint();
+                    ImGui::EndChild();
+                }
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem(u8"数据分析"))
+            {
+                static TextEditor editor;
+                static bool init = false;
+                if (!init)
+                {
+                    editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
+                    //editor.SetPalette(TextEditor::GetLightPalette());
+                    init = true;
+                }
+                
+                editor.Render("Lua Script Engine");
+                ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
-        }
-        if (ImGui::BeginChild("ChildAccess", ImVec2(ImGui::GetContentRegionAvail().x * 0.25, ImGui::GetContentRegionAvail().y * 0.66), false, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-            breakrecordWidget_.SetDataSource(curtData.capture);
-            breakrecordWidget_.OnPaint();
-            if (last_choose_capture.text != breakrecordWidget_.GetCurtSelect().text)
-            {
-                contextWidget_.SetDataSource(curtData.ctx);
-                disassemblerWidget_.SetData(DataSource_, utils::conver::hexToInteger(breakrecordWidget_.GetCurtSelect().text));
-                std::vector<uint8_t> stack{};
-                stack.resize(sizeof(breakrecordWidget_.GetCurtSelect().stack));
-                memcpy(&stack[0], breakrecordWidget_.GetCurtSelect().stack, sizeof(breakrecordWidget_.GetCurtSelect().stack));
-                stackWidget_.SetDataSource(DataSource_.GetPid(), stack, curtData.ctx.Rsp);
-                last_choose_capture = breakrecordWidget_.GetCurtSelect();
-            }
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-        if (ImGui::BeginChild("ChildDisassembly", ImVec2(ImGui::GetContentRegionAvail().x * 0.66, ImGui::GetContentRegionAvail().y * 0.66)))
-        {
-            disassemblerWidget_.OnPaint();
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-        if (ImGui::BeginChild("ChildContext", ImVec2(ImGui::GetContentRegionAvail().x * 0.98, ImGui::GetContentRegionAvail().y * 0.66)))
-        {
-
-            contextWidget_.OnPaint();
-            ImGui::EndChild();
-        }
-        ImGui::Separator();
-        if (ImGui::BeginChild("ChildMem", ImVec2(ImGui::GetContentRegionAvail().x * 0.65, ImGui::GetContentRegionAvail().y)))
-        {
-            /*ImGui::SeparatorText(u8"内存");
-            static MemoryEditor mem_edit;
-            mem_edit.DrawWindow("Memory Editor", curtData.memoryRegion.data.data(), curtData.memoryRegion.data.size(), curtData.memoryRegion.start);*/
-            ImGui::EndChild();
-        }
-        ImGui::SameLine();
-        if (ImGui::BeginChild("ChildStack"))
-        {
-            stackWidget_.OnPaint();
-            ImGui::EndChild();
         }
     }
 }

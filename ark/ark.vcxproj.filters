@@ -179,6 +179,9 @@
     <ClCompile Include="lua\luaScript.cpp">
       <Filter>lua</Filter>
     </ClCompile>
+    <ClCompile Include="3rdParty\imgui\Imgui_text_editor.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\imgui\imconfig.h">
@@ -324,6 +327,9 @@
     </ClInclude>
     <ClInclude Include="lua\luaScript.h">
       <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\Imgui_text_editor.h">
+      <Filter>3rdParty\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

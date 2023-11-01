@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -157,6 +157,7 @@
     <ClCompile Include="3rdParty\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="3rdParty\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="3rdParty\imgui\imgui_tables.cpp" />
+    <ClCompile Include="3rdParty\imgui\Imgui_text_editor.cpp" />
     <ClCompile Include="3rdParty\imgui\imgui_theme.cpp" />
     <ClCompile Include="3rdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="3rdParty\Zydis\Zydis.c" />
@@ -200,6 +201,7 @@
     <ClInclude Include="3rdParty\imgui\imgui_impl_win32.h" />
     <ClInclude Include="3rdParty\imgui\imgui_internal.h" />
     <ClInclude Include="3rdParty\imgui\imgui_memory_editor.h" />
+    <ClInclude Include="3rdParty\imgui\Imgui_text_editor.h" />
     <ClInclude Include="3rdParty\imgui\imgui_theme.h" />
     <ClInclude Include="3rdParty\imgui\imstb_rectpack.h" />
     <ClInclude Include="3rdParty\imgui\imstb_textedit.h" />

@@ -166,7 +166,7 @@ bool render::CreatGui(const wchar_t* title, const wchar_t* classname, uint32_t w
     if (!inFile.is_open())
         fontPath = "c:\\Windows\\Fonts\\msyh.ttf";
     inFile.close();
-    io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 15.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd_);

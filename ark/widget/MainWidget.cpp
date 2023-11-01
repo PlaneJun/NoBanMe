@@ -18,8 +18,8 @@ void MainWidget::OnPaint()
         //static ImGuiTheme::ImGuiTweakedTheme theme;
         //ImGuiTheme::ShowThemeTweakGui(&theme);
         //ImGuiTheme::ApplyTweakedTheme(theme);
-        ImGui::StyleColorsLight();
-        //ImGuiTheme::ApplyTheme(ImGuiTheme::ImGuiTheme_MaterialFlat);
+        //ImGui::StyleColorsLight();
+        ImGuiTheme::ApplyTheme(ImGuiTheme::ImGuiTheme_MaterialFlat);
         if (ImGui::BeginTabBar("Main_Tabls", ImGuiTabBarFlags_None))
         {
             if (ImGui::BeginTabItem(u8"½ø³Ì"))
