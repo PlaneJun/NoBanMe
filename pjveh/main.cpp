@@ -1,15 +1,17 @@
 #include <mutex>
 #include <Windows.h>
 #include <DbgHelp.h>
-#include "InstrumentationCallback.hpp"
-#include "vehdbg.h"
-#include "pipe.h"
+#include "./callback/InstrumentationCallback.hpp"
+#include "./veh/vehdbg.h"
+#include "./pipe/pipe.h"
+#include "./hook/safehook.h"
 #include "defs.h"
 
 
 HMODULE g_hModule;
 PipeCom g_plugin;
 vehdbg g_vehdbg;
+safehook g_hook;
 
 #define PIPE_NAME L"\\\\.\\pipe\\pjark"
 
@@ -70,6 +72,20 @@ void vehexception_cb(uint8_t id,PCONTEXT& ctx)
 		}
 		g_plugin.write_buffer((char*)&dbginfo, sizeof(DbgBreakInfo));
 		lock.unlock();
+	}
+}
+
+void anyhook_cb(safehook::HookContext* ctx)
+{
+	// 获取返回地址
+	uint64_t retAddr = *(uint64_t*)(ctx->rsp-8);
+
+	if (g_hook.get_hook_info(retAddr).running)
+	{
+		HookRespone hr{};
+		hr.hook_addr = retAddr;
+		memcpy(&hr.ctx, ctx,sizeof(safehook::HookContext));
+		g_plugin.write_buffer((char*)&hr, sizeof(HookRespone));
 	}
 }
 
@@ -165,6 +181,21 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 			{
 				ret.second = false;
 			}
+			break;
+		}
+		case hook_install:
+		{
+			auto hi = g_hook.get_hook_info(cmd->hookmsg.address);
+			if (hi.hook_addr != cmd->hookmsg.address)
+			{
+				g_hook.add_hook(cmd->hookmsg.address, (uint64_t)anyhook_cb);
+				g_hook.hook();
+			}
+			break;
+		}
+		case hook_uninstall:
+		{
+			g_hook.unhook(cmd->hookmsg.address);
 			break;
 		}
 	}

@@ -19,20 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="3rdParty\Zydis\Zydis.c" />
+    <ClCompile Include="hook\reflector.c" />
+    <ClCompile Include="hook\safehook.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="pipe.cpp" />
-    <ClCompile Include="vehdbg.cpp" />
+    <ClCompile Include="pipe\pipe.cpp" />
+    <ClCompile Include="veh\vehdbg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="vehdbg.h" />
+    <ClInclude Include="3rdParty\Zydis\Zydis.h" />
+    <ClInclude Include="callback\InstrumentationCallback.hpp" />
+    <ClInclude Include="hook\reflector.h" />
+    <ClInclude Include="hook\safehook.h" />
+    <ClInclude Include="pipe\pipe.h" />
     <ClInclude Include="defs.h" />
-    <ClInclude Include="InstrumentationCallback.hpp" />
-    <ClInclude Include="pipe.h" />
+    <ClInclude Include="veh\vehdbg.h" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="callback.asm">
-      <FileType>Document</FileType>
-    </MASM>
+    <MASM Include="callback\callback.asm" />
+    <MASM Include="hook\hook_dispatch.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

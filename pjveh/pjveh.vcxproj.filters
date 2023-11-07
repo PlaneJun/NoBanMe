@@ -24,35 +24,62 @@
     <Filter Include="hook">
       <UniqueIdentifier>{b1f57d1e-9ac4-472b-a727-d2dc91f254c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="3rdParty">
+      <UniqueIdentifier>{1ed9b32a-e20f-44ba-8e03-9e5d2a7e9ccc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdParty\Zydis">
+      <UniqueIdentifier>{41d6c945-6111-465b-923d-0552494417d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="pipe.cpp">
+    <ClCompile Include="3rdParty\Zydis\Zydis.c">
+      <Filter>3rdParty\Zydis</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe\pipe.cpp">
       <Filter>pipe</Filter>
     </ClCompile>
-    <ClCompile Include="vehdbg.cpp">
+    <ClCompile Include="veh\vehdbg.cpp">
       <Filter>veh</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\reflector.c">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\safehook.cpp">
+      <Filter>hook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InstrumentationCallback.hpp">
-      <Filter>monitor\syscall</Filter>
-    </ClInclude>
-    <ClInclude Include="vehdbg.h">
-      <Filter>veh</Filter>
-    </ClInclude>
-    <ClInclude Include="pipe.h">
-      <Filter>pipe</Filter>
-    </ClInclude>
     <ClInclude Include="defs.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="3rdParty\Zydis\Zydis.h">
+      <Filter>3rdParty\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe\pipe.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="veh\vehdbg.h">
+      <Filter>veh</Filter>
+    </ClInclude>
+    <ClInclude Include="callback\InstrumentationCallback.hpp">
+      <Filter>monitor\syscall</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\reflector.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\safehook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="callback.asm">
+    <MASM Include="callback\callback.asm">
       <Filter>monitor\syscall</Filter>
+    </MASM>
+    <MASM Include="hook\hook_dispatch.asm">
+      <Filter>hook</Filter>
     </MASM>
   </ItemGroup>
 </Project>

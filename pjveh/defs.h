@@ -25,6 +25,13 @@ typedef struct _THARD_BREAK_INFO
 	char disassembly[256];
 }DbgBreakInfo, * PDbgBreakInfo;
 
+
+typedef struct _THOOK_RESPONE
+{
+	uint64_t hook_addr;
+	safehook::HookContext ctx;
+}HookRespone;
+
 enum ECMD
 {
 	plugin_init,
@@ -38,12 +45,19 @@ enum ECMD
 	veh_set_dr,
 	veh_unset_dr,
 	veh_enable_dr,
-	veh_disable_dr
+	veh_disable_dr,
+	hook_install,
+	hook_uninstall
 };
 
 typedef struct _TCONTROL_CMD
 {
 	ECMD cmd;
+
+	// syscall
+	bool syscall_state;
+
+	// veh
 	uint8_t dr_index;
 	struct
 	{
@@ -51,5 +65,12 @@ typedef struct _TCONTROL_CMD
 		vehdbg::DBG_SIZE size;
 		vehdbg::DBG_TYPE type;
 	}hardbread;
-	bool syscall_state;
+
+	// hook
+	struct 
+	{
+		bool running;
+		uint64_t address;
+	}hookmsg;
+	
 }ControlCmd, * PControlCmd;
