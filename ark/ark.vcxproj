@@ -42,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -161,6 +161,7 @@
     <ClCompile Include="3rdParty\imgui\imgui_theme.cpp" />
     <ClCompile Include="3rdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="3rdParty\Zydis\Zydis.c" />
+    <ClCompile Include="lua\luaApi.cpp" />
     <ClCompile Include="lua\luaScript.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mem\memstub.cpp" />
@@ -209,6 +210,8 @@
     <ClInclude Include="3rdParty\Zydis\Zydis.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="IconsFontAwesome5.h" />
+    <ClInclude Include="lua\luaApi.h" />
     <ClInclude Include="lua\luaScript.h" />
     <ClInclude Include="mem\memstub.h" />
     <ClInclude Include="module\debugger.h" />

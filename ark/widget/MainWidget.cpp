@@ -1,10 +1,12 @@
 #include "MainWidget.h"
 #include <imgui_theme.h>
+#include "../3rdParty/imgui/Imgui_text_editor.h"
 #include "../module/debugger.h"
 #include "../mem/memstub.h"
 #include "../utils/utils.h"
 #include "../nativeStruct.h"
 #include "../global.h"
+#include "../IconsFontAwesome5.h"
 
 
 void MainWidget::OnPaint()
@@ -48,7 +50,7 @@ void MainWidget::OnPaint()
                 if (ImGui::BeginTabBar("Plugin_Tables", ImGuiTabBarFlags_None))
                 {
                     static int choose = -1;
-                    static std::vector<std::string> plugin_tables = { u8"SYSCALL监控" ,u8"调试器",u8"蓝图" };
+                    static std::vector<std::string> plugin_tables = { u8"SYSCALL监控" ,u8"调试器",u8"Lua" };
                     for (int i = 0;i < plugin_tables.size();i++)
                     {
                         if (ImGui::BeginTabItem(plugin_tables[i].c_str()))
@@ -72,7 +74,54 @@ void MainWidget::OnPaint()
                         }
 						case 2:
 						{
-                           
+							if (ImGui::BeginChild("#inlinehooklist", ImVec2(ImGui::GetContentRegionAvail().x * 0.25, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar))
+							{
+								if (ImGui::Button(ICON_FA_PLAY))
+								{
+									ImGui::OpenPopup(u8"添加InlineHook地址");
+									ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+									ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+								}
+								if (ImGui::BeginPopupModal(u8"添加InlineHook地址", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+								{
+									ImGui::Text(u8"输入要Hook的地址");
+									ImGui::Separator();
+									static char buf[100]{};
+									ImGui::InputText("##add_inlineHook", buf, 100, ImGuiInputTextFlags_CharsHexadecimal);
+									if (ImGui::Button(u8"确认", ImVec2(120, 0)))
+									{
+										ImGui::CloseCurrentPopup();
+									}
+									ImGui::SetItemDefaultFocus();
+									ImGui::SameLine();
+									if (ImGui::Button(u8"取消", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+									ImGui::EndPopup();
+								}
+								ImGui::EndChild();
+							}
+							ImGui::SameLine();
+							if (ImGui::BeginChild("#luascript", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), false, ImGuiWindowFlags_HorizontalScrollbar))
+							{
+								ImGui::Button(u8"Run");
+								static TextEditor lua_editor;
+								static TextEditor lua_output;
+								static bool init = false;
+								if (!init)
+								{
+									lua_editor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
+									lua_output.SetReadOnly(true);
+
+									//editor.SetPalette(TextEditor::GetLightPalette());
+									init = true;
+								}
+								ImGui::SeparatorText("Lua Editor:");
+								lua_editor.Render("Lua Script Coding", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y * 0.7));
+								ImGui::SeparatorText("Lua Output:");
+								lua_output.Render("Lua Script Output");
+
+								ImGui::EndChild();
+							}
 
 							break;
 						}

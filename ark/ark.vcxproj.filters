@@ -182,6 +182,9 @@
     <ClCompile Include="3rdParty\imgui\Imgui_text_editor.cpp">
       <Filter>3rdParty\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="lua\luaApi.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\imgui\imconfig.h">
@@ -330,6 +333,12 @@
     </ClInclude>
     <ClInclude Include="3rdParty\imgui\Imgui_text_editor.h">
       <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaApi.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

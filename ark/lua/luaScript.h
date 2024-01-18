@@ -3,9 +3,9 @@
 
 extern "C"
 {
-#include "../3rdParty/lua/include/lua.h"
-#include "../3rdParty/lua/include/lauxlib.h"
-#include "../3rdParty/lua/include/lualib.h"
+	#include "../3rdParty/lua/include/lua.h"
+	#include "../3rdParty/lua/include/lauxlib.h"
+	#include "../3rdParty/lua/include/lualib.h"
 }
 
 #pragma comment(lib,"./3rdParty/lua/lua54.lib")

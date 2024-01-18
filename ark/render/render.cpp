@@ -5,6 +5,7 @@
 #include <imgui_theme.h>
 #include "render.h"
 #include "../resource.h"
+#include "../IconsFontAwesome5.h"
 
 
 render* render::instance_ = NULL;
@@ -166,7 +167,18 @@ bool render::CreatGui(const wchar_t* title, const wchar_t* classname, uint32_t w
     if (!inFile.is_open())
         fontPath = "c:\\Windows\\Fonts\\msyh.ttf";
     inFile.close();
-    io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 15.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+
+	float baseFontSize = 18.0f; // 13.0f is the size of the default font. Change to the font size you use.
+	float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+	// merge in icons from Font Awesome
+	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	ImFontConfig icons_config;
+	icons_config.MergeMode = true;
+	icons_config.PixelSnapH = true;
+	icons_config.GlyphMinAdvanceX = iconFontSize;
+	io.Fonts->AddFontFromFileTTF("./Font/fa-solid-900.ttf", iconFontSize, &icons_config, icons_ranges);
+
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd_);
