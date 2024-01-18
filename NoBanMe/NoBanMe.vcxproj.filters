@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="3rdParty">
+      <UniqueIdentifier>{9c97b428-1169-410c-adc5-e949daa703bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdParty\imgui">
+      <UniqueIdentifier>{cfd6196a-0bed-40b7-9e4f-ac321eceb32a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdParty\Zydis">
+      <UniqueIdentifier>{34d8c220-a829-48d4-9647-8d2e9d94e5fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render">
+      <UniqueIdentifier>{6a7a9a48-dd91-477a-a7ca-9e35a2957d3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pdb">
+      <UniqueIdentifier>{c05c6425-0924-4a92-8cb4-c3b83490ff3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mem">
+      <UniqueIdentifier>{c1d285c3-cfd1-4c0d-aee0-3a1cc86d9c7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zydis">
+      <UniqueIdentifier>{7cd07a4b-a6d3-4c8d-9be9-1599afa18ae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{f08d4143-bf24-437c-985f-95d355430575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module">
+      <UniqueIdentifier>{4cf64b29-fcf0-4018-9b73-2dd97acf6656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\headers">
+      <UniqueIdentifier>{343466cf-36c1-479b-9b33-8b67127625d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="widget">
+      <UniqueIdentifier>{30f016ea-f74b-4707-ae83-30386d6dde53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="widget\headers">
+      <UniqueIdentifier>{138c63f7-eadc-4319-ba3a-f1c2aafc9937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pe">
+      <UniqueIdentifier>{51f2b8f5-76fd-4f07-ab8b-ef114ee7653d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{68323c15-6b32-4a5d-99c2-4a42db8e72cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua">
+      <UniqueIdentifier>{a51e88f0-2a72-41f1-8cad-114c51b86e54}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_demo.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_draw.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_impl_dx11.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_impl_win32.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_tables.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_theme.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\imgui_widgets.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\Zydis\Zydis.c">
+      <Filter>3rdParty\Zydis</Filter>
+    </ClCompile>
+    <ClCompile Include="render\render.cpp">
+      <Filter>render</Filter>
+    </ClCompile>
+    <ClCompile Include="pdb\EasyPdb.cpp">
+      <Filter>pdb</Filter>
+    </ClCompile>
+    <ClCompile Include="pdb\md5.cpp">
+      <Filter>pdb</Filter>
+    </ClCompile>
+    <ClCompile Include="mem\memstub.cpp">
+      <Filter>mem</Filter>
+    </ClCompile>
+    <ClCompile Include="zydis\zydis_wrapper.cpp">
+      <Filter>zydis</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="module\process.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="module\module.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="module\memory.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="module\thread.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="module\vehhandler.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="module\window.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\MainWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\ProcessWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\ThreadWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\ExceptionWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\MemoryWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\ModuleWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\SyscallMonitorWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\VehDebuggerWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\WindowsWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\BreakRecordWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="module\debugger.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\ContextWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\DisassemblyWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\StackWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe\pipe.cpp">
+      <Filter>pipe</Filter>
+    </ClCompile>
+    <ClCompile Include="pe\pefile.cpp">
+      <Filter>pe</Filter>
+    </ClCompile>
+    <ClCompile Include="widget\ScanHooksWidget.cpp">
+      <Filter>widget</Filter>
+    </ClCompile>
+    <ClCompile Include="module\hooks.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\luaScript.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdParty\imgui\Imgui_text_editor.cpp">
+      <Filter>3rdParty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\luaApi.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="3rdParty\imgui\imconfig.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imgui.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imgui_impl_dx11.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imgui_impl_win32.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imgui_internal.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imgui_memory_editor.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imgui_theme.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imstb_rectpack.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imstb_textedit.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\imstb_truetype.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\Zydis\Zydis.h">
+      <Filter>3rdParty\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="render\render.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\stb_image.h">
+      <Filter>render</Filter>
+    </ClInclude>
+    <ClInclude Include="defs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nativeStruct.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pdb\EasyPdb.h">
+      <Filter>pdb</Filter>
+    </ClInclude>
+    <ClInclude Include="pdb\md5.h">
+      <Filter>pdb</Filter>
+    </ClInclude>
+    <ClInclude Include="mem\memstub.h">
+      <Filter>mem</Filter>
+    </ClInclude>
+    <ClInclude Include="zydis\zydis_wrapper.h">
+      <Filter>zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="ntStruct.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="module\memory.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\module.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\process.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\thread.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\vehhandler.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\window.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ExceptionWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\MainWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\MemoryWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ModuleWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ProcessWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\SyscallMonitorWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ThreadWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\VehDebuggerWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\WindowsWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\debugger.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\BreakRecordWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ContextWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\DisassemblyWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\StackWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe\pipe.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="pe\pefile.h">
+      <Filter>pe</Filter>
+    </ClInclude>
+    <ClInclude Include="widget\ScanHooksWidget.h">
+      <Filter>widget\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="module\hooks.h">
+      <Filter>module\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaScript.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\imgui\Imgui_text_editor.h">
+      <Filter>3rdParty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaApi.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NoBanMe.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
+  </ItemGroup>
+</Project>
