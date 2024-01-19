@@ -1,6 +1,9 @@
 #include "debugger.h"
-#include "../zydis/zydis_wrapper.h"
-#include "../utils/utils.h"
+#include "../../common/zydis/zydis_wrapper.h"
+#include "../../common/utils/utils.h"
+
+EXTERN_C ZyanStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle style);
+
 Debugger::DbgInfo Debugger::dbgInfo[4] = {};
 std::vector<std::vector<std::string>> Debugger::Disassembly(bool Is64, uint64_t start, const uint8_t* buffer, size_t size)
 {

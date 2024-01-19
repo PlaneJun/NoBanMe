@@ -4,7 +4,8 @@
 #include <map>
 #include <Windows.h>
 #include <stdint.h>
-#include "../nativeStruct.h"
+#include "../../common/nativeStruct.h"
+#include "../../common/ipc_ctrl.h"
 
 class Debugger
 {

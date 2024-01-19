@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="crypto">
+      <UniqueIdentifier>{97e8a9c6-0abc-40c6-9621-b8e9db705b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="log">
+      <UniqueIdentifier>{6cbfafdc-59f1-42ed-bf93-19e4306dd115}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="md5">
+      <UniqueIdentifier>{434c0cde-277d-4ba2-a3d7-f0c80c42d4fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pdb">
+      <UniqueIdentifier>{7afd49ab-0c35-4784-81b6-8270800a3263}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zydis">
+      <UniqueIdentifier>{e6b6c10c-b3a2-4017-bade-9221349376d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{6dea8cff-c19c-463b-a8a9-e589df88bfb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{4f36e23b-010f-444d-90a6-bd8de512f8e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pe">
+      <UniqueIdentifier>{cd68fed1-d38b-4dc6-aae9-1700e5094a6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mem">
+      <UniqueIdentifier>{a252a54d-24a6-4018-bb6c-4ac6cc4aac36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{6717b885-f620-4a10-a225-16e08ef1321f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua">
+      <UniqueIdentifier>{14dc497b-0bb9-4f99-a540-01a2064de63b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="crypto\aes.cpp">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\compression.cpp">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\rc4.cpp">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\zbase64.cpp">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="log\log.cpp">
+      <Filter>log</Filter>
+    </ClCompile>
+    <ClCompile Include="md5\md5.cpp">
+      <Filter>md5</Filter>
+    </ClCompile>
+    <ClCompile Include="pdb\EasyPdb.cpp">
+      <Filter>pdb</Filter>
+    </ClCompile>
+    <ClCompile Include="zydis\zydis_wrapper.cpp">
+      <Filter>zydis</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe\pipe.cpp">
+      <Filter>pipe</Filter>
+    </ClCompile>
+    <ClCompile Include="zydis\Zydis.c">
+      <Filter>zydis</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="pe\pefile.cpp">
+      <Filter>pe</Filter>
+    </ClCompile>
+    <ClCompile Include="mem\memstub.cpp">
+      <Filter>mem</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\luaApi.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\luaScript.cpp">
+      <Filter>lua</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="crypto\aes.h">
+      <Filter>crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\compression.h">
+      <Filter>crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\rc4.h">
+      <Filter>crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\zbase64.h">
+      <Filter>crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="log\log.h">
+      <Filter>log</Filter>
+    </ClInclude>
+    <ClInclude Include="md5\md5.h">
+      <Filter>md5</Filter>
+    </ClInclude>
+    <ClInclude Include="pdb\EasyPdb.h">
+      <Filter>pdb</Filter>
+    </ClInclude>
+    <ClInclude Include="zydis\zydis_wrapper.h">
+      <Filter>zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe\pipe.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="zydis\Zydis.h">
+      <Filter>zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="pe\pefile.h">
+      <Filter>pe</Filter>
+    </ClInclude>
+    <ClInclude Include="mem\memstub.h">
+      <Filter>mem</Filter>
+    </ClInclude>
+    <ClInclude Include="nativeStruct.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaApi.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaScript.h">
+      <Filter>lua</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

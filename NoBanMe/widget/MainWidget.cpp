@@ -1,10 +1,10 @@
 #include "MainWidget.h"
 #include <imgui_theme.h>
-#include "../3rdParty/imgui/Imgui_text_editor.h"
+#include "../../3part/imgui/Imgui_text_editor.h"
 #include "../module/debugger.h"
-#include "../mem/memstub.h"
-#include "../utils/utils.h"
-#include "../nativeStruct.h"
+#include "../../common/mem/memstub.h"
+#include "../../common/utils/utils.h"
+#include "../../common/nativeStruct.h"
 #include "../global.h"
 #include "../IconsFontAwesome5.h"
 
@@ -104,7 +104,7 @@ void MainWidget::OnUpdate()
                         ControlCmd cmd{};
                         cmd.cmd = ECMD::syscallmonitor_init;
                         cmd.syscall_state = syscallMonitorWidget_.GetActive();
-                        if (!utils::mem::InvokePluginFunction(processWidget_.GetPluginProcessItem().GetPid(), cmd))
+                        if (!utils::mem::InvokeRemoteFunction(processWidget_.GetPluginProcessItem().GetPid(), global::plugin::lpPluginDispatch,cmd))
                         {
                             MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
                             syscallMonitorWidget_.SetActive(false); //clear checked
@@ -121,7 +121,7 @@ void MainWidget::OnUpdate()
                         ControlCmd cmd{};
                         cmd.cmd = ECMD::syscallmonitor_init;
                         cmd.syscall_state = syscallMonitorWidget_.GetActive();
-                        if (!utils::mem::InvokePluginFunction(processWidget_.GetPluginProcessItem().GetPid(), cmd))
+                        if (!utils::mem::InvokeRemoteFunction(processWidget_.GetPluginProcessItem().GetPid(), global::plugin::lpPluginDispatch, cmd))
                         {
                             MessageBoxA(NULL, "SyscallMonitor Open Failed!", NULL, NULL);
                             syscallMonitorWidget_.SetActive(true); //clear check
@@ -140,7 +140,7 @@ void MainWidget::OnUpdate()
                 static std::map<uint8_t, std::pair<bool, bool>> signal_dr{};
                 for (int i = 0;i < 4;i++)
                 {
-                    auto& tmp_dr = global::dbg::Dr[i];
+                    global::dbg::DrSet& tmp_dr = global::dbg::Dr[i];
 
                     // this is button option
                     if (tmp_dr.statue == 1) //already add
@@ -160,7 +160,7 @@ void MainWidget::OnUpdate()
                             cmd.hardbread.addr = strlen(tmp_dr.addr) > 0 ? utils::conver::hexToInteger(tmp_dr.addr) : 0;
                             cmd.hardbread.size = tmp_dr.size;
                             cmd.hardbread.type = tmp_dr.type;
-                            if (cmd.hardbread.addr <= 0 || !utils::mem::InvokePluginFunction(processWidget_.GetPluginProcessItem().GetPid(), cmd))
+                            if (cmd.hardbread.addr <= 0 || !utils::mem::InvokeRemoteFunction(processWidget_.GetPluginProcessItem().GetPid(), global::plugin::lpPluginDispatch, cmd))
                             {
                                 MessageBoxA(NULL, "Add BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.statue = 0; //add fault,so set button title to "Add"
@@ -179,7 +179,7 @@ void MainWidget::OnUpdate()
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_unset_dr;
                             cmd.dr_index = i;
-                            if (!utils::mem::InvokePluginFunction(processWidget_.GetPluginProcessItem().GetPid(), cmd))
+                            if (!utils::mem::InvokeRemoteFunction(processWidget_.GetPluginProcessItem().GetPid(), global::plugin::lpPluginDispatch, cmd))
                             {
                                 MessageBoxA(NULL, "Remove BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.statue = 1; //remove fault,set button title to "Remove"
@@ -203,7 +203,7 @@ void MainWidget::OnUpdate()
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_enable_dr;
                             cmd.dr_index = i;
-                            if (!utils::mem::InvokePluginFunction(processWidget_.GetPluginProcessItem().GetPid(), cmd))
+                            if (!utils::mem::InvokeRemoteFunction(processWidget_.GetPluginProcessItem().GetPid(), global::plugin::lpPluginDispatch, cmd))
                             {
                                 MessageBoxA(NULL, "Enable BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.active = 0;
@@ -223,7 +223,7 @@ void MainWidget::OnUpdate()
                             ControlCmd cmd{};
                             cmd.cmd = ECMD::veh_disable_dr;
                             cmd.dr_index = i;
-                            if (!utils::mem::InvokePluginFunction(processWidget_.GetPluginProcessItem().GetPid(), cmd))
+                            if (!utils::mem::InvokeRemoteFunction(processWidget_.GetPluginProcessItem().GetPid(), global::plugin::lpPluginDispatch, cmd))
                             {
                                 MessageBoxA(NULL, "Disable BreakPoint Failed!", NULL, NULL);
                                 tmp_dr.active = 1;
@@ -277,8 +277,9 @@ void MainWidget::OnIPC()
                         curtData.ctx = pDbg->ctx;
                         //generate region disassembly
                         uint8_t buf[100]{};
-                        MemStub::ReadMemory(processWidget_.GetPluginProcessItem().GetPid(), pDbg->ctx.Rip - 0x50, reinterpret_cast<uintptr_t>(buf), 0x100);
-                        auto disam = Debugger::Disassembly(!processWidget_.GetPluginProcessItem().IsWow64(), pDbg->ctx.Rip - 0x50, buf, sizeof(buf));
+                        MemStub::ReadMemory(processWidget_.GetPluginProcessItem().GetPid(), pDbg->ctx.Rip - 0x50, reinterpret_cast<uintptr_t>(buf), sizeof(buf));
+                        bool isWow64 = processWidget_.GetPluginProcessItem().IsWow64();
+                        auto disam = Debugger::Disassembly(!isWow64, pDbg->ctx.Rip - 0x50, buf, sizeof(buf));
                         for (int i = 0; i < disam.size(); i++)
                         {
                             if (disam[i][0] == utils::conver::IntegerTohex(pDbg->ctx.Rip))

@@ -3,6 +3,9 @@
 SIZE_T s_TotalSize = 0;
 ZydisDecoder Decoder = { 0 };
 
+
+EXTERN_C ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode, ZydisStackWidth stack_width);
+
 PVOID
 RINAPI
 RinAllocateMemory(

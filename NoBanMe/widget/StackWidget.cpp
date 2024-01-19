@@ -1,6 +1,6 @@
 #include "StackWidget.h"
 #include <filesystem>
-#include "../utils/utils.h"
+#include "../../common/utils/utils.h"
 #include "../render/render.h"
 
 void StackWidget::OnPaint()
@@ -32,7 +32,7 @@ void StackWidget::OnPaint()
 		}
 	}
 
-	if (selected != -1)
+	if (selected_ != -1)
 	{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
 			ImGui::OpenPopup("stack_option");
@@ -45,17 +45,17 @@ void StackWidget::OnPaint()
 				{
 					case 0:
 					{
-						utils::normal::CopyStringToClipboard(text[selected][0].c_str());
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(),text[selected_][0].c_str());
 						break;
 					}
 					case 1:
 					{
-						utils::normal::CopyStringToClipboard(text[selected][1].c_str());
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), text[selected_][1].c_str());
 						break;
 					}
 					case 2:
 					{
-						utils::normal::CopyStringToClipboard(text[selected][2].c_str());
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), text[selected_][2].c_str());
 						break;
 					}
 				}
@@ -65,8 +65,8 @@ void StackWidget::OnPaint()
 					case 0:
 					{
 						char buff[8192]{};
-						sprintf_s(buff, "%d | %s | %s", text[selected][0].c_str(), text[selected][1].c_str(), text[selected][2].c_str());
-						utils::normal::CopyStringToClipboard(buff);
+						sprintf_s(buff, "%d | %s | %s", text[selected_][0].c_str(), text[selected_][1].c_str(), text[selected_][2].c_str());
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(),buff);
 						break;
 					}
 				}
@@ -76,7 +76,7 @@ void StackWidget::OnPaint()
 		}
 	}
 
-	render::get_instasnce()->AddListBox("##Stack", selected, 0, headers, text);
+	render::get_instasnce()->AddListBox("##Stack", selected_, 0, headers, text);
 }
 
 
@@ -86,7 +86,7 @@ void StackWidget::SetDataSource(uint32_t pid,std::vector<uint8_t> data,uint64_t 
 	{
 		mitems_.clear();
 		ModuleItem::EnumPidModules(pid_, mitems_);
-		selected = -1;
+		selected_ = -1;
 	}
 
 	pid_ = pid;

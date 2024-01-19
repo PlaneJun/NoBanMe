@@ -7,13 +7,11 @@
 #include "../resource.h"
 #include "../IconsFontAwesome5.h"
 
-
 render* render::instance_ = NULL;
 uint32_t render::ResizeWidth_ = 0;
 uint32_t render::ResizeHeight_ = 0;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 
 void render::CreateRenderTarget()
 {

@@ -1,0 +1,20 @@
+﻿  log.cpp
+  memstub.cpp
+D:\Code\C_C++\me\NoBanMe\common\mem\memstub.cpp(123,27): warning C4267: “=”: 从“size_t”转换到“DWORD”，可能丢失数据
+  pefile.cpp
+D:\Code\C_C++\me\NoBanMe\common\pe\pefile.cpp(142,21): warning C4018: “<”: 有符号/无符号不匹配
+D:\Code\C_C++\me\NoBanMe\common\pe\pefile.cpp(168,37): warning C4244: “+=”: 从“uint64_t”转换到“uint32_t”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\pe\pefile.cpp(191,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\Code\C_C++\me\NoBanMe\common\pe\pefile.cpp(206,57): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+  pipe.cpp
+D:\Code\C_C++\me\NoBanMe\common\pipe\pipe.cpp(74,62): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\log\log.h(20,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\pipe\pipe.cpp(10): message : 查看对正在编译的函数 模板 实例化“void Log::WriteLog<DWORD>(const char *,const char *,DWORD)”的引用
+  utils.cpp
+D:\Code\C_C++\me\NoBanMe\common\utils\utils.cpp(51,91): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\utils\utils.cpp(54,85): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\utils\utils.cpp(66,77): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\utils\utils.cpp(69,71): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Code\C_C++\me\NoBanMe\common\utils\utils.cpp(83,76): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+  正在生成代码...
+  common.vcxproj -> D:\Code\C_C++\me\NoBanMe\build\common.lib

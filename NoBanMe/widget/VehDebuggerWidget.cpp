@@ -1,6 +1,6 @@
 #include "VehDebuggerWidget.h"
-#include "../3rdParty/imgui/Imgui_text_editor.h"
-#include "../utils/utils.h"
+#include "../../3part/imgui/Imgui_text_editor.h"
+#include "../../common/utils/utils.h"
 #include "../global.h"
 
 void VehDebuggerWidget::OnPaint()

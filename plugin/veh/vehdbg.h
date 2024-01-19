@@ -8,13 +8,13 @@ class vehdbg
 public:
 	using cbDbgHandler = void(*)(uint8_t, PCONTEXT&);
 
-	enum DBG_TYPE
+	enum DBG_TYPE : uint32_t
 	{
 		TYPE_EXECUTE,
 		TYPE_READWRITE,
 		TYPE_WRITE
 	};
-	enum DBG_SIZE
+	enum DBG_SIZE : uint32_t
 	{
 		SIZE_1,
 		SIZE_2,

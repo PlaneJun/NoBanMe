@@ -1,5 +1,6 @@
 #include "vehhandler.h"
-#include "../mem/memstub.h"
+#include "../../common/mem/memstub.h"
+#include "../../common/nativeStruct.h"
 #include "../defs.h"
 
 const ImGuiTableSortSpecs* VehHandlerItem::s_current_sort_specs_ = nullptr;

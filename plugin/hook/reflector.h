@@ -2,8 +2,13 @@
 #define _REFLECTOR_H_
 
 #include <windows.h>
-#define ZYDIS_STATIC_BUILD
-#include "../3rdParty/Zydis/Zydis.h"
+#include "../../common/zydis/Zydis.h"
+
+
+//EXTERN_C ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode, ZydisStackWidth stack_width);
+//EXTERN_C ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder, const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction, ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT]);
+//EXTERN_C ZyanStatus ZydisEncoderEncodeInstruction(const ZydisEncoderRequest* request, void* buffer, ZyanUSize* length);
+//EXTERN_C ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands, ZyanU8 operand_count, ZydisEncoderRequest* request);
 
 #ifdef __cplusplus
 extern "C" {

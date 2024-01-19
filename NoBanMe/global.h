@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "pipe/pipe.h"
+#include "../common/pipe/pipe.h"
 
 namespace global
 {

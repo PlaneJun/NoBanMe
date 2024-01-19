@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <tlhelp32.h>
 #include <Psapi.h>
-#include "../nativeStruct.h"
+#include "../../common/nativeStruct.h"
 
 const ImGuiTableSortSpecs* ThreadItem::s_current_sort_specs_ = nullptr;
 

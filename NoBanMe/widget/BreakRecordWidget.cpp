@@ -3,7 +3,7 @@
 #include <string>
 #include <imgui.h>
 #include "../render/render.h"
-#include "../utils/utils.h"
+#include "../../common/utils/utils.h"
 
 void BreakRecordWidget::OnPaint()
 {
@@ -46,17 +46,17 @@ void BreakRecordWidget::OnPaint()
                 {
                     case 0:
                     {
-                        utils::normal::CopyStringToClipboard(std::to_string(ChooseRecord_.count).c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), std::to_string(ChooseRecord_.count).c_str());
                         break;
                     }
                     case 1:
                     {
-                        utils::normal::CopyStringToClipboard(ChooseRecord_.text.c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), ChooseRecord_.text.c_str());
                         break;
                     }
                     case 2:
                     {
-                        utils::normal::CopyStringToClipboard(ChooseRecord_.dbginfo.disassembly);
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), ChooseRecord_.dbginfo.disassembly);
                         break;
                     }
                 }
@@ -67,7 +67,7 @@ void BreakRecordWidget::OnPaint()
                     {
                         char buff[8192]{};
                         sprintf_s(buff, "%d | %s | %s", ChooseRecord_.count, ChooseRecord_.text.c_str(), ChooseRecord_.dbginfo.disassembly);
-                        utils::normal::CopyStringToClipboard(buff);
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), buff);
                         break;
                     }
                     case 1:
@@ -79,7 +79,7 @@ void BreakRecordWidget::OnPaint()
                             sprintf_s(buff, "%d | %s | %s", i.second.count, i.second.text.c_str(), i.second.dbginfo.disassembly);
                             ret += buff;
                         }
-                        utils::normal::CopyStringToClipboard(ret.c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), ret.c_str());
                         break;
                     }
                 }

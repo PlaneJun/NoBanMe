@@ -1,7 +1,7 @@
 #include "module.h"
 #include <Windows.h>
 #include <tlhelp32.h>
-#include "../utils/utils.h"
+#include "../../common/utils/utils.h"
 
 const ImGuiTableSortSpecs* ModuleItem::s_current_sort_specs_ = nullptr;
 

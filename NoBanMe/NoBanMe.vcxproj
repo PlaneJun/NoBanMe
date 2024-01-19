@@ -122,12 +122,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./3rdParty/imgui;./3rdParty/Zydis</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3part/imgui;../3part/Zydis</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>../build/common.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,8 +141,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./3rdParty/imgui;./3rdParty/Zydis</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3part/imgui;../3part/Zydis</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,23 +153,20 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>../build/common.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="3rdParty\imgui\imgui.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="3rdParty\imgui\Imgui_text_editor.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_theme.cpp" />
-    <ClCompile Include="3rdParty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="3rdParty\Zydis\Zydis.c" />
-    <ClCompile Include="lua\luaApi.cpp" />
-    <ClCompile Include="lua\luaScript.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\3part\imgui\Imgui_text_editor.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_theme.cpp" />
+    <ClCompile Include="..\3part\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mem\memstub.cpp" />
     <ClCompile Include="module\debugger.cpp" />
     <ClCompile Include="module\hooks.cpp" />
     <ClCompile Include="module\memory.cpp" />
@@ -173,12 +175,7 @@
     <ClCompile Include="module\thread.cpp" />
     <ClCompile Include="module\vehhandler.cpp" />
     <ClCompile Include="module\window.cpp" />
-    <ClCompile Include="pdb\EasyPdb.cpp" />
-    <ClCompile Include="pdb\md5.cpp" />
-    <ClCompile Include="pe\pefile.cpp" />
-    <ClCompile Include="pipe\pipe.cpp" />
     <ClCompile Include="render\render.cpp" />
-    <ClCompile Include="utils\utils.cpp" />
     <ClCompile Include="widget\BreakRecordWidget.cpp" />
     <ClCompile Include="widget\ContextWidget.cpp" />
     <ClCompile Include="widget\DisassemblyWidget.cpp" />
@@ -193,27 +190,22 @@
     <ClCompile Include="widget\ThreadWidget.cpp" />
     <ClCompile Include="widget\VehDebuggerWidget.cpp" />
     <ClCompile Include="widget\WindowsWidget.cpp" />
-    <ClCompile Include="zydis\zydis_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="3rdParty\imgui\imconfig.h" />
-    <ClInclude Include="3rdParty\imgui\imgui.h" />
-    <ClInclude Include="3rdParty\imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="3rdParty\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="3rdParty\imgui\imgui_internal.h" />
-    <ClInclude Include="3rdParty\imgui\imgui_memory_editor.h" />
-    <ClInclude Include="3rdParty\imgui\Imgui_text_editor.h" />
-    <ClInclude Include="3rdParty\imgui\imgui_theme.h" />
-    <ClInclude Include="3rdParty\imgui\imstb_rectpack.h" />
-    <ClInclude Include="3rdParty\imgui\imstb_textedit.h" />
-    <ClInclude Include="3rdParty\imgui\imstb_truetype.h" />
-    <ClInclude Include="3rdParty\Zydis\Zydis.h" />
+    <ClInclude Include="..\3part\imgui\imconfig.h" />
+    <ClInclude Include="..\3part\imgui\imgui.h" />
+    <ClInclude Include="..\3part\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="..\3part\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="..\3part\imgui\imgui_internal.h" />
+    <ClInclude Include="..\3part\imgui\imgui_memory_editor.h" />
+    <ClInclude Include="..\3part\imgui\Imgui_text_editor.h" />
+    <ClInclude Include="..\3part\imgui\imgui_theme.h" />
+    <ClInclude Include="..\3part\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\3part\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\3part\imgui\imstb_truetype.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
-    <ClInclude Include="lua\luaApi.h" />
-    <ClInclude Include="lua\luaScript.h" />
-    <ClInclude Include="mem\memstub.h" />
     <ClInclude Include="module\debugger.h" />
     <ClInclude Include="module\hooks.h" />
     <ClInclude Include="module\memory.h" />
@@ -223,15 +215,9 @@
     <ClInclude Include="module\vehhandler.h" />
     <ClInclude Include="module\window.h" />
     <ClInclude Include="ntStruct.h" />
-    <ClInclude Include="pdb\EasyPdb.h" />
-    <ClInclude Include="pdb\md5.h" />
-    <ClInclude Include="pe\pefile.h" />
-    <ClInclude Include="pipe\pipe.h" />
     <ClInclude Include="render\render.h" />
     <ClInclude Include="render\stb_image.h" />
-    <ClInclude Include="nativeStruct.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="utils\utils.h" />
     <ClInclude Include="widget\BreakRecordWidget.h" />
     <ClInclude Include="widget\ContextWidget.h" />
     <ClInclude Include="widget\DisassemblyWidget.h" />
@@ -246,7 +232,6 @@
     <ClInclude Include="widget\ThreadWidget.h" />
     <ClInclude Include="widget\VehDebuggerWidget.h" />
     <ClInclude Include="widget\WindowsWidget.h" />
-    <ClInclude Include="zydis\zydis_wrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NoBanMe.rc" />

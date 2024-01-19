@@ -1,11 +1,14 @@
 #include <mutex>
 #include <Windows.h>
 #include <DbgHelp.h>
-#include "./callback/InstrumentationCallback.hpp"
 #include "./veh/vehdbg.h"
-#include "./pipe/pipe.h"
 #include "./hook/safehook.h"
-#include "defs.h"
+#include "./callback/InstrumentationCallback.hpp"
+
+#include "../common/pipe/pipe.h"
+#include "../common/ipc_ctrl.h"
+#include "../common/log/log.h"
+
 
 
 HMODULE g_hModule;
@@ -13,7 +16,6 @@ PipeCom g_plugin;
 vehdbg g_vehdbg;
 safehook g_hook;
 
-#define PIPE_NAME L"\\\\.\\pipe\\NoBanMe"
 
 void syscall_cb(PCONTEXT Context )
 {
@@ -49,29 +51,34 @@ void vehexception_cb(uint8_t id,PCONTEXT& ctx)
 {
 	static std::mutex lock;
 	std::pair<vehdbg::DBG_PARAMS, bool> hbk{};
-	if (g_vehdbg.get_hardBreak_by_index(id, hbk) && hbk.second)
+	if (g_vehdbg.get_hardBreak_by_index(id, hbk))
 	{
-		lock.lock();
-		DbgBreakInfo dbginfo{};
-		dbginfo.id = id;
-		dbginfo.type = EDataType::DEBG;
-		dbginfo.addr = hbk.first.address;
-		dbginfo.ctx = *ctx;
-		memcpy(dbginfo.stack, (PVOID)ctx->Rsp, sizeof(dbginfo.stack));
-		if (hbk.first.type == vehdbg::DBG_TYPE::TYPE_EXECUTE)
+		if (hbk.second)
 		{
-			//取消断点
-			if (id == 0)
-				ctx->Dr7 &= ~1;
-			else if (id == 1)
-				ctx->Dr7 &= ~2;
-			else if (id == 2)
-				ctx->Dr7 &= ~0x10;
-			else if (id == 3)
-				ctx->Dr7 &= ~0x40;
+			lock.lock();
+			DbgBreakInfo dbginfo{};
+			dbginfo.id = id;
+			dbginfo.type = EDataType::DEBG;
+			dbginfo.addr = hbk.first.address;
+			dbginfo.ctx = *ctx;
+			memcpy(dbginfo.stack, (PVOID)ctx->Rsp, sizeof(dbginfo.stack));
+			if (hbk.first.type == vehdbg::DBG_TYPE::TYPE_EXECUTE)
+			{
+				//取消断点
+				if (id == 0)
+					ctx->Dr7 &= ~1;
+				else if (id == 1)
+					ctx->Dr7 &= ~2;
+				else if (id == 2)
+					ctx->Dr7 &= ~0x10;
+				else if (id == 3)
+					ctx->Dr7 &= ~0x40;
+			}
+			MSG_LOG("id=%d addr=%p", dbginfo.id, dbginfo.addr);
+			g_plugin.write_buffer((char*)&dbginfo, sizeof(DbgBreakInfo));
+			lock.unlock();
 		}
-		g_plugin.write_buffer((char*)&dbginfo, sizeof(DbgBreakInfo));
-		lock.unlock();
+		
 	}
 }
 
@@ -104,7 +111,12 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 		}
 		case pipe_client_connect:
 		{
-			g_plugin.client_disconnect(PIPE_NAME);
+			g_plugin.client_connect();
+			break;
+		}
+		case pipe_client_close:
+		{
+			g_plugin.client_disconnect();
 			break;
 		}
 		case syscallmonitor_init:
@@ -149,14 +161,9 @@ extern "C" __declspec(dllexport) void Dispatch(PControlCmd cmd)
 			g_vehdbg.close();
 			break;
 		}
-		case pipe_client_close:
-		{
-			g_plugin.client_connect(PIPE_NAME);
-			break;
-		}
 		case veh_set_dr:
 		{
-			int i = g_vehdbg.set_break(cmd->dr_index,cmd->hardbread.addr, cmd->hardbread.size, cmd->hardbread.type);
+			int i = g_vehdbg.set_break(cmd->dr_index,cmd->hardbread.addr, (vehdbg::DBG_SIZE)cmd->hardbread.size, (vehdbg::DBG_TYPE)cmd->hardbread.type);
 			break;
 		}
 		case veh_unset_dr:
@@ -215,7 +222,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
 		g_hModule = hModule;
-		
 	}
 	return TRUE;
 }

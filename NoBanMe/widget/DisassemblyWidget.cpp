@@ -1,8 +1,8 @@
 #include "DisassemblyWidget.h"
 #include <imgui.h>
 #include "../render/render.h"
-#include "../utils/utils.h"
-#include "../mem/memstub.h"
+#include "../../common/utils/utils.h"
+#include "../../common/mem/memstub.h"
 #include "../module/debugger.h"
 
 int DisassemblyWidget::GetSelected()
@@ -51,7 +51,7 @@ void DisassemblyWidget::OnPaint()
     char title[256]{};
     sprintf_s(title, u8"反汇编\t 模块:%s", curtModule.c_str());
 	ImGui::SeparatorText(title);
-    if (ImGui::BeginTable("#disassembly", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
+    if (ImGui::BeginTable("#disassembly", 3,  ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersV, ImVec2(0.0f, 0), 0.0f))
     {
         ImGui::TableSetupColumn(u8"地址", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn(u8"字节码", ImGuiTableColumnFlags_WidthFixed);
@@ -136,83 +136,81 @@ void DisassemblyWidget::OnPaint()
             dissambly_jmp_ = 0;//无论有没有找到都设置为0
         }
 
-        if (selected_ != -1)
-        {
-            if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
-                ImGui::OpenPopup("disassembly_option");
 
-            bool openJmpToInputAddress = false;
-            if (ImGui::BeginPopup("disassembly_option"))
-            {
-                switch (int s = render::get_instasnce()->DrawItemBlock({ u8"跳转到" }))
-                {
-                    case 0:
-                    {
-                        openJmpToInputAddress = true;
-                        break;
-                    }
-                }
-                if (ImGui::BeginMenu(u8"复制"))
-                {
-                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"地址",u8"字节码",u8"指令" }))
-                    {
-                        case 0:
-                        {
-                            utils::normal::CopyStringToClipboard(dissambly_block_[selected_][0].c_str());
-                            break;
-                        }
-                        case 1:
-                        {
-                            utils::normal::CopyStringToClipboard(dissambly_block_[selected_][1].c_str());
-                            break;
-                        }
-                        case 2:
-                        {
-                            utils::normal::CopyStringToClipboard(dissambly_block_[selected_][2].c_str());
-                            break;
-                        }
-                    }
-                    ImGui::Separator();
-                    switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行" }))
-                    {
-                        case 0:
-                        {
-                            char buff[8192]{};
-                            sprintf_s(buff, "%d | %s | %s", dissambly_block_[selected_][0].c_str(), dissambly_block_[selected_][1].c_str(), dissambly_block_[selected_][2].c_str());
-                            utils::normal::CopyStringToClipboard(buff);
-                            break;
-                        }
-                    }
-                    ImGui::EndMenu();
-                }
-                ImGui::EndPopup();
-            }
-            if (openJmpToInputAddress)
-            {
-                openJmpToInputAddress = false;
-                ImGui::OpenPopup("JmpToInputAddress");
-                ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-                ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-            }
+		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
+			ImGui::OpenPopup("disassembly_option");
 
-            if (ImGui::BeginPopupModal("JmpToInputAddress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-            {
-                ImGui::Text(u8"输入要跳转的地址");
-                ImGui::Separator();
-                static char buf[100]{};
-                ImGui::InputText("##JmpToInputAddress", buf, 100, ImGuiInputTextFlags_CharsHexadecimal);
-                if (ImGui::Button(u8"确认", ImVec2(120, 0)))
-                {
-                    dissambly_jmp_ = utils::conver::hexToInteger(buf);
-                    SetData(DataSource_, dissambly_jmp_);
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::SetItemDefaultFocus();
-                ImGui::SameLine();
-                if (ImGui::Button(u8"取消", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-                ImGui::EndPopup();
-            }
-        }
+		bool openJmpToInputAddress = false;
+		if (ImGui::BeginPopup("disassembly_option"))
+		{
+			switch (int s = render::get_instasnce()->DrawItemBlock({ u8"跳转到" }))
+			{
+				case 0:
+				{
+					openJmpToInputAddress = true;
+					break;
+				}
+			}
+			if (ImGui::BeginMenu(u8"复制"))
+			{
+				switch (int s = render::get_instasnce()->DrawItemBlock({ u8"地址",u8"字节码",u8"指令" }))
+				{
+					case 0:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), dissambly_block_[selected_][0].c_str());
+						break;
+					}
+					case 1:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), dissambly_block_[selected_][1].c_str());
+						break;
+					}
+					case 2:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), dissambly_block_[selected_][2].c_str());
+						break;
+					}
+				}
+				ImGui::Separator();
+				switch (int s = render::get_instasnce()->DrawItemBlock({ u8"整行" }))
+				{
+					case 0:
+					{
+						char buff[8192]{};
+						sprintf_s(buff, "%d | %s | %s", dissambly_block_[selected_][0].c_str(), dissambly_block_[selected_][1].c_str(), dissambly_block_[selected_][2].c_str());
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), buff);
+						break;
+					}
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndPopup();
+		}
+		if (openJmpToInputAddress)
+		{
+			openJmpToInputAddress = false;
+			ImGui::OpenPopup("JmpToInputAddress");
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		}
+
+		if (ImGui::BeginPopupModal("JmpToInputAddress", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text(u8"输入要跳转的地址");
+			ImGui::Separator();
+			static char buf[100]{};
+			ImGui::InputText("##JmpToInputAddress", buf, 100, ImGuiInputTextFlags_CharsHexadecimal);
+			if (ImGui::Button(u8"确认", ImVec2(120, 0)))
+			{
+				dissambly_jmp_ = utils::conver::hexToInteger(buf);
+				SetData(DataSource_, dissambly_jmp_);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SetItemDefaultFocus();
+			ImGui::SameLine();
+			if (ImGui::Button(u8"取消", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::EndPopup();
+		}
         ImGui::EndTable();
     }
 }

@@ -1,8 +1,9 @@
 #include "ThreadWidget.h"
 #include <imgui.h>
 #include <tchar.h>
+#include "../render/render.h"
 #include "../module/process.h"
-#include "../utils/utils.h"
+#include "../../common/utils/utils.h"
 void ThreadWidget::OnPaint()
 {
     if (!show_)
@@ -58,7 +59,45 @@ void ThreadWidget::OnPaint()
         }
         ImGui::EndTable();
     }
-    ImGui::End();
+
+	if (selected_ != -1)
+	{
+		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(1))
+			ImGui::OpenPopup("thread_option");
+
+		if (ImGui::BeginPopup("thread_option"))
+		{
+            if (ImGui::BeginMenu(u8"复制"))
+            {
+				switch (int s = render::get_instasnce()->DrawItemBlock({ u8"线程ID",u8"线程入口",u8"优先级",u8"所属模块" }))
+				{
+					case 0:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), std::to_string(DataSource_[selected_].GetThreadId()).c_str());
+						break;
+					}
+					case 1:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), utils::conver::IntegerTohex(DataSource_[selected_].GetThreadEntry()).c_str());
+						break;
+					}
+					case 2:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), std::to_string(DataSource_[selected_].GetPrority()).c_str());
+						break;
+					}
+					case 3:
+					{
+						utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetModulePath().c_str());
+						break;
+					}
+				}
+                ImGui::EndMenu();
+            }
+			ImGui::EndPopup();
+		}
+	}
+	ImGui::End();
 }
 
 void ThreadWidget::SetDataSource(uint32_t pid)

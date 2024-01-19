@@ -1,6 +1,6 @@
 ﻿
 #include <filesystem>
-#include "pdb/EasyPdb.h"
+#include "../common/pdb/EasyPdb.h"
 #include "ntStruct.h"
 #include "widget/MainWidget.h"
 #include "render/render.h"

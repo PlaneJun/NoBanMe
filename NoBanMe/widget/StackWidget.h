@@ -11,7 +11,7 @@ public:
 	void SetDataSource(uint32_t pid, std::vector<uint8_t> data, uint64_t rsp);
 
 private:
-	int selected = -1;
+	int selected_ = -1;
 	uint32_t pid_;
 	std::vector<uint8_t> DataSource_;
 	std::vector<ModuleItem> mitems_;

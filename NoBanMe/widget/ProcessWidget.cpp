@@ -1,9 +1,9 @@
 #include <filesystem>
 #include "ProcessWidget.h"
 #include <imgui.h>
-#include "../utils/utils.h"
+#include "../../common/utils/utils.h"
 #include "../render/render.h"
-#include "../mem/memstub.h"
+#include "../../common/mem/memstub.h"
 #include "../global.h"
 
 void ProcessWidget::OnPaint()
@@ -191,7 +191,7 @@ void ProcessWidget::OnPaint()
                 if (s >= 0)
                 {
                     std::string dllPath{};
-                    dllPath = utils::file::openFileDlg();
+                    dllPath = utils::file::openFileDlg(render::get_instasnce()->GetHwnd());
                     if (dllPath.empty())
                     {
                         MessageBoxA(NULL, "Dll路径有误，注入失败", "NoBanMe", NULL);
@@ -277,28 +277,28 @@ void ProcessWidget::OnPaint()
                                     global::dbg::Dr->statue = 0; //这里设置0，OnUpdate会自动删除断点
                                 Sleep(500);
                                 //2)、清除veh
-                                if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::veh_uninstall }))
+                                if (!utils::mem::InvokeRemoteFunction(pluginProcess_.GetPid(), global::plugin::lpPluginDispatch, { ECMD::veh_uninstall }))
                                 {
                                     MessageBoxA(NULL, "启用插件失败[1]!", NULL, NULL);
                                     can = false;
                                     break;
                                 }
                                 //3)、清除syscall
-                                if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::syscallmonitor_uninstall }))
+                                if (!utils::mem::InvokeRemoteFunction(pluginProcess_.GetPid(), global::plugin::lpPluginDispatch, { ECMD::syscallmonitor_uninstall }))
                                 {
                                     MessageBoxA(NULL, "启用插件失败[2]!", NULL, NULL);
                                     can = false;
                                     break;
                                 }
                                 //3)、清除pipe
-                                if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::pipe_client_close }))
+                                if (!utils::mem::InvokeRemoteFunction(pluginProcess_.GetPid(), global::plugin::lpPluginDispatch, { ECMD::pipe_client_close }))
                                 {
                                     MessageBoxA(NULL, "启用插件失败[3]!", NULL, NULL);
                                     can = false;
                                     break;
                                 }
                                 //3)、清除plugin
-                                if (!utils::mem::InvokePluginFunction(pluginProcess_.GetPid(), { ECMD::plugin_uninstall }))
+                                if (!utils::mem::InvokeRemoteFunction(pluginProcess_.GetPid(), global::plugin::lpPluginDispatch, { ECMD::plugin_uninstall }))
                                 {
                                     MessageBoxA(NULL, "启用插件失败[4]!", NULL, NULL);
                                     can = false;
@@ -324,18 +324,18 @@ void ProcessWidget::OnPaint()
                                     MessageBoxA(NULL, "注入插件失败!", "NoBanMe", NULL);
                                     break;
                                 }
-                                if (!global::plugin::plugin_.create(L"\\\\.\\pipe\\NoBanMe"))
+                                if (!global::plugin::plugin_.create())
                                 {
                                     MessageBoxA(NULL, "创建管道失败!", "NoBanMe", NULL);
                                     break;
                                 }
                                 global::plugin::lpPluginDispatch = reinterpret_cast<uint64_t>(plugin_base) + Offset_Dispatch;
-                                if (!utils::mem::InvokePluginFunction(DataSource_[selected_].GetPid(), { ECMD::pipe_client_connect }))
+                                if (!utils::mem::InvokeRemoteFunction(DataSource_[selected_].GetPid(), global::plugin::lpPluginDispatch, { ECMD::pipe_client_connect }))
                                 {
                                     MessageBoxA(NULL, "连接管道失败!", NULL, NULL);
                                     break;
                                 }
-                                if (!utils::mem::InvokePluginFunction(DataSource_[selected_].GetPid(), { ECMD::veh_init }))
+                                if (!utils::mem::InvokeRemoteFunction(DataSource_[selected_].GetPid(), global::plugin::lpPluginDispatch, { ECMD::veh_init }))
                                 {
                                     MessageBoxA(NULL, "初始化插件失败!", NULL, NULL);
                                     break;
@@ -359,47 +359,47 @@ void ProcessWidget::OnPaint()
                 {
                     case 0:
                     {
-                        utils::normal::CopyStringToClipboard(std::to_string(DataSource_[selected_].GetPid()).c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), std::to_string(DataSource_[selected_].GetPid()).c_str());
                         break;
                     }
                     case 1:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetName().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetName().c_str());
                         break;
                     }
                     case 2:
                     {
-                        utils::normal::CopyStringToClipboard(std::to_string(DataSource_[selected_].GetPPid()).c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), std::to_string(DataSource_[selected_].GetPPid()).c_str());
                         break;
                     }
                     case 3:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetStartUpTime().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetStartUpTime().c_str());
                         break;
                     }
                     case 4:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetDecription().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetDecription().c_str());
                         break;
                     }
                     case 5:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetCompanyName().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetCompanyName().c_str());
                         break;
                     }
                     case 6:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetFileVersion().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetFileVersion().c_str());
                         break;
                     }
                     case 7:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetFullPath().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetFullPath().c_str());
                         break;
                     }
                     case 8:
                     {
-                        utils::normal::CopyStringToClipboard(DataSource_[selected_].GetCmdLine().c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), DataSource_[selected_].GetCmdLine().c_str());
                         break;
                     }
                 }
@@ -414,7 +414,7 @@ void ProcessWidget::OnPaint()
                             DataSource_[selected_].GetStartUpTime().c_str(), DataSource_[selected_].GetDecription().c_str(),
                             DataSource_[selected_].GetCompanyName().c_str(), DataSource_[selected_].GetFileVersion().c_str(),
                             DataSource_[selected_].GetFullPath().c_str(), DataSource_[selected_].GetCmdLine().c_str());
-                        utils::normal::CopyStringToClipboard(buff);
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), buff);
                         break;
                     }
                     case 1:
@@ -430,7 +430,7 @@ void ProcessWidget::OnPaint()
                                 p.GetFullPath().c_str(), p.GetCmdLine().c_str());
                             ret += buff;
                         }
-                        utils::normal::CopyStringToClipboard(ret.c_str());
+                        utils::normal::CopyStringToClipboard(render::get_instasnce()->GetHwnd(), ret.c_str());
                         break;
                     }
                 }
