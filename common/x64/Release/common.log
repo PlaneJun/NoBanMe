@@ -1,5 +1,0 @@
-﻿  pipe.cpp
-D:\Code\C_C++\me\NoBanMe\common\pipe\pipe.cpp(69,62): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
-D:\Code\C_C++\me\NoBanMe\common\log\log.h(20,1): warning C4267: “参数”: 从“size_t”转换到“DWORD”，可能丢失数据
-D:\Code\C_C++\me\NoBanMe\common\pipe\pipe.cpp(11): message : 查看对正在编译的函数 模板 实例化“void Log::WriteLog<DWORD>(const char *,const char *,DWORD)”的引用
-  common.vcxproj -> D:\Code\C_C++\me\NoBanMe\build\common.lib

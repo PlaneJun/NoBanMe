@@ -5,14 +5,14 @@
 #include "./hook/safehook.h"
 #include "./callback/InstrumentationCallback.hpp"
 
-#include "../common/pipe/pipe.h"
+#include "../common/ipc/ipc.h"
 #include "../common/ipc_ctrl.h"
 #include "../common/log/log.h"
 
 
 
 HMODULE g_hModule;
-PipeCom g_plugin;
+IPCCom g_plugin;
 vehdbg g_vehdbg;
 safehook g_hook;
 
@@ -74,7 +74,6 @@ void vehexception_cb(uint8_t id,PCONTEXT& ctx)
 				else if (id == 3)
 					ctx->Dr7 &= ~0x40;
 			}
-			MSG_LOG("id=%d addr=%p", dbginfo.id, dbginfo.addr);
 			g_plugin.write_buffer((char*)&dbginfo, sizeof(DbgBreakInfo));
 			lock.unlock();
 		}

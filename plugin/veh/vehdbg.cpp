@@ -21,7 +21,6 @@ LONG NTAPI ExceptionHandler(_EXCEPTION_POINTERS* ExceptionInfo)
 
 		if (index != 6)
 		{
-			MSG_LOG("enter Handler");
 			vehdbg::Dispatch(index, ExceptionInfo->ContextRecord);
 		}
 		return EXCEPTION_CONTINUE_EXECUTION;
@@ -169,11 +168,10 @@ int vehdbg::set_break(uint8_t dr_index, uint64_t addr, DBG_SIZE len, DBG_TYPE ty
 			if (len == SIZE_8)
 				le = 2;
 
-			MSG_LOG("befor: tid = %x Dr7=%p index=%d st=%d le=%d", threadInfo.th32ThreadID, ctx.Dr7,dr_index,st,le);
 			set_bits(ctx.Dr7, 16 + dr_index * 4, 2, st);
 			set_bits(ctx.Dr7, 18 + dr_index * 4, 2, le);
 			set_bits(ctx.Dr7, dr_index * 2, 1, 1);
-			MSG_LOG("after: tid = %x Dr7=%p index=%d st=%d le=%d", threadInfo.th32ThreadID, ctx.Dr7, dr_index, st, le);
+			MSG_LOG("tid = %x Dr7=%p index=%d st=%d le=%d", threadInfo.th32ThreadID, ctx.Dr7, dr_index, st, le);
 			if (!SetThreadContext(hThread, &ctx))
 			{
 				MSG_LOG("set thread ctx fail. err %d", GetLastError());

@@ -1,0 +1,12 @@
+﻿reflector.obj : warning LNK4075: 忽略“/EDITANDCONTINUE”(由于“/INCREMENTAL:NO”规范)
+    正在创建库 C:\Users\SuperRong\Desktop\Todo\NoBanMe\build\plugin_64.lib 和对象 C:\Users\SuperRong\Desktop\Todo\NoBanMe\build\plugin_64.exp
+LINK : warning LNK4098: 默认库“MSVCRTD”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+LINK : warning LNK4217: 符号“ZydisDecoderDecodeFull”(在“ common.lib(Zydis.obj)”中定义)已由“reflector.obj”(函数“BuildAnalyzerTable”中)导入
+LINK : warning LNK4217: 符号“ZydisEncoderEncodeInstruction”(在“ common.lib(Zydis.obj)”中定义)已由“reflector.obj”(函数“BuildInstructionFromRequest”中)导入
+LINK : warning LNK4217: 符号“ZydisEncoderDecodedInstructionToEncoderRequest”(在“ common.lib(Zydis.obj)”中定义)已由“reflector.obj”(函数“BuildAnalyzerTable”中)导入
+LINK : warning LNK4217: 符号“_wassert”(在“ libucrtd.lib(assert.obj)”中定义)已由“common.lib(Zydis.obj)”(函数“ZydisFormatterBaseFormatOperandREG”中)导入
+LINK : warning LNK4217: 符号“abort”(在“ libucrtd.lib(abort.obj)”中定义)已由“common.lib(Zydis.obj)”(函数“ZydisAreEvexFeaturesCompatible”中)导入
+LINK : warning LNK4217: 符号“_localtime64_s”(在“ libucrtd.lib(localtime.obj)”中定义)已由“common.lib(ipc.obj)”(函数“localtime_s”中)导入
+LINK : warning LNK4217: 符号“_time64”(在“ libucrtd.lib(time.obj)”中定义)已由“common.lib(ipc.obj)”(函数“time”中)导入
+LINK : warning LNK4217: 符号“__stdio_common_vsprintf_s”(在“ libucrtd.lib(output.obj)”中定义)已由“common.lib(ipc.obj)”(函数“_vsprintf_s_l”中)导入
+  plugin.vcxproj -> C:\Users\SuperRong\Desktop\Todo\NoBanMe\build\plugin_64.dll

@@ -23,6 +23,7 @@
     <ClCompile Include="crypto\compression.cpp" />
     <ClCompile Include="crypto\rc4.cpp" />
     <ClCompile Include="crypto\zbase64.cpp" />
+    <ClCompile Include="ipc\ipc.cpp" />
     <ClCompile Include="log\log.cpp" />
     <ClCompile Include="lua\luaApi.cpp" />
     <ClCompile Include="lua\luaScript.cpp" />
@@ -30,7 +31,6 @@
     <ClCompile Include="mem\memstub.cpp" />
     <ClCompile Include="pdb\EasyPdb.cpp" />
     <ClCompile Include="pe\pefile.cpp" />
-    <ClCompile Include="pipe\pipe.cpp" />
     <ClCompile Include="utils\utils.cpp" />
     <ClCompile Include="zydis\Zydis.c" />
     <ClCompile Include="zydis\zydis_wrapper.cpp" />
@@ -40,6 +40,7 @@
     <ClInclude Include="crypto\compression.h" />
     <ClInclude Include="crypto\rc4.h" />
     <ClInclude Include="crypto\zbase64.h" />
+    <ClInclude Include="ipc\ipc.h" />
     <ClInclude Include="log\log.h" />
     <ClInclude Include="lua\luaApi.h" />
     <ClInclude Include="lua\luaScript.h" />
@@ -48,7 +49,6 @@
     <ClInclude Include="nativeStruct.h" />
     <ClInclude Include="pdb\EasyPdb.h" />
     <ClInclude Include="pe\pefile.h" />
-    <ClInclude Include="pipe\pipe.h" />
     <ClInclude Include="utils\utils.h" />
     <ClInclude Include="zydis\Zydis.h" />
     <ClInclude Include="zydis\zydis_wrapper.h" />
@@ -64,26 +64,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -163,6 +163,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../3part/zlib;../3part/zydis;../3part/lua</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -183,6 +184,7 @@
       <AdditionalIncludeDirectories>../3part/zlib;../3part/zydis;../3part/lua</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>

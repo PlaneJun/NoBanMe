@@ -16,9 +16,6 @@
     <Filter Include="zydis">
       <UniqueIdentifier>{e6b6c10c-b3a2-4017-bade-9221349376d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pipe">
-      <UniqueIdentifier>{6dea8cff-c19c-463b-a8a9-e589df88bfb0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{4f36e23b-010f-444d-90a6-bd8de512f8e1}</UniqueIdentifier>
     </Filter>
@@ -33,6 +30,9 @@
     </Filter>
     <Filter Include="lua">
       <UniqueIdentifier>{14dc497b-0bb9-4f99-a540-01a2064de63b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ipc">
+      <UniqueIdentifier>{6dea8cff-c19c-463b-a8a9-e589df88bfb0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,9 +60,6 @@
     <ClCompile Include="zydis\zydis_wrapper.cpp">
       <Filter>zydis</Filter>
     </ClCompile>
-    <ClCompile Include="pipe\pipe.cpp">
-      <Filter>pipe</Filter>
-    </ClCompile>
     <ClCompile Include="zydis\Zydis.c">
       <Filter>zydis</Filter>
     </ClCompile>
@@ -80,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="lua\luaScript.cpp">
       <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="ipc\ipc.cpp">
+      <Filter>ipc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,9 +107,6 @@
     <ClInclude Include="zydis\zydis_wrapper.h">
       <Filter>zydis</Filter>
     </ClInclude>
-    <ClInclude Include="pipe\pipe.h">
-      <Filter>pipe</Filter>
-    </ClInclude>
     <ClInclude Include="zydis\Zydis.h">
       <Filter>zydis</Filter>
     </ClInclude>
@@ -130,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="lua\luaScript.h">
       <Filter>lua</Filter>
+    </ClInclude>
+    <ClInclude Include="ipc\ipc.h">
+      <Filter>ipc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

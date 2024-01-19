@@ -1,0 +1,8 @@
+﻿  main.cpp
+    正在创建库 C:\Users\SuperRong\Desktop\Todo\NoBanMe\build\plugin_64.lib 和对象 C:\Users\SuperRong\Desktop\Todo\NoBanMe\build\plugin_64.exp
+  正在生成代码
+  11 of 481 functions ( 2.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    9 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  plugin.vcxproj -> C:\Users\SuperRong\Desktop\Todo\NoBanMe\build\plugin_64.dll
